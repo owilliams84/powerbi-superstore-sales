@@ -182,6 +182,7 @@ etl/build_star_schema.py          cleaning and dimensional build, with assertion
 etl/build_model.py                generates the TMDL semantic model
 etl/build_report.py               generates the PBIR report definition, theme and brand mark
 etl/build_web_data.py             emits the compact JSON the milestonebi.com page reads
+etl/publish_to_service.ps1        publishes model + report to a workspace, sets creds, refreshes
 etl/crop_screenshots.py           crops Desktop captures to the report canvas
 etl/check_tmdl.ps1                parses the TMDL with Desktop's own serializer
 etl/refresh_model.ps1             refreshes the open model over its local XMLA endpoint
@@ -196,6 +197,32 @@ Both the model and the report are generated rather than hand-edited. TMDL is ind
 and forbids blank lines inside an object; PBIR wraps every property in an envelope whose type
 suffix is load-bearing. Generating both keeps those rules in one place and lets the schema and the
 pages read as what they are.
+
+## Publishing to the Power BI Service
+
+The model's data sources are literal `raw.githubusercontent.com` URLs, one per CSV, which is what
+lets the published dataset refresh in the cloud **with no on-premises gateway** - the whole reason
+the data is committed rather than read from a local folder.
+
+```bash
+az login
+powershell -File etl/publish_to_service.ps1 -WorkspaceId <guid>
+```
+
+One script does the lot: publishes the semantic model, publishes the report bound to it, sets
+anonymous credentials on all six Web datasources, triggers a refresh and waits for it. Three
+things it knows that cost time to find out:
+
+- **A personal workspace works.** The Fabric item APIs accept a workspace of `"type": "Personal"`
+  - "My workspace" - which the documentation does not say. Get its id from
+  `GET https://api.fabric.microsoft.com/v1/workspaces`; it will not appear in
+  `/v1.0/myorg/groups`, which lists shared workspaces only.
+- **Create is asynchronous, and `az rest` hides the operation id** unless you pass `--verbose`. So
+  the script polls for the *item* instead, for five minutes. A shorter wait reports a failure while
+  the create is still in flight, and the obvious response - run it again - produces a second item
+  with the same name.
+- **`/datasources` returns 404 for a minute or so after the definition lands**, while the dataset
+  finishes provisioning. That is not a missing dataset; it is a dataset that does not exist yet.
 
 ## The same report, on the web
 
