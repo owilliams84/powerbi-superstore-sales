@@ -338,12 +338,17 @@ def slicer(name: str, x: int, y: int, w: int, h: int, z: int, table: str, col: s
     )
 
 
-def table_visual(name: str, x: int, y: int, w: int, h: int, z: int, columns: list[dict],
+def table_visual(name: str, x: int, y: int, w: int, h: int, z: int, fields: list[dict],
                  sort: dict, title: str, subtitle: str | None = None,
                  filters: list | None = None, totals: bool = False) -> dict:
+    """A flat ranked table. Built as a matrix with one row field: on Desktop 2.157 a tableEx
+    generated this way rendered the column fields and silently dropped every measure."""
+    rows = [f for f in fields if "Column" in f["field"]]
+    values = [f for f in fields if "Measure" in f["field"]]
     return visual(
-        name, "tableEx", x, y, w, h, z,
-        query={"queryState": {"Values": {"projections": columns}}, "sortDefinition": sort},
+        name, "pivotTable", x, y, w, h, z,
+        query={"queryState": {"Rows": {"projections": rows}, "Values": {"projections": values}},
+               "sortDefinition": sort},
         objects={
             "grid": [{"properties": {
                 "gridVertical": lit(False), "gridHorizontal": lit(True),
@@ -351,13 +356,17 @@ def table_visual(name: str, x: int, y: int, w: int, h: int, z: int, columns: lis
             }}],
             "columnHeaders": [{"properties": {
                 "fontSize": lit(9.0), "bold": lit(True), "fontColor": colour(INK),
-                "backColor": colour(CARD),
+                "backColor": colour(CARD), "alignment": lit("Right"),
+            }}],
+            "rowHeaders": [{"properties": {
+                "fontSize": lit(9.0), "fontColor": colour(BODY), "backColor": colour(CARD),
             }}],
             "values": [{"properties": {
                 "fontSize": lit(9.0), "fontColorPrimary": colour(BODY),
                 "backColorPrimary": colour(CARD), "backColorSecondary": colour(CARD),
             }}],
-            "total": [{"properties": {"totals": lit(totals)}}],
+            "subTotals": [{"properties": {"rowSubtotals": lit(totals),
+                                          "columnSubtotals": lit(False)}}],
         },
         container=chrome(title, subtitle=subtitle),
         filters=filters,
@@ -419,7 +428,7 @@ SHIP_COLOURS = {"Same Day": GOLD, "First Class": NAVY, "Second Class": SLATE,
                 "Standard Class": LIGHT}
 
 # Slicer geometry, shared so the top right of every page lines up.
-SL_Y, SL_H = 74, 76
+SL_Y, SL_H = 74, 84
 SL1_X, SL2_X, SL_W = 1076, 1246, 170
 
 
@@ -474,37 +483,19 @@ def page_overview() -> tuple[dict, list[dict]]:
                          "November and December carry every year; 2024 is the first to clear $100k in a month"),
     ))
 
-    v.append(visual(
-        "vYears", "tableEx", 940, 284, 476, 300, 610,
-        query={
-            "queryState": {"Values": {"projections": [
-                column("Date", "Year"),
-                m("Sales", "Sales"),
-                m("Sales YoY %", "vs prior year"),
-                m("Orders", "Orders"),
-                m("Customers", "Customers"),
-                m("Average Order Value", "Avg order"),
-            ]}},
-            "sortDefinition": sort_by(column("Date", "Year"), "Ascending"),
-        },
-        objects={
-            "grid": [{"properties": {
-                "gridVertical": lit(False), "gridHorizontal": lit(True),
-                "gridHorizontalColor": colour(RULE), "rowPadding": lit(8),
-            }}],
-            "columnHeaders": [{"properties": {
-                "fontSize": lit(9.0), "bold": lit(True), "fontColor": colour(INK),
-                "backColor": colour(CARD),
-            }}],
-            "values": [{"properties": {
-                "fontSize": lit(10.0), "fontColorPrimary": colour(BODY),
-                "backColorPrimary": colour(CARD), "backColorSecondary": colour(CARD),
-            }}],
-            # A four-year total row would put a whole-period "vs prior year" next to real ones.
-            "total": [{"properties": {"totals": lit(False)}}],
-        },
-        container=chrome("Year by year",
-                         "Growth arrived in 2023 and compounded; the customer count barely moved"),
+    v.append(table_visual(
+        "vYears", 940, 284, 476, 300, 610,
+        [
+            column("Date", "Year"),
+            m("Sales", "Sales"),
+            m("Sales YoY %", "vs prior year"),
+            m("Orders", "Orders"),
+            m("Customers", "Customers"),
+            m("Average Order Value", "Avg order"),
+        ],
+        sort_by(column("Date", "Year"), "Ascending"),
+        "Year by year",
+        "Growth arrived in 2023 and compounded; the customer count barely moved",
     ))
 
     v.append(visual(
@@ -582,7 +573,7 @@ def page_products() -> tuple[dict, list[dict]]:
 
     # Columns sorted by sales with the cumulative share as a line: the Pareto in one picture.
     v.append(visual(
-        "vPareto", "lineClusteredColumnComboChart", 24, 176, 700, 340, 500,
+        "vPareto", "lineClusteredColumnComboChart", 24, 176, 700, 316, 500,
         query={
             "queryState": {
                 "Category": {"projections": [column("Product", "Sub-Category")]},
@@ -607,7 +598,7 @@ def page_products() -> tuple[dict, list[dict]]:
     ))
 
     v.append(visual(
-        "vYoY", "barChart", 24, 532, 700, 344, 510,
+        "vYoY", "columnChart", 24, 508, 700, 368, 510,
         query={
             "queryState": {
                 "Category": {"projections": [column("Product", "Sub-Category")]},
@@ -630,7 +621,6 @@ def page_products() -> tuple[dict, list[dict]]:
         [
             m("Product Rank", "#"),
             column("Product", "Product"),
-            column("Product", "Sub-Category", "Sub-category"),
             m("Sales", "Sales"),
             m("Orders", "Orders"),
             m("Sales Share", "Share"),
@@ -676,10 +666,10 @@ def page_customers() -> tuple[dict, list[dict]]:
 
     v.append(kpi_card("vKpiCst", 24, 176, 1392, 92, 500, [
         m("Customers", "Active customers"),
-        m("New Customers", "New in the period"),
-        m("Returning Customers", "Returning"),
-        m("Returning Sales Share", "Sales from returning customers"),
         m("Orders per Customer", "Orders per customer"),
+        m("Sales per Customer", "Sales per customer"),
+        m("Repeat Customer Share", "Ordered more than once"),
+        m("Customers Active Every Year", "Active in every year shown"),
     ]))
 
     v.append(visual(
@@ -776,7 +766,6 @@ def page_customers() -> tuple[dict, list[dict]]:
         [
             m("Customer Rank", "#"),
             column("Customer", "Customer"),
-            column("Customer", "Segment"),
             m("Sales", "Sales"),
             m("Orders", "Orders"),
         ],

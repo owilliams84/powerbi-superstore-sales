@@ -38,57 +38,57 @@
                       "Entity": "Metrics"
                     }
                   },
-                  "Property": "New Customers"
-                }
-              },
-              "queryRef": "Metrics.New Customers",
-              "nativeQueryRef": "New Customers",
-              "displayName": "New in the period"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Metrics"
-                    }
-                  },
-                  "Property": "Returning Customers"
-                }
-              },
-              "queryRef": "Metrics.Returning Customers",
-              "nativeQueryRef": "Returning Customers",
-              "displayName": "Returning"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Metrics"
-                    }
-                  },
-                  "Property": "Returning Sales Share"
-                }
-              },
-              "queryRef": "Metrics.Returning Sales Share",
-              "nativeQueryRef": "Returning Sales Share",
-              "displayName": "Sales from returning customers"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Metrics"
-                    }
-                  },
                   "Property": "Orders per Customer"
                 }
               },
               "queryRef": "Metrics.Orders per Customer",
               "nativeQueryRef": "Orders per Customer",
               "displayName": "Orders per customer"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metrics"
+                    }
+                  },
+                  "Property": "Sales per Customer"
+                }
+              },
+              "queryRef": "Metrics.Sales per Customer",
+              "nativeQueryRef": "Sales per Customer",
+              "displayName": "Sales per customer"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metrics"
+                    }
+                  },
+                  "Property": "Repeat Customer Share"
+                }
+              },
+              "queryRef": "Metrics.Repeat Customer Share",
+              "nativeQueryRef": "Repeat Customer Share",
+              "displayName": "Ordered more than once"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Metrics"
+                    }
+                  },
+                  "Property": "Customers Active Every Year"
+                }
+              },
+              "queryRef": "Metrics.Customers Active Every Year",
+              "nativeQueryRef": "Customers Active Every Year",
+              "displayName": "Active in every year shown"
             }
           ]
         }

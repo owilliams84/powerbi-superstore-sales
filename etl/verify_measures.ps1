@@ -95,6 +95,10 @@ TOPN(5,
 ORDER BY [Sales] DESC
 "@
 
+Invoke-Dax "Customer KPIs, whole period: repeat share, active every year" @"
+EVALUATE ROW("Repeat share", [Repeat Customer Share], "Every year", [Customers Active Every Year])
+"@
+
 Invoke-Dax "Cohort retention" @"
 EVALUATE
 SUMMARIZECOLUMNS(Customer[Cohort], 'Date'[Year], "Size", [Cohort Size], "Retention", [Retention %])

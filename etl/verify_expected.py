@@ -56,6 +56,11 @@ def main() -> None:
     for k in s.index[:5]:
         print(f"   {k} | {s[k]:,.2f} | {cum[k]:.4f}")
 
+    print("== Customer KPIs, whole period: repeat share, active every year")
+    per = f.groupby("CustomerID").agg(orders=("OrderID", "nunique"),
+                                      years=("Year", "nunique"))
+    print(f"   {(per.orders >= 2).sum() / len(per):.4f} | {int((per.years == f.Year.nunique()).sum())}")
+
     print("== Cohort retention (rows = first-order year, columns = active year)")
     for cohort in sorted(f.FirstOrderYear.unique()):
         size = cust[cust.FirstOrderYear == cohort].CustomerID.nunique()

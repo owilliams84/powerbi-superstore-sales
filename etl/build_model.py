@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import shutil
+import time
 import uuid
 from pathlib import Path
 
@@ -278,6 +279,25 @@ MEASURES = [
      f"    CALCULATE([Sales], {NEW_FILTER})", USD, None),
     ("Sales from Returning Customers", "[Sales] - [Sales from New Customers]", USD, None),
     ("Returning Sales Share", "DIVIDE([Sales from Returning Customers], [Sales])", PCT, None),
+    ("Repeat Customer Share",
+     "VAR PerCustomer =\n"
+     "    ADDCOLUMNS(VALUES(Sales[Customer ID]), \"@Orders\", CALCULATE(DISTINCTCOUNT(Sales[Order ID])))\n"
+     "RETURN\n"
+     "    DIVIDE(COUNTROWS(FILTER(PerCustomer, [@Orders] >= 2)), [Customers])", PCT,
+     "Share of active customers who ordered at least twice in the period."),
+    ("Customers Active Every Year",
+     "VAR YearsInPeriod = COUNTROWS(VALUES('Date'[Year]))\n"
+     "RETURN\n"
+     "    COUNTROWS(\n"
+     "        FILTER(\n"
+     "            VALUES(Sales[Customer ID]),\n"
+     "            CALCULATE(COUNTROWS(SUMMARIZE(Sales, 'Date'[Year]))) = YearsInPeriod\n"
+     "        )\n"
+     "    )", INT,
+     "Customers with at least one order in every year of the period. With one year selected\n"
+     "it equals active customers, which is the right answer to the question it then asks.\n"
+     "Counted through SUMMARIZE on the fact: DISTINCTCOUNT on the Date table would return\n"
+     "the whole calendar for every customer, because a fact cannot filter its dimension."),
     ("Cohort Size", "CALCULATE([Customers], REMOVEFILTERS('Date'))", INT,
      "Every customer in the cohort on the row, whatever year the column is - the denominator\n"
      "for retention."),
@@ -298,13 +318,15 @@ MEASURES = [
     ("Report Period",
      "VAR First = MIN('Date'[Date])\n"
      "VAR Last = MAX('Date'[Date])\n"
+     "VAR WholeYears = MONTH(First) = 1 && DAY(First) = 1 && MONTH(Last) = 12 && DAY(Last) = 31\n"
      "RETURN\n"
-     "    IF(\n"
-     "        YEAR(First) = YEAR(Last) && MONTH(First) = 1 && MONTH(Last) = 12,\n"
-     "        FORMAT(Last, \"yyyy\"),\n"
+     "    SWITCH(\n"
+     "        TRUE(),\n"
+     "        WholeYears && YEAR(First) = YEAR(Last), FORMAT(Last, \"yyyy\"),\n"
+     "        WholeYears, FORMAT(First, \"yyyy\") & \" to \" & FORMAT(Last, \"yyyy\"),\n"
      "        FORMAT(First, \"mmm yyyy\") & \" to \" & FORMAT(Last, \"mmm yyyy\")\n"
      "    )", None,
-     "A label for the period on screen: '2024', or 'Jan 2021 to Dec 2024'."),
+     "A label for the period on screen: '2024', '2021 to 2024', or 'Mar 2023 to Jun 2023'."),
     ("Period End Label", "FORMAT(MAX('Date'[Date]), \"mmmm yyyy\")", None, None),
     ("Latest Order Date", "MAX(Sales[Order Date])", "d mmm yyyy", None),
 ]
@@ -421,7 +443,17 @@ def main() -> None:
     args = ap.parse_args()
 
     if DEFN.exists():
-        shutil.rmtree(DEFN)
+        # OneDrive (and an open Desktop) intermittently hold a directory handle; retry, then
+        # fall back to ignore_errors - by then the files are gone and the writers recreate the tree.
+        for attempt in range(5):
+            try:
+                shutil.rmtree(DEFN)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    shutil.rmtree(DEFN, ignore_errors=True)
+                else:
+                    time.sleep(0.5)
 
     for name, spec in TABLES.items():
         write_table(name, spec, args.local)

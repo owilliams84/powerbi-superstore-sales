@@ -3,14 +3,14 @@
   "name": "vYoY",
   "position": {
     "x": 24,
-    "y": 532,
+    "y": 508,
     "z": 510,
     "width": 700,
-    "height": 344,
+    "height": 368,
     "tabOrder": 510
   },
   "visual": {
-    "visualType": "barChart",
+    "visualType": "columnChart",
     "query": {
       "queryState": {
         "Category": {

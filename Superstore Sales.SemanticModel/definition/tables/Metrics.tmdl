@@ -171,6 +171,31 @@ table Metrics
 		formatString: 0.0%
 		lineageTag: 50a4a268-f689-5cdb-8fbb-c8257b7ee0cd
 
+	/// Share of active customers who ordered at least twice in the period.
+	measure 'Repeat Customer Share' =
+			VAR PerCustomer =
+			    ADDCOLUMNS(VALUES(Sales[Customer ID]), "@Orders", CALCULATE(DISTINCTCOUNT(Sales[Order ID])))
+			RETURN
+			    DIVIDE(COUNTROWS(FILTER(PerCustomer, [@Orders] >= 2)), [Customers])
+		formatString: 0.0%
+		lineageTag: bf78fc1f-cdbf-5e4b-a0f9-fafe2522b1a3
+
+	/// Customers with at least one order in every year of the period. With one year selected
+	/// it equals active customers, which is the right answer to the question it then asks.
+	/// Counted through SUMMARIZE on the fact: DISTINCTCOUNT on the Date table would return
+	/// the whole calendar for every customer, because a fact cannot filter its dimension.
+	measure 'Customers Active Every Year' =
+			VAR YearsInPeriod = COUNTROWS(VALUES('Date'[Year]))
+			RETURN
+			    COUNTROWS(
+			        FILTER(
+			            VALUES(Sales[Customer ID]),
+			            CALCULATE(COUNTROWS(SUMMARIZE(Sales, 'Date'[Year]))) = YearsInPeriod
+			        )
+			    )
+		formatString: #,0
+		lineageTag: 7f7132bc-71f8-5230-8388-d5bcf05b09fe
+
 	/// Every customer in the cohort on the row, whatever year the column is - the denominator
 	/// for retention.
 	measure 'Cohort Size' = CALCULATE([Customers], REMOVEFILTERS('Date'))
@@ -199,14 +224,16 @@ table Metrics
 		formatString: 0.0%
 		lineageTag: ccc38c5d-366f-5f3d-8c20-f3e777e5db1f
 
-	/// A label for the period on screen: '2024', or 'Jan 2021 to Dec 2024'.
+	/// A label for the period on screen: '2024', '2021 to 2024', or 'Mar 2023 to Jun 2023'.
 	measure 'Report Period' =
 			VAR First = MIN('Date'[Date])
 			VAR Last = MAX('Date'[Date])
+			VAR WholeYears = MONTH(First) = 1 && DAY(First) = 1 && MONTH(Last) = 12 && DAY(Last) = 31
 			RETURN
-			    IF(
-			        YEAR(First) = YEAR(Last) && MONTH(First) = 1 && MONTH(Last) = 12,
-			        FORMAT(Last, "yyyy"),
+			    SWITCH(
+			        TRUE(),
+			        WholeYears && YEAR(First) = YEAR(Last), FORMAT(Last, "yyyy"),
+			        WholeYears, FORMAT(First, "yyyy") & " to " & FORMAT(Last, "yyyy"),
 			        FORMAT(First, "mmm yyyy") & " to " & FORMAT(Last, "mmm yyyy")
 			    )
 		lineageTag: 73592538-bb7e-524f-9ceb-66e617c44503
