@@ -1,0 +1,88 @@
+/// One row per customer. No geography here on purpose: 777 of the 793 customers order
+/// from more than one state, so where an order went belongs to the order line.
+///
+/// 'First Order Date' is what makes new-versus-returning possible: a customer is new in
+/// whatever period contains their first ever order. 'Order Band' is a lifetime count,
+/// fixed at build time, so the same customer cannot sit in two bands across two years.
+table Customer
+	lineageTag: dad48086-6245-541e-91aa-0dc4ce3a6f5f
+
+	column 'Customer ID'
+		dataType: string
+		isKey
+		lineageTag: e26e45d2-75ba-522b-9200-6126a17e46c2
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+	column Customer
+		dataType: string
+		lineageTag: e33d68a8-dcf2-5b97-97a7-f6640acba1da
+		summarizeBy: none
+		sourceColumn: Customer
+
+	/// Consumer, Corporate or Home Office.
+	column Segment
+		dataType: string
+		lineageTag: 331df45a-45b2-5184-84c5-295151afe603
+		summarizeBy: none
+		sourceColumn: Segment
+
+	column 'First Order Date'
+		dataType: dateTime
+		isHidden
+		formatString: d mmm yyyy
+		lineageTag: 4f4510a1-1bfa-5d31-b8db-97fe83795955
+		summarizeBy: none
+		sourceColumn: FirstOrderDate
+
+	column 'Last Order Date'
+		dataType: dateTime
+		isHidden
+		formatString: d mmm yyyy
+		lineageTag: 934a82e9-47f9-5d8d-9ddb-e57b8fb93659
+		summarizeBy: none
+		sourceColumn: LastOrderDate
+
+	column 'Lifetime Orders'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2d87159a-f3e0-59e4-8317-706e4714bc87
+		summarizeBy: none
+		sourceColumn: LifetimeOrders
+
+	/// The year of the customer's first order.
+	column Cohort
+		dataType: int64
+		formatString: 0
+		lineageTag: a3e6c228-94b2-5800-a740-b80f524eac89
+		summarizeBy: none
+		sourceColumn: FirstOrderYear
+
+	/// Lifetime orders, banded: 1, 2-3, 4-6, 7+.
+	column 'Order Band'
+		dataType: string
+		lineageTag: db9c5de0-8441-53bb-a805-882ed9935c6b
+		summarizeBy: none
+		sourceColumn: OrderBand
+		sortByColumn: 'Order Band Sort'
+
+	column 'Order Band Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4ab4dc6a-3986-56ca-9ac6-50b3392fb2a3
+		summarizeBy: none
+		sourceColumn: OrderBandSort
+
+	partition Customer = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/dim_customer.csv"), [Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"CustomerID", type text}, {"Customer", type text}, {"Segment", type text}, {"FirstOrderDate", type date}, {"LastOrderDate", type date}, {"LifetimeOrders", Int64.Type}, {"FirstOrderYear", Int64.Type}, {"OrderBand", type text}, {"OrderBandSort", Int64.Type}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table

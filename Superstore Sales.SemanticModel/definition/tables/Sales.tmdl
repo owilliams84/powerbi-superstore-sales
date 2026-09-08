@@ -1,0 +1,95 @@
+/// One row per order line, 9,800 of them. Every column is hidden: Sales is the only
+/// amount, and the measures in Metrics own how it is aggregated and compared.
+table Sales
+	lineageTag: 1af4dbb5-0c32-5504-a9d1-8587fcf82bf3
+
+	column 'Row ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 99c8e5b0-2455-5e63-9da0-6a2c247ac775
+		summarizeBy: none
+		sourceColumn: RowID
+
+	column 'Order ID'
+		dataType: string
+		isHidden
+		lineageTag: 7ba46f04-3cd1-559e-9deb-5bd7480089b6
+		summarizeBy: none
+		sourceColumn: OrderID
+
+	column 'Order Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: 631768b3-09e3-5a24-9899-dbbc83af96ba
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+	column 'Ship Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: b912c9f1-bdbe-5ff1-b670-c6149374f848
+		summarizeBy: none
+		sourceColumn: ShipDate
+
+	/// Calendar days from order to ship, 0 to 8.
+	column 'Ship Days'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b221ac0b-5264-51c8-b0ca-55ab8a031c7f
+		summarizeBy: none
+		sourceColumn: ShipDays
+
+	column 'Customer ID'
+		dataType: string
+		isHidden
+		lineageTag: 041f4bc9-6543-5fc7-a182-6f34a5268e01
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 030128a2-d1f4-5cf7-888b-6bc2e3912ea5
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column 'Geography Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cedb05d6-83a0-59bb-8973-9c799c167337
+		summarizeBy: none
+		sourceColumn: GeographyKey
+
+	column 'Ship Mode Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 55cb7a96-2e8f-574e-b10c-f62987bc3aa3
+		summarizeBy: none
+		sourceColumn: ShipModeKey
+
+	column Sales
+		dataType: double
+		isHidden
+		formatString: #,0.00
+		lineageTag: 9aff40c9-bb30-50eb-b733-fe5471beb0af
+		summarizeBy: none
+		sourceColumn: Sales
+
+	partition Sales = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/fact_sales.csv"), [Delimiter=",", Columns=10, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"RowID", Int64.Type}, {"OrderID", type text}, {"OrderDate", type date}, {"ShipDate", type date}, {"ShipDays", Int64.Type}, {"CustomerID", type text}, {"ProductKey", Int64.Type}, {"GeographyKey", Int64.Type}, {"ShipModeKey", Int64.Type}, {"Sales", type number}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,39 @@
+/// Four shipping services, sorted fastest first so a chart reads Same Day to Standard.
+table 'Ship Mode'
+	lineageTag: 0178d816-ed3c-5c4b-a0f7-5fa4ce4e6183
+
+	column 'Ship Mode Key'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 38d8849d-4061-5cb3-8133-f8656a2791c9
+		summarizeBy: none
+		sourceColumn: ShipModeKey
+
+	column 'Ship Mode'
+		dataType: string
+		lineageTag: 92b13701-c0c8-57a4-9258-7ac8626aaaf6
+		summarizeBy: none
+		sourceColumn: ShipMode
+		sortByColumn: 'Sort Order'
+
+	column 'Sort Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8be38d8b-1f77-54d5-8721-91191b2a42ce
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	partition 'Ship Mode' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/dim_ship_mode.csv"), [Delimiter=",", Columns=3, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"ShipModeKey", Int64.Type}, {"ShipMode", type text}, {"SortOrder", Int64.Type}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table

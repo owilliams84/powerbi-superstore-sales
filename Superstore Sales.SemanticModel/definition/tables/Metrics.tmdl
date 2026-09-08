@@ -1,0 +1,236 @@
+/// Measure-only table. Nothing here stores data; the hidden column exists because a
+/// table needs one. Every number on the report comes from here.
+table Metrics
+	lineageTag: 71f3b6af-c7b4-5d1d-be95-d5774cf079be
+
+	measure Sales = SUM(Sales[Sales])
+		formatString: \$#,0
+		lineageTag: 0a7b2c99-6fed-5c9b-ac4e-3595c8519a3c
+
+	measure 'Order Lines' = COUNTROWS(Sales)
+		formatString: #,0
+		lineageTag: cc6bddcc-62c8-51d3-bd74-1585b673a9c7
+
+	/// Distinct orders, not lines. An order averages two lines, so counting rows overstates it.
+	measure Orders = DISTINCTCOUNT(Sales[Order ID])
+		formatString: #,0
+		lineageTag: b7143815-19ae-57a1-9ce5-82c973e3367e
+
+	/// Customers with at least one order in the period. Counted on the fact so every filter -
+	/// product, region, ship mode - narrows it.
+	measure Customers = DISTINCTCOUNT(Sales[Customer ID])
+		formatString: #,0
+		lineageTag: be2c4170-9dcf-5525-8f8c-685fd70c5c6c
+
+	measure 'Products Sold' = DISTINCTCOUNT(Sales[Product Key])
+		formatString: #,0
+		lineageTag: 8ae6b8d3-6dfc-5d7b-b746-aa1059f3d034
+
+	measure 'Average Order Value' = DIVIDE([Sales], [Orders])
+		formatString: \$#,0
+		lineageTag: 2896589e-4129-5506-af42-d101133313ec
+
+	measure 'Average Line Value' = DIVIDE([Sales], [Order Lines])
+		formatString: \$#,0.00
+		lineageTag: 8d0b26b1-c13e-59d2-8390-d45bb3d10060
+
+	measure 'Sales per Customer' = DIVIDE([Sales], [Customers])
+		formatString: \$#,0
+		lineageTag: 55cc41b5-f242-5ed2-98d4-c5cac097709b
+
+	measure 'Orders per Customer' = DIVIDE([Orders], [Customers])
+		formatString: 0.00
+		lineageTag: c7b3f142-b461-5636-ad10-ebe8ac06fd93
+
+	measure 'Lines per Order' = DIVIDE([Order Lines], [Orders])
+		formatString: 0.00
+		lineageTag: 55fb0751-c457-5dbc-856f-f06bb0e72b38
+
+	/// The same period a year earlier. Needs the marked date table - without it DATEADD returns
+	/// blank for every row and the YoY column looks like 2021 forever.
+	measure 'Sales PY' = CALCULATE([Sales], DATEADD('Date'[Date], -1, YEAR))
+		formatString: \$#,0
+		lineageTag: 49530253-bcbb-5460-9974-e96146d891df
+
+	/// Blank in 2021, the first year, rather than a meaningless comparison to nothing.
+	measure 'Sales YoY %' = DIVIDE([Sales] - [Sales PY], [Sales PY])
+		formatString: 0.0%
+		lineageTag: 5b16003f-a9e6-5e89-bbf9-3f0d90244748
+
+	measure 'Orders PY' = CALCULATE([Orders], DATEADD('Date'[Date], -1, YEAR))
+		formatString: #,0
+		lineageTag: cd34da6a-5a90-535d-9910-217dc2e5b829
+
+	measure 'Orders YoY %' = DIVIDE([Orders] - [Orders PY], [Orders PY])
+		formatString: 0.0%
+		lineageTag: 4b773bd6-29b5-5e8e-983e-2c9925d2184c
+
+	measure 'Customers PY' = CALCULATE([Customers], DATEADD('Date'[Date], -1, YEAR))
+		formatString: #,0
+		lineageTag: 73b28a8a-43e6-575d-965f-e037da4d3be8
+
+	measure 'Customers YoY %' = DIVIDE([Customers] - [Customers PY], [Customers PY])
+		formatString: 0.0%
+		lineageTag: 76568e9d-c52b-5f2f-b882-44350e5f4b5f
+
+	measure 'Sales YTD' = TOTALYTD([Sales], 'Date'[Date])
+		formatString: \$#,0
+		lineageTag: 4c07501f-d9d0-51c6-96f7-e7a85edd6a98
+
+	/// Rolling twelve months to the end of the period - the only volume figure that compares
+	/// like with like when the year on screen is not a full one.
+	measure 'Sales 12M' = CALCULATE([Sales], DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -12, MONTH))
+		formatString: \$#,0
+		lineageTag: 40f1dda6-98e0-5a0c-8505-d9cb9d1a3cf3
+
+	/// This row's share of all sales in the same period. Every non-date filter is cleared, so a
+	/// sub-category's share is of the whole company, not of its category.
+	measure 'Sales Share' =
+			DIVIDE(
+			    [Sales],
+			    CALCULATE(
+			        [Sales],
+			        REMOVEFILTERS('Product'), REMOVEFILTERS('Customer'),
+			        REMOVEFILTERS('Geography'), REMOVEFILTERS('Ship Mode')
+			    )
+			)
+		formatString: 0.0%
+		lineageTag: 095aff6f-8d80-567c-b720-b28230731413
+
+	/// Share of whatever is on the visual, for a 100% breakdown inside a filtered view.
+	measure 'Sales Share of Selection' = DIVIDE([Sales], CALCULATE([Sales], ALLSELECTED()))
+		formatString: 0.0%
+		lineageTag: 2c433529-9e34-5a94-ba97-2d150b1f8f82
+
+	/// Pareto line over sub-categories: the share of sales from this sub-category and every one
+	/// selling more than it. Reads left to right on a chart sorted by sales.
+	measure 'Cumulative Sales Share' =
+			VAR ThisSales = [Sales]
+			VAR Total = CALCULATE([Sales], ALLSELECTED('Product'[Sub-Category]))
+			VAR Above =
+			    SUMX(
+			        FILTER(ALLSELECTED('Product'[Sub-Category]), [Sales] >= ThisSales),
+			        [Sales]
+			    )
+			RETURN
+			    DIVIDE(Above, Total)
+		formatString: 0.0%
+		lineageTag: 147b708a-d6ad-5c3e-bae9-4a1019f3faeb
+
+	measure 'Product Rank' = RANKX(ALLSELECTED('Product'), [Sales], , DESC, Dense)
+		formatString: 0
+		lineageTag: 88ab2f53-63ee-5acf-af8e-4e8c8a92755a
+
+	measure 'Customer Rank' = RANKX(ALLSELECTED('Customer'), [Sales], , DESC, Dense)
+		formatString: 0
+		lineageTag: 25e9d4fc-a845-5c11-b2c2-4487399e9842
+
+	measure 'State Rank' = RANKX(ALLSELECTED('Geography'[State]), [Sales], , DESC, Dense)
+		formatString: 0
+		lineageTag: c64b6743-1d6c-51c3-8c87-78683a146c8a
+
+	/// Customers whose first ever order falls in the period. Because it filters the fact rather
+	/// than counting the Customer table, a product or region on the visual still applies: it
+	/// becomes 'new customers who bought this'.
+	measure 'New Customers' =
+			VAR PeriodStart = MIN('Date'[Date])
+			VAR PeriodEnd = MAX('Date'[Date])
+			RETURN
+			    CALCULATE([Customers], FILTER(
+			        ALL(Customer[First Order Date]),
+			        Customer[First Order Date] >= PeriodStart && Customer[First Order Date] <= PeriodEnd
+			    ))
+		formatString: #,0
+		lineageTag: b001772e-1237-5f4d-a429-48c0a27d5b17
+
+	/// Customers active in the period whose first order was before it.
+	measure 'Returning Customers' = [Customers] - [New Customers]
+		formatString: #,0
+		lineageTag: 31562bb7-d56b-5a2d-8a82-dbef9a47b51e
+
+	measure 'New Customer Share' = DIVIDE([New Customers], [Customers])
+		formatString: 0.0%
+		lineageTag: 5d494c15-99ef-59e3-a099-58e5e90f64e1
+
+	measure 'Sales from New Customers' =
+			VAR PeriodStart = MIN('Date'[Date])
+			VAR PeriodEnd = MAX('Date'[Date])
+			RETURN
+			    CALCULATE([Sales], FILTER(
+			        ALL(Customer[First Order Date]),
+			        Customer[First Order Date] >= PeriodStart && Customer[First Order Date] <= PeriodEnd
+			    ))
+		formatString: \$#,0
+		lineageTag: b5925092-9055-5a24-a920-d5b8b578d3af
+
+	measure 'Sales from Returning Customers' = [Sales] - [Sales from New Customers]
+		formatString: \$#,0
+		lineageTag: 8336abfe-abde-583a-9b15-1b077780b7a0
+
+	measure 'Returning Sales Share' = DIVIDE([Sales from Returning Customers], [Sales])
+		formatString: 0.0%
+		lineageTag: 50a4a268-f689-5cdb-8fbb-c8257b7ee0cd
+
+	/// Every customer in the cohort on the row, whatever year the column is - the denominator
+	/// for retention.
+	measure 'Cohort Size' = CALCULATE([Customers], REMOVEFILTERS('Date'))
+		formatString: #,0
+		lineageTag: 0a4baacc-5f66-563f-b359-44d66a350180
+
+	/// On a cohort-by-year matrix: the share of a cohort that ordered again in each year. The
+	/// cohort's own year is 100% by definition, and years before it are blank.
+	measure 'Retention %' = DIVIDE([Customers], [Cohort Size])
+		formatString: 0.0%
+		lineageTag: 009d2da3-3c40-5816-b8ef-10891501a6f9
+
+	/// Calendar days from order to ship, averaged over order lines.
+	measure 'Average Ship Days' = AVERAGE(Sales[Ship Days])
+		formatString: 0.0
+		lineageTag: a4f838aa-7eef-5374-883c-624c3c29b2ff
+
+	/// Share of orders, not sales, so a single large Same Day order does not dominate.
+	measure 'Ship Mode Share' = DIVIDE([Orders], CALCULATE([Orders], REMOVEFILTERS('Ship Mode')))
+		formatString: 0.0%
+		lineageTag: a96449c6-dc39-569e-be36-d589bfa58dca
+
+	/// KEEPFILTERS matters: without it the filter would overwrite a ship mode already on the
+	/// visual and repeat the grand total down a breakdown.
+	measure 'Standard Class Share' = DIVIDE(CALCULATE([Orders], KEEPFILTERS('Ship Mode'[Ship Mode] = "Standard Class")), [Orders])
+		formatString: 0.0%
+		lineageTag: ccc38c5d-366f-5f3d-8c20-f3e777e5db1f
+
+	/// A label for the period on screen: '2024', or 'Jan 2021 to Dec 2024'.
+	measure 'Report Period' =
+			VAR First = MIN('Date'[Date])
+			VAR Last = MAX('Date'[Date])
+			RETURN
+			    IF(
+			        YEAR(First) = YEAR(Last) && MONTH(First) = 1 && MONTH(Last) = 12,
+			        FORMAT(Last, "yyyy"),
+			        FORMAT(First, "mmm yyyy") & " to " & FORMAT(Last, "mmm yyyy")
+			    )
+		lineageTag: 73592538-bb7e-524f-9ceb-66e617c44503
+
+	measure 'Period End Label' = FORMAT(MAX('Date'[Date]), "mmmm yyyy")
+		lineageTag: e10302ff-48a8-5b81-971b-ff8f2e280680
+
+	measure 'Latest Order Date' = MAX(Sales[Order Date])
+		formatString: d mmm yyyy
+		lineageTag: 93029cc6-af25-5510-89a2-8bad0931c660
+
+	column Column
+		dataType: string
+		isHidden
+		lineageTag: 693db5a0-91fb-5a07-b10a-3e5035487b95
+		summarizeBy: none
+		sourceColumn: Column
+
+	partition Metrics = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Column = text], {})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,19 @@
+relationship 'Date to Sales'
+	fromColumn: Sales.'Order Date'
+	toColumn: Date.Date
+
+relationship 'Customer to Sales'
+	fromColumn: Sales.'Customer ID'
+	toColumn: Customer.'Customer ID'
+
+relationship 'Product to Sales'
+	fromColumn: Sales.'Product Key'
+	toColumn: Product.'Product Key'
+
+relationship 'Geography to Sales'
+	fromColumn: Sales.'Geography Key'
+	toColumn: Geography.'Geography Key'
+
+relationship 'Ship Mode to Sales'
+	fromColumn: Sales.'Ship Mode Key'
+	toColumn: 'Ship Mode'.'Ship Mode Key'

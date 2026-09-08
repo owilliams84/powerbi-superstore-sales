@@ -1,0 +1,121 @@
+/// One row per day, 2021 to 2024, contiguous and complete, and marked as the date table
+/// so DATEADD and TOTALYTD have a calendar to walk. Orders join here on Order Date.
+/// Ship dates are not related - shipping is analysed as days-to-ship on the fact.
+table Date
+	lineageTag: c2364ffe-5597-595e-b44e-5ec4431a182f
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: d mmm yyyy
+		lineageTag: 9cbbdc14-4e5c-5a62-bd1c-7c9254df3d91
+		summarizeBy: none
+		sourceColumn: Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 8236e9da-71ff-5ee4-8fc4-b4aae3c0adca
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Quarter
+		dataType: string
+		lineageTag: 7d17193f-7080-506f-96d1-b1141c953d63
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column 'Quarter Year'
+		dataType: string
+		lineageTag: da2cacec-34dd-5284-b1f9-a745b73b91e7
+		summarizeBy: none
+		sourceColumn: QuarterYear
+		sortByColumn: 'Quarter Year Sort'
+
+	column 'Quarter Year Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7ee82300-35ad-5b36-8720-3c30e7413f30
+		summarizeBy: none
+		sourceColumn: QuarterYearSort
+
+	column 'Month No'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9303d6fb-2acc-53e5-8f25-60dc2e91e858
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+	column Month
+		dataType: string
+		lineageTag: 924145d9-6480-5b14-af8c-03d58dee2161
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: 'Month No'
+
+	column 'Month Short'
+		dataType: string
+		lineageTag: a6b38f5a-1d37-5a5f-b63b-2d140f365f3d
+		summarizeBy: none
+		sourceColumn: MonthShort
+		sortByColumn: 'Month No'
+
+	column 'Month Year'
+		dataType: string
+		lineageTag: 1d573ac9-0924-5b7d-b95e-1e1375680cce
+		summarizeBy: none
+		sourceColumn: MonthYear
+		sortByColumn: 'Month Year Sort'
+
+	column 'Month Year Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1e1c5fea-2381-5cda-a082-9801ee1929bc
+		summarizeBy: none
+		sourceColumn: MonthYearSort
+
+	/// First day of the month, for continuous month axes.
+	column 'Month Start'
+		dataType: dateTime
+		isHidden
+		formatString: mmm yyyy
+		lineageTag: 7946eeab-c3f4-5e79-84fe-9010df558bc1
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+	column 'Day of Week'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 07343673-34a7-5a86-8963-ce37f501dce0
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+	column Day
+		dataType: string
+		lineageTag: 14275962-c61d-5c6b-a998-836efe5f3ba4
+		summarizeBy: none
+		sourceColumn: DayName
+		sortByColumn: 'Day of Week'
+
+	column 'Is Weekend'
+		dataType: string
+		lineageTag: 8e8b9126-753f-58fa-bfa9-2d2aae0b9580
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+	partition Date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/dim_date.csv"), [Delimiter=",", Columns=14, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"Date", type date}, {"Year", Int64.Type}, {"Quarter", type text}, {"QuarterYear", type text}, {"QuarterYearSort", Int64.Type}, {"MonthNumber", Int64.Type}, {"MonthName", type text}, {"MonthShort", type text}, {"MonthYear", type text}, {"MonthYearSort", Int64.Type}, {"MonthStart", type date}, {"DayOfWeek", Int64.Type}, {"DayName", type text}, {"IsWeekend", type text}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table

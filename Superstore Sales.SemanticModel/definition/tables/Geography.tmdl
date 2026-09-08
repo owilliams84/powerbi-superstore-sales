@@ -1,0 +1,64 @@
+/// One row per place an order shipped to: country, region, state, city, postal code.
+/// Postal codes are text, re-padded to five digits - the source stored them as numbers
+/// and dropped the leading zero from 429 New England and New Jersey codes. Eleven rows
+/// (Burlington, Vermont) have no code in the source and stay blank.
+table Geography
+	lineageTag: a79b6481-21e4-53ac-8969-8a208c5c17c1
+
+	column 'Geography Key'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 8ef93341-a84c-57fe-ab88-376c668489ca
+		summarizeBy: none
+		sourceColumn: GeographyKey
+
+	column Country
+		dataType: string
+		lineageTag: 6b17c751-3125-5e2c-af21-d87056109472
+		summarizeBy: none
+		sourceColumn: Country
+
+	/// Central, East, South or West.
+	column Region
+		dataType: string
+		lineageTag: 5caaeb17-b2b0-5796-a17d-a394c23999bc
+		summarizeBy: none
+		sourceColumn: Region
+
+	column State
+		dataType: string
+		lineageTag: 8ca35982-1334-524d-97ee-bb507bf5f87a
+		summarizeBy: none
+		sourceColumn: State
+
+	column 'State Code'
+		dataType: string
+		lineageTag: 1fca690d-3fe2-51d8-9e4c-91f0d8efda10
+		summarizeBy: none
+		sourceColumn: StateCode
+
+	column City
+		dataType: string
+		lineageTag: 750ec14a-f244-5a36-8d73-00671d9b0372
+		summarizeBy: none
+		sourceColumn: City
+
+	column 'Postal Code'
+		dataType: string
+		lineageTag: 7f6681a3-8387-50c9-a488-9d1dcd588736
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+	partition Geography = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/dim_geography.csv"), [Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"GeographyKey", Int64.Type}, {"Country", type text}, {"Region", type text}, {"State", type text}, {"StateCode", type text}, {"City", type text}, {"PostalCode", type text}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table

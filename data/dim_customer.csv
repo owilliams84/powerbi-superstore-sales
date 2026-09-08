@@ -1,0 +1,794 @@
+CustomerID,Customer,Segment,FirstOrderDate,LastOrderDate,LifetimeOrders,FirstOrderYear,OrderBand,OrderBandSort
+AA-10315,Alex Avila,Consumer,2021-03-31,2024-06-29,5,2021,4-6 orders,3
+AA-10375,Allen Armold,Consumer,2021-04-21,2024-12-11,9,2021,7+ orders,4
+AA-10480,Andrew Allen,Consumer,2021-05-04,2024-04-15,4,2021,4-6 orders,3
+AA-10645,Anna Andreadi,Consumer,2021-06-22,2024-11-05,6,2021,4-6 orders,3
+AB-10015,Aaron Bergman,Consumer,2021-02-18,2023-11-10,3,2021,2-3 orders,2
+AB-10060,Adam Bellavance,Home Office,2022-09-18,2024-11-06,8,2022,7+ orders,4
+AB-10105,Adrian Barton,Consumer,2021-12-20,2024-11-19,10,2021,7+ orders,4
+AB-10150,Aimee Bixby,Consumer,2021-03-05,2024-11-19,5,2021,4-6 orders,3
+AB-10165,Alan Barnes,Consumer,2021-11-16,2024-12-05,8,2021,7+ orders,4
+AB-10255,Alejandro Ballentine,Home Office,2021-07-22,2024-07-17,9,2021,7+ orders,4
+AB-10600,Ann Blume,Corporate,2021-11-18,2024-11-10,4,2021,4-6 orders,3
+AC-10420,Alyssa Crouse,Corporate,2021-07-12,2024-05-12,3,2021,2-3 orders,2
+AC-10450,Amy Cox,Consumer,2021-10-31,2024-12-19,7,2021,7+ orders,4
+AC-10615,Ann Chong,Corporate,2022-09-15,2024-12-24,5,2022,4-6 orders,3
+AC-10660,Anna Chung,Consumer,2021-10-15,2024-03-23,5,2021,4-6 orders,3
+AD-10180,Alan Dominguez,Home Office,2021-11-19,2024-12-01,8,2021,7+ orders,4
+AF-10870,Art Ferguson,Consumer,2022-12-06,2024-11-19,7,2022,7+ orders,4
+AF-10885,Art Foster,Consumer,2021-05-10,2023-11-10,4,2021,4-6 orders,3
+AG-10270,Alejandro Grove,Consumer,2021-05-13,2024-03-27,5,2021,4-6 orders,3
+AG-10300,Aleksandra Gannaway,Corporate,2021-04-26,2024-09-03,4,2021,4-6 orders,3
+AG-10330,Alex Grayson,Consumer,2023-08-03,2024-12-22,5,2023,4-6 orders,3
+AG-10390,Allen Goldenen,Consumer,2021-04-19,2024-09-07,5,2021,4-6 orders,3
+AG-10495,Andrew Gjertsen,Corporate,2022-01-04,2024-10-13,7,2022,7+ orders,4
+AG-10525,Andy Gerbode,Corporate,2021-08-09,2022-09-07,4,2021,4-6 orders,3
+AG-10675,Anna Gayman,Consumer,2022-05-07,2024-09-24,7,2022,7+ orders,4
+AG-10765,Anthony Garverick,Home Office,2021-09-17,2024-10-14,4,2021,4-6 orders,3
+AG-10900,Arthur Gainer,Consumer,2021-07-23,2024-09-25,10,2021,7+ orders,4
+AH-10030,Aaron Hawkins,Corporate,2021-04-22,2024-12-18,7,2021,7+ orders,4
+AH-10075,Adam Hart,Corporate,2021-11-16,2024-11-26,10,2021,7+ orders,4
+AH-10120,Adrian Hane,Home Office,2021-07-18,2024-10-31,7,2021,7+ orders,4
+AH-10195,Alan Haines,Corporate,2022-03-05,2024-11-05,4,2022,4-6 orders,3
+AH-10210,Alan Hwang,Consumer,2021-11-29,2024-12-24,9,2021,7+ orders,4
+AH-10465,Amy Hunt,Consumer,2022-01-03,2024-05-14,5,2022,4-6 orders,3
+AH-10585,Angele Hood,Consumer,2021-10-26,2024-12-09,4,2021,4-6 orders,3
+AH-10690,Anna Häberlin,Corporate,2021-04-02,2023-11-15,12,2021,7+ orders,4
+AI-10855,Arianne Irving,Consumer,2021-04-28,2024-12-17,10,2021,7+ orders,4
+AJ-10780,Anthony Jacobs,Corporate,2021-01-10,2024-10-16,7,2021,7+ orders,4
+AJ-10795,Anthony Johnson,Corporate,2021-05-14,2024-07-17,7,2021,7+ orders,4
+AJ-10945,Ashley Jarboe,Consumer,2021-03-03,2024-08-31,6,2021,4-6 orders,3
+AJ-10960,Astrea Jones,Consumer,2021-09-14,2024-10-17,3,2021,2-3 orders,2
+AM-10360,Alice McCarthy,Corporate,2021-10-06,2024-12-02,5,2021,4-6 orders,3
+AM-10705,Anne McFarland,Consumer,2021-10-31,2024-07-21,8,2021,7+ orders,4
+AO-10810,Anthony O'Donnell,Corporate,2023-08-16,2023-08-16,1,2023,1 order,1
+AP-10720,Anne Pryor,Home Office,2021-03-03,2024-11-19,6,2021,4-6 orders,3
+AP-10915,Arthur Prichep,Consumer,2021-08-23,2024-09-23,10,2021,7+ orders,4
+AR-10345,Alex Russell,Corporate,2021-12-30,2024-09-10,4,2021,4-6 orders,3
+AR-10405,Allen Rosenblatt,Corporate,2021-10-03,2024-08-27,5,2021,4-6 orders,3
+AR-10510,Andrew Roberts,Consumer,2021-05-02,2024-12-16,5,2021,4-6 orders,3
+AR-10540,Andy Reiter,Consumer,2021-11-25,2024-12-24,6,2021,4-6 orders,3
+AR-10570,Anemone Ratner,Consumer,2023-07-14,2023-07-14,1,2023,1 order,1
+AR-10825,Anthony Rawles,Corporate,2021-06-30,2024-11-02,8,2021,7+ orders,4
+AS-10045,Aaron Smayling,Corporate,2021-07-27,2024-10-03,7,2021,7+ orders,4
+AS-10090,Adam Shillingsburg,Consumer,2021-09-22,2024-12-02,9,2021,7+ orders,4
+AS-10135,Adrian Shami,Home Office,2023-11-13,2024-11-19,2,2023,2-3 orders,2
+AS-10225,Alan Schoenberger,Corporate,2021-10-18,2024-12-08,5,2021,4-6 orders,3
+AS-10240,Alan Shonely,Consumer,2021-03-15,2024-06-21,5,2021,4-6 orders,3
+AS-10285,Alejandro Savely,Corporate,2023-05-21,2024-12-11,6,2023,4-6 orders,3
+AS-10630,Ann Steele,Home Office,2021-08-01,2024-09-29,7,2021,7+ orders,4
+AT-10435,Alyssa Tate,Home Office,2021-12-27,2024-12-09,5,2021,4-6 orders,3
+AT-10735,Annie Thurman,Consumer,2021-08-30,2024-12-17,10,2021,7+ orders,4
+AW-10840,Anthony Witt,Consumer,2022-04-13,2024-12-10,4,2022,4-6 orders,3
+AW-10930,Arthur Wiediger,Home Office,2021-07-14,2024-11-14,7,2021,7+ orders,4
+AY-10555,Andy Yotov,Corporate,2021-04-06,2024-12-16,4,2021,4-6 orders,3
+AZ-10750,Annie Zypern,Consumer,2021-03-17,2024-07-23,6,2021,4-6 orders,3
+BB-10990,Barry Blumstein,Corporate,2021-07-27,2024-09-16,5,2021,4-6 orders,3
+BB-11545,Brenda Bowman,Corporate,2022-06-05,2024-12-02,9,2022,7+ orders,4
+BC-11125,Becky Castell,Home Office,2021-07-06,2024-06-11,9,2021,7+ orders,4
+BD-11320,Bill Donatelli,Consumer,2022-05-31,2024-11-27,12,2022,7+ orders,4
+BD-11500,Bradley Drucker,Consumer,2021-02-01,2024-11-25,6,2021,4-6 orders,3
+BD-11560,Brendan Dodson,Home Office,2022-05-30,2024-03-27,2,2022,2-3 orders,2
+BD-11605,Brian Dahlen,Consumer,2021-01-13,2024-09-24,6,2021,4-6 orders,3
+BD-11620,Brian DeCherney,Consumer,2021-06-30,2024-10-22,6,2021,4-6 orders,3
+BD-11635,Brian Derr,Consumer,2021-10-05,2024-12-21,3,2021,2-3 orders,2
+BD-11725,Bruce Degenhardt,Consumer,2022-07-03,2024-09-28,6,2022,4-6 orders,3
+BD-11770,Bryan Davis,Consumer,2023-03-10,2024-02-06,6,2023,4-6 orders,3
+BE-11335,Bill Eplett,Home Office,2023-01-15,2024-09-02,5,2023,4-6 orders,3
+BE-11410,Bobby Elias,Consumer,2023-02-07,2024-09-23,5,2023,4-6 orders,3
+BE-11455,Brad Eason,Home Office,2022-08-02,2023-09-05,5,2022,4-6 orders,3
+BF-10975,Barbara Fisher,Corporate,2021-07-14,2024-09-30,7,2021,7+ orders,4
+BF-11005,Barry Franz,Home Office,2021-09-25,2024-11-21,4,2021,4-6 orders,3
+BF-11020,Barry Französisch,Corporate,2021-02-15,2024-10-17,8,2021,7+ orders,4
+BF-11080,Bart Folk,Consumer,2021-11-28,2024-12-05,3,2021,2-3 orders,2
+BF-11170,Ben Ferrer,Home Office,2021-04-13,2024-12-14,11,2021,7+ orders,4
+BF-11215,Benjamin Farhat,Home Office,2021-11-09,2024-10-26,4,2021,4-6 orders,3
+BF-11275,Beth Fritzler,Corporate,2021-03-22,2024-11-03,3,2021,2-3 orders,2
+BG-11035,Barry Gonzalez,Consumer,2021-11-05,2024-12-02,8,2021,7+ orders,4
+BG-11695,Brooke Gillingham,Corporate,2021-05-11,2024-11-24,6,2021,4-6 orders,3
+BG-11740,Bruce Geld,Consumer,2021-03-23,2024-11-03,6,2021,4-6 orders,3
+BH-11710,Brosina Hoffman,Consumer,2021-06-09,2024-12-07,8,2021,7+ orders,4
+BK-11260,Berenike Kampe,Consumer,2021-08-03,2024-10-14,6,2021,4-6 orders,3
+BM-11140,Becky Martin,Consumer,2021-09-08,2024-02-26,4,2021,4-6 orders,3
+BM-11575,Brendan Murry,Corporate,2022-09-15,2024-09-21,6,2022,4-6 orders,3
+BM-11650,Brian Moss,Corporate,2021-07-09,2024-11-27,11,2021,7+ orders,4
+BM-11785,Bryan Mills,Consumer,2021-06-06,2024-05-26,10,2021,7+ orders,4
+BN-11470,Brad Norvell,Corporate,2021-09-12,2024-12-06,4,2021,4-6 orders,3
+BN-11515,Bradley Nguyen,Consumer,2021-03-17,2024-12-21,5,2021,4-6 orders,3
+BO-11350,Bill Overfelt,Corporate,2023-01-03,2024-08-15,5,2023,4-6 orders,3
+BO-11425,Bobby Odegard,Consumer,2022-09-10,2024-10-16,2,2022,2-3 orders,2
+BP-11050,Barry Pond,Corporate,2021-10-12,2024-10-08,5,2021,4-6 orders,3
+BP-11095,Bart Pistole,Corporate,2021-06-07,2024-12-13,12,2021,7+ orders,4
+BP-11155,Becky Pak,Consumer,2022-06-04,2024-10-02,6,2022,4-6 orders,3
+BP-11185,Ben Peterman,Corporate,2022-03-24,2024-12-29,9,2022,7+ orders,4
+BP-11230,Benjamin Patterson,Consumer,2021-04-20,2024-11-21,5,2021,4-6 orders,3
+BP-11290,Beth Paige,Consumer,2021-10-03,2024-12-18,7,2021,7+ orders,4
+BS-11365,Bill Shonely,Corporate,2021-05-04,2023-06-20,5,2021,4-6 orders,3
+BS-11380,Bill Stewart,Corporate,2021-11-29,2024-12-02,5,2021,4-6 orders,3
+BS-11590,Brendan Sweed,Corporate,2021-01-14,2024-11-25,6,2021,4-6 orders,3
+BS-11665,Brian Stugart,Consumer,2021-06-23,2023-05-27,3,2021,2-3 orders,2
+BS-11755,Bruce Stewart,Consumer,2021-05-18,2024-12-29,7,2021,7+ orders,4
+BS-11800,Bryan Spruell,Home Office,2022-09-26,2024-04-09,2,2022,2-3 orders,2
+BT-11305,Beth Thompson,Home Office,2021-04-25,2024-01-28,5,2021,4-6 orders,3
+BT-11395,Bill Tyler,Corporate,2021-10-28,2024-03-03,6,2021,4-6 orders,3
+BT-11440,Bobby Trafton,Consumer,2021-06-04,2023-06-18,4,2021,4-6 orders,3
+BT-11485,Brad Thomas,Home Office,2022-12-27,2023-03-11,2,2022,2-3 orders,2
+BT-11530,Bradley Talbott,Home Office,2021-05-21,2024-09-30,5,2021,4-6 orders,3
+BT-11680,Brian Thompson,Consumer,2021-11-28,2024-12-10,7,2021,7+ orders,4
+BV-11245,Benjamin Venier,Corporate,2022-03-26,2024-01-30,5,2022,4-6 orders,3
+BW-11065,Barry Weirich,Consumer,2021-05-25,2024-06-01,3,2021,2-3 orders,2
+BW-11110,Bart Watters,Corporate,2022-03-20,2024-08-31,8,2022,7+ orders,4
+BW-11200,Ben Wallace,Consumer,2021-08-12,2024-06-10,6,2021,4-6 orders,3
+CA-11965,Carol Adams,Corporate,2021-01-26,2024-09-25,6,2021,4-6 orders,3
+CA-12055,Cathy Armstrong,Home Office,2022-09-05,2023-11-24,5,2022,4-6 orders,3
+CA-12265,Christina Anderson,Consumer,2021-03-25,2024-11-04,8,2021,7+ orders,4
+CA-12310,Christine Abelman,Corporate,2021-07-19,2024-12-17,4,2021,4-6 orders,3
+CA-12775,Cynthia Arntzen,Consumer,2021-06-28,2024-09-01,7,2021,7+ orders,4
+CB-12025,Cassandra Brandow,Consumer,2021-03-21,2024-11-13,9,2021,7+ orders,4
+CB-12415,Christy Brittain,Consumer,2022-11-05,2024-12-04,8,2022,7+ orders,4
+CB-12535,Claudia Bergmann,Corporate,2022-01-02,2024-06-16,8,2022,7+ orders,4
+CC-12100,Chad Cunningham,Home Office,2021-12-16,2023-09-29,5,2021,4-6 orders,3
+CC-12145,Charles Crestani,Consumer,2021-07-20,2024-09-15,7,2021,7+ orders,4
+CC-12220,Chris Cortes,Consumer,2021-09-09,2024-12-10,11,2021,7+ orders,4
+CC-12370,Christopher Conant,Consumer,2023-05-23,2024-11-17,5,2023,4-6 orders,3
+CC-12430,Chuck Clark,Home Office,2022-09-06,2024-12-30,10,2022,7+ orders,4
+CC-12475,Cindy Chapman,Consumer,2021-05-16,2024-11-21,9,2021,7+ orders,4
+CC-12550,Clay Cheatham,Consumer,2024-06-15,2024-12-03,3,2024,2-3 orders,2
+CC-12610,Corey Catlett,Corporate,2021-08-27,2024-11-26,7,2021,7+ orders,4
+CC-12670,Craig Carreira,Consumer,2021-12-23,2024-12-01,7,2021,7+ orders,4
+CC-12685,Craig Carroll,Consumer,2021-03-22,2022-10-23,4,2021,4-6 orders,3
+CD-11920,Carlos Daly,Consumer,2021-03-24,2024-11-20,5,2021,4-6 orders,3
+CD-11980,Carol Darley,Consumer,2023-11-24,2024-11-06,3,2023,2-3 orders,2
+CD-12280,Christina DeMoss,Consumer,2024-11-05,2024-11-18,2,2024,2-3 orders,2
+CD-12790,Cynthia Delaney,Home Office,2021-02-02,2023-11-26,5,2021,4-6 orders,3
+CG-12040,Catherine Glotzbach,Home Office,2022-06-01,2024-11-11,6,2022,4-6 orders,3
+CG-12520,Claire Gute,Consumer,2022-10-15,2024-01-26,3,2022,2-3 orders,2
+CH-12070,Cathy Hwang,Home Office,2022-06-25,2023-02-08,3,2022,2-3 orders,2
+CJ-11875,Carl Jackson,Corporate,2023-12-30,2023-12-30,1,2023,1 order,1
+CJ-12010,Caroline Jumper,Consumer,2023-03-10,2024-06-24,8,2023,7+ orders,4
+CK-12205,Chloris Kastensmidt,Consumer,2021-03-11,2024-11-21,13,2021,7+ orders,4
+CK-12325,Christine Kargatis,Home Office,2021-03-14,2024-09-01,5,2021,4-6 orders,3
+CK-12595,Clytie Kelty,Consumer,2021-12-26,2024-11-17,11,2021,7+ orders,4
+CK-12760,Cyma Kinney,Corporate,2021-02-07,2024-10-09,9,2021,7+ orders,4
+CL-11890,Carl Ludwig,Consumer,2021-07-26,2024-09-15,4,2021,4-6 orders,3
+CL-12565,Clay Ludtke,Consumer,2021-03-04,2024-03-21,12,2021,7+ orders,4
+CL-12700,Craig Leslie,Home Office,2023-04-24,2024-04-14,4,2023,4-6 orders,3
+CM-11815,Candace McMahon,Corporate,2021-11-14,2024-08-21,6,2021,4-6 orders,3
+CM-11935,Carlos Meador,Consumer,2022-09-24,2023-01-22,2,2022,2-3 orders,2
+CM-12115,Chad McGuire,Consumer,2022-03-29,2024-12-22,4,2022,4-6 orders,3
+CM-12160,Charles McCrossin,Consumer,2023-10-21,2024-12-04,6,2023,4-6 orders,3
+CM-12190,Charlotte Melton,Consumer,2022-09-18,2024-12-22,6,2022,4-6 orders,3
+CM-12235,Chris McAfee,Consumer,2023-05-01,2023-12-10,5,2023,4-6 orders,3
+CM-12385,Christopher Martinez,Consumer,2022-03-16,2024-11-23,4,2022,4-6 orders,3
+CM-12445,Chuck Magee,Consumer,2021-06-09,2023-10-20,3,2021,2-3 orders,2
+CM-12655,Corinna Mitchell,Home Office,2022-11-03,2024-12-03,5,2022,4-6 orders,3
+CM-12715,Craig Molinari,Corporate,2021-03-07,2022-03-01,4,2021,4-6 orders,3
+CP-12085,Cathy Prescott,Corporate,2021-12-04,2024-10-09,8,2021,7+ orders,4
+CP-12340,Christine Phan,Corporate,2021-03-17,2024-07-23,7,2021,7+ orders,4
+CR-12580,Clay Rozendal,Home Office,2023-04-18,2024-11-03,4,2023,4-6 orders,3
+CR-12625,Corey Roper,Home Office,2021-06-01,2023-09-16,3,2021,2-3 orders,2
+CR-12730,Craig Reiter,Consumer,2021-08-20,2024-10-13,4,2021,4-6 orders,3
+CR-12820,Cyra Reiten,Home Office,2022-01-24,2024-10-06,3,2022,2-3 orders,2
+CS-11845,Cari Sayre,Corporate,2021-12-14,2024-09-30,5,2021,4-6 orders,3
+CS-11860,Cari Schnelling,Consumer,2021-05-02,2024-07-21,6,2021,4-6 orders,3
+CS-11950,Carlos Soltero,Consumer,2021-06-08,2024-12-05,11,2021,7+ orders,4
+CS-12130,Chad Sievert,Consumer,2021-08-05,2023-08-28,4,2021,4-6 orders,3
+CS-12175,Charles Sheldon,Corporate,2021-08-12,2024-05-12,5,2021,4-6 orders,3
+CS-12250,Chris Selesnick,Corporate,2021-01-13,2024-12-04,12,2021,7+ orders,4
+CS-12355,Christine Sundaresam,Consumer,2021-08-15,2024-12-24,11,2021,7+ orders,4
+CS-12400,Christopher Schild,Home Office,2021-09-26,2024-12-28,9,2021,7+ orders,4
+CS-12460,Chuck Sachs,Consumer,2024-07-03,2024-12-03,2,2024,2-3 orders,2
+CS-12490,Cindy Schnelling,Corporate,2022-01-12,2023-11-01,4,2022,4-6 orders,3
+CS-12505,Cindy Stewart,Consumer,2021-03-26,2024-11-02,6,2021,4-6 orders,3
+CT-11995,Carol Triggs,Consumer,2021-05-07,2024-09-25,8,2021,7+ orders,4
+CV-12295,Christina VanderZanden,Consumer,2021-03-28,2024-04-20,5,2021,4-6 orders,3
+CV-12805,Cynthia Voltz,Corporate,2023-05-09,2024-12-25,9,2023,7+ orders,4
+CW-11905,Carl Weiss,Home Office,2021-06-09,2024-12-08,6,2021,4-6 orders,3
+CY-12745,Craig Yedwab,Corporate,2021-12-12,2024-10-31,7,2021,7+ orders,4
+Co-12640,Corey-Lock,Consumer,2021-06-20,2023-06-29,5,2021,4-6 orders,3
+DA-13450,Dianna Arnett,Home Office,2021-04-25,2024-01-12,4,2021,4-6 orders,3
+DB-12910,Daniel Byrd,Home Office,2021-10-24,2024-12-09,8,2021,7+ orders,4
+DB-12970,Darren Budd,Corporate,2021-11-12,2024-05-03,4,2021,4-6 orders,3
+DB-13060,Dave Brooks,Consumer,2021-03-01,2024-12-14,6,2021,4-6 orders,3
+DB-13120,David Bremer,Corporate,2022-05-01,2024-11-12,7,2022,7+ orders,4
+DB-13210,Dean Braden,Consumer,2022-03-22,2024-12-21,10,2022,7+ orders,4
+DB-13270,Deborah Brumfield,Home Office,2021-02-04,2024-11-07,8,2021,7+ orders,4
+DB-13360,Dennis Bolton,Home Office,2021-11-19,2024-04-10,5,2021,4-6 orders,3
+DB-13405,Denny Blanton,Consumer,2022-08-08,2024-06-26,4,2022,4-6 orders,3
+DB-13555,Dorothy Badders,Corporate,2021-04-21,2024-09-14,7,2021,7+ orders,4
+DB-13615,Doug Bickford,Consumer,2021-09-30,2024-11-27,7,2021,7+ orders,4
+DB-13660,Duane Benoit,Consumer,2021-06-17,2024-12-18,7,2021,7+ orders,4
+DC-12850,Dan Campbell,Consumer,2021-07-05,2024-11-23,9,2021,7+ orders,4
+DC-13285,Debra Catini,Consumer,2021-12-29,2024-12-07,5,2021,4-6 orders,3
+DD-13570,Dorothy Dickinson,Consumer,2021-03-31,2024-11-19,6,2021,4-6 orders,3
+DE-13255,Deanra Eno,Home Office,2021-08-22,2023-01-11,5,2021,4-6 orders,3
+DF-13135,David Flashing,Consumer,2021-10-04,2023-01-30,3,2021,2-3 orders,2
+DG-13300,Deirdre Greer,Corporate,2021-11-01,2024-11-28,5,2021,4-6 orders,3
+DH-13075,Dave Hallsten,Corporate,2021-11-21,2024-03-28,5,2021,4-6 orders,3
+DH-13675,Duane Huffman,Home Office,2021-08-12,2022-11-15,4,2021,4-6 orders,3
+DJ-13420,Denny Joy,Corporate,2021-12-08,2023-04-02,4,2021,4-6 orders,3
+DJ-13510,Don Jones,Corporate,2021-08-17,2024-11-12,8,2021,7+ orders,4
+DJ-13630,Doug Jacobs,Consumer,2022-12-14,2024-12-18,3,2022,2-3 orders,2
+DK-12835,Damala Kotsonis,Corporate,2021-03-26,2024-12-09,12,2021,7+ orders,4
+DK-12895,Dana Kaydos,Consumer,2022-03-08,2024-11-15,5,2022,4-6 orders,3
+DK-12985,Darren Koutras,Consumer,2021-11-24,2024-12-23,5,2021,4-6 orders,3
+DK-13090,Dave Kipp,Consumer,2022-03-02,2024-11-18,7,2022,7+ orders,4
+DK-13150,David Kendrick,Corporate,2021-12-05,2024-12-20,2,2021,2-3 orders,2
+DK-13225,Dean Katz,Corporate,2021-03-14,2024-12-20,9,2021,7+ orders,4
+DK-13375,Dennis Kane,Consumer,2021-09-07,2024-12-11,8,2021,7+ orders,4
+DL-12865,Dan Lawera,Consumer,2021-06-29,2024-09-21,7,2021,7+ orders,4
+DL-12925,Daniel Lacy,Consumer,2021-09-09,2024-11-03,6,2021,4-6 orders,3
+DL-13315,Delfina Latchford,Consumer,2021-01-16,2024-12-08,8,2021,7+ orders,4
+DL-13330,Denise Leinenbach,Consumer,2021-06-23,2024-11-03,4,2021,4-6 orders,3
+DL-13495,Dionis Lloyd,Corporate,2022-12-25,2024-10-15,8,2022,7+ orders,4
+DM-12955,Dario Medina,Corporate,2021-09-30,2024-09-07,7,2021,7+ orders,4
+DM-13015,Darrin Martin,Consumer,2021-09-14,2024-11-03,7,2021,7+ orders,4
+DM-13345,Denise Monton,Corporate,2021-11-03,2024-12-08,8,2021,7+ orders,4
+DM-13525,Don Miller,Corporate,2021-07-05,2023-09-05,3,2021,2-3 orders,2
+DN-13690,Duane Noonan,Consumer,2021-09-20,2024-05-27,7,2021,7+ orders,4
+DO-13435,Denny Ordway,Consumer,2021-10-03,2024-08-19,9,2021,7+ orders,4
+DO-13645,Doug O'Connell,Consumer,2022-11-07,2024-12-04,7,2022,7+ orders,4
+DP-13000,Darren Powers,Consumer,2021-01-03,2024-08-26,8,2021,7+ orders,4
+DP-13105,Dave Poirier,Corporate,2022-08-22,2024-12-24,8,2022,7+ orders,4
+DP-13165,David Philippe,Consumer,2021-12-02,2022-10-10,2,2021,2-3 orders,2
+DP-13390,Dennis Pardue,Home Office,2021-07-05,2024-01-06,9,2021,7+ orders,4
+DR-12880,Dan Reichenbach,Corporate,2022-09-25,2024-12-27,9,2022,7+ orders,4
+DR-12940,Daniel Raglin,Home Office,2021-03-28,2024-11-10,8,2021,7+ orders,4
+DS-13030,Darrin Sayre,Home Office,2021-07-09,2024-09-28,4,2021,4-6 orders,3
+DS-13180,David Smith,Corporate,2021-04-28,2024-12-07,9,2021,7+ orders,4
+DV-13045,Darrin Van Huff,Corporate,2023-06-12,2024-12-11,5,2023,4-6 orders,3
+DV-13465,Dianna Vittorini,Consumer,2021-06-22,2024-12-01,5,2021,4-6 orders,3
+DW-13195,David Wiener,Corporate,2021-01-18,2024-10-22,6,2021,4-6 orders,3
+DW-13480,Dianna Wilson,Home Office,2021-06-01,2024-05-27,5,2021,4-6 orders,3
+DW-13540,Don Weiss,Consumer,2023-02-27,2024-09-23,5,2023,4-6 orders,3
+DW-13585,Dorothy Wardle,Corporate,2021-08-24,2024-05-02,7,2021,7+ orders,4
+Dl-13600,Dorris liebe,Corporate,2021-03-30,2024-09-02,5,2021,4-6 orders,3
+Dp-13240,Dean percer,Home Office,2021-05-26,2024-10-07,11,2021,7+ orders,4
+EA-14035,Erin Ashbrook,Corporate,2021-09-13,2024-07-31,12,2021,7+ orders,4
+EB-13705,Ed Braxton,Corporate,2021-07-08,2024-11-12,9,2021,7+ orders,4
+EB-13750,Edward Becker,Corporate,2022-03-12,2024-11-25,10,2022,7+ orders,4
+EB-13840,Ellis Ballard,Corporate,2021-05-30,2024-10-01,4,2021,4-6 orders,3
+EB-13870,Emily Burns,Consumer,2021-05-05,2024-09-21,10,2021,7+ orders,4
+EB-13930,Eric Barreto,Consumer,2021-02-02,2024-07-22,5,2021,4-6 orders,3
+EB-13975,Erica Bern,Corporate,2023-01-04,2024-12-30,4,2023,4-6 orders,3
+EB-14110,Eugene Barchas,Consumer,2022-04-13,2024-09-08,6,2022,4-6 orders,3
+EB-14170,Evan Bailliet,Consumer,2021-09-29,2024-10-09,6,2021,4-6 orders,3
+EC-14050,Erin Creighton,Consumer,2021-12-17,2024-11-07,5,2021,4-6 orders,3
+ED-13885,Emily Ducich,Home Office,2021-08-09,2024-08-17,8,2021,7+ orders,4
+EG-13900,Emily Grady,Consumer,2022-11-02,2024-12-08,5,2022,4-6 orders,3
+EH-13765,Edward Hooks,Corporate,2021-10-18,2024-08-17,10,2021,7+ orders,4
+EH-13945,Eric Hoffmann,Consumer,2021-07-02,2024-05-27,8,2021,7+ orders,4
+EH-13990,Erica Hackney,Consumer,2021-01-15,2023-11-20,6,2021,4-6 orders,3
+EH-14005,Erica Hernandez,Home Office,2021-05-13,2024-12-28,7,2021,7+ orders,4
+EH-14125,Eugene Hildebrand,Home Office,2021-10-19,2024-07-31,10,2021,7+ orders,4
+EH-14185,Evan Henry,Consumer,2021-05-22,2024-09-16,6,2021,4-6 orders,3
+EJ-13720,Ed Jacobs,Consumer,2021-01-27,2024-03-03,4,2021,4-6 orders,3
+EJ-14155,Eva Jacobs,Consumer,2021-03-03,2024-11-03,5,2021,4-6 orders,3
+EK-13795,Eileen Kiefer,Home Office,2021-03-18,2024-11-16,4,2021,4-6 orders,3
+EL-13735,Ed Ludwig,Home Office,2023-04-22,2024-10-14,2,2023,2-3 orders,2
+EM-13810,Eleni McCrary,Corporate,2022-06-07,2024-08-20,5,2022,4-6 orders,3
+EM-13825,Elizabeth Moffitt,Corporate,2021-12-02,2024-11-05,8,2021,7+ orders,4
+EM-13960,Eric Murdock,Consumer,2022-10-01,2024-08-01,5,2022,4-6 orders,3
+EM-14065,Erin Mull,Consumer,2021-07-22,2024-11-13,4,2021,4-6 orders,3
+EM-14095,Eudokia Martin,Corporate,2022-08-07,2024-09-08,4,2022,4-6 orders,3
+EM-14140,Eugene Moren,Home Office,2021-07-19,2024-11-12,6,2021,4-6 orders,3
+EM-14200,Evan Minnotte,Home Office,2022-12-20,2024-07-25,3,2022,2-3 orders,2
+EN-13780,Edward Nazzal,Consumer,2022-05-30,2024-03-18,4,2022,4-6 orders,3
+EP-13915,Emily Phan,Consumer,2021-07-06,2024-12-18,17,2021,7+ orders,4
+ER-13855,Elpida Rittenbach,Corporate,2022-12-21,2023-11-04,3,2022,2-3 orders,2
+ES-14020,Erica Smith,Consumer,2021-09-20,2024-11-20,5,2021,4-6 orders,3
+ES-14080,Erin Smith,Corporate,2021-10-02,2024-12-02,9,2021,7+ orders,4
+FA-14230,Frank Atkinson,Corporate,2021-09-19,2024-09-24,7,2021,7+ orders,4
+FC-14245,Frank Carlisle,Home Office,2022-06-13,2024-10-21,7,2022,7+ orders,4
+FC-14335,Fred Chung,Corporate,2021-10-10,2024-06-29,7,2021,7+ orders,4
+FG-14260,Frank Gastineau,Home Office,2021-05-21,2024-11-26,7,2021,7+ orders,4
+FH-14275,Frank Hawley,Corporate,2021-04-06,2024-11-23,10,2021,7+ orders,4
+FH-14350,Fred Harton,Consumer,2022-08-23,2024-06-01,4,2022,4-6 orders,3
+FH-14365,Fred Hopkins,Corporate,2021-10-20,2024-12-25,8,2021,7+ orders,4
+FM-14215,Filia McAdams,Corporate,2021-03-11,2024-12-23,10,2021,7+ orders,4
+FM-14290,Frank Merwin,Home Office,2021-08-26,2024-11-24,9,2021,7+ orders,4
+FM-14380,Fred McMath,Consumer,2022-07-12,2024-08-07,9,2022,7+ orders,4
+FO-14305,Frank Olsen,Consumer,2021-06-09,2024-11-22,10,2021,7+ orders,4
+FP-14320,Frank Preis,Consumer,2021-12-07,2024-12-07,8,2021,7+ orders,4
+FW-14395,Fred Wasserman,Corporate,2022-03-22,2024-01-02,3,2022,2-3 orders,2
+GA-14515,George Ashbrook,Consumer,2022-04-17,2024-08-03,5,2022,4-6 orders,3
+GA-14725,Guy Armstrong,Consumer,2021-02-11,2024-12-25,11,2021,7+ orders,4
+GB-14530,George Bell,Corporate,2021-04-28,2024-10-29,11,2021,7+ orders,4
+GB-14575,Giulietta Baptist,Consumer,2022-06-12,2024-12-17,5,2022,4-6 orders,3
+GD-14590,Giulietta Dortch,Corporate,2021-05-05,2024-12-25,4,2021,4-6 orders,3
+GG-14650,Greg Guthrie,Corporate,2021-10-31,2024-11-17,9,2021,7+ orders,4
+GH-14410,Gary Hansen,Home Office,2021-07-09,2024-10-16,9,2021,7+ orders,4
+GH-14425,Gary Hwang,Consumer,2021-06-17,2024-11-10,4,2021,4-6 orders,3
+GH-14485,Gene Hale,Corporate,2022-10-08,2023-12-08,2,2022,2-3 orders,2
+GH-14665,Greg Hansen,Consumer,2022-11-17,2024-12-28,2,2022,2-3 orders,2
+GK-14620,Grace Kelly,Corporate,2021-06-25,2024-09-09,9,2021,7+ orders,4
+GM-14440,Gary McGarr,Consumer,2021-03-21,2024-10-08,7,2021,7+ orders,4
+GM-14455,Gary Mitchum,Home Office,2021-04-11,2024-12-14,6,2021,4-6 orders,3
+GM-14500,Gene McClure,Consumer,2021-08-09,2024-09-15,10,2021,7+ orders,4
+GM-14680,Greg Matthias,Consumer,2021-05-10,2024-07-31,6,2021,4-6 orders,3
+GM-14695,Greg Maxwell,Corporate,2021-04-05,2024-09-04,3,2021,2-3 orders,2
+GP-14740,Guy Phonely,Corporate,2021-04-06,2022-11-26,2,2021,2-3 orders,2
+GR-14560,Georgia Rosenberg,Corporate,2021-11-19,2021-11-21,2,2021,2-3 orders,2
+GT-14635,Grant Thornton,Corporate,2021-06-06,2024-11-04,3,2021,2-3 orders,2
+GT-14710,Greg Tran,Consumer,2021-05-23,2024-11-24,11,2021,7+ orders,4
+GT-14755,Guy Thornton,Consumer,2022-02-18,2024-11-26,4,2022,4-6 orders,3
+GW-14605,Giulietta Weimer,Consumer,2021-03-01,2024-12-02,7,2021,7+ orders,4
+GZ-14470,Gary Zandusky,Consumer,2021-08-05,2024-12-23,9,2021,7+ orders,4
+GZ-14545,George Zrebassa,Corporate,2021-09-28,2024-07-26,4,2021,4-6 orders,3
+HA-14905,Helen Abelman,Consumer,2021-06-30,2024-10-22,7,2021,7+ orders,4
+HA-14920,Helen Andreada,Consumer,2021-10-11,2024-12-10,8,2021,7+ orders,4
+HD-14785,Harold Dahlen,Home Office,2021-05-11,2022-11-22,3,2021,2-3 orders,2
+HE-14800,Harold Engle,Corporate,2023-01-30,2024-12-18,3,2023,2-3 orders,2
+HF-14995,Herbert Flentye,Consumer,2021-05-26,2024-12-09,7,2021,7+ orders,4
+HG-14845,Harry Greene,Consumer,2021-04-29,2024-11-06,5,2021,4-6 orders,3
+HG-14965,Henry Goldwyn,Corporate,2021-09-20,2024-12-07,12,2021,7+ orders,4
+HG-15025,Hunter Glantz,Consumer,2021-10-14,2024-12-24,7,2021,7+ orders,4
+HH-15010,Hilary Holden,Corporate,2021-08-29,2024-10-19,2,2021,2-3 orders,2
+HJ-14875,Heather Jas,Home Office,2022-04-13,2024-08-26,5,2022,4-6 orders,3
+HK-14890,Heather Kirkland,Corporate,2021-06-10,2024-08-01,8,2021,7+ orders,4
+HL-15040,Hunter Lopez,Consumer,2021-01-20,2024-11-17,6,2021,4-6 orders,3
+HM-14860,Harry Marie,Corporate,2021-07-21,2024-12-28,10,2021,7+ orders,4
+HM-14980,Henry MacAllister,Consumer,2022-10-02,2024-04-27,4,2022,4-6 orders,3
+HP-14815,Harold Pawlan,Home Office,2021-05-06,2024-11-30,7,2021,7+ orders,4
+HR-14770,Hallie Redmond,Home Office,2021-03-01,2024-12-17,4,2021,4-6 orders,3
+HR-14830,Harold Ryan,Corporate,2021-11-24,2024-07-24,7,2021,7+ orders,4
+HW-14935,Helen Wasserman,Corporate,2022-09-27,2024-09-04,7,2022,7+ orders,4
+HZ-14950,Henia Zydlo,Consumer,2023-03-14,2024-11-25,5,2023,4-6 orders,3
+IG-15085,Ivan Gibson,Consumer,2021-10-18,2024-10-20,4,2021,4-6 orders,3
+IL-15100,Ivan Liston,Consumer,2021-08-01,2024-08-10,7,2021,7+ orders,4
+IM-15055,Ionia McGrath,Consumer,2021-01-23,2023-11-16,2,2021,2-3 orders,2
+IM-15070,Irene Maddox,Consumer,2021-12-19,2023-12-05,7,2021,7+ orders,4
+JA-15970,Joseph Airdo,Consumer,2021-09-17,2024-09-29,8,2021,7+ orders,4
+JB-15400,Jennifer Braxton,Corporate,2021-09-14,2024-12-23,10,2021,7+ orders,4
+JB-15925,Joni Blumstein,Consumer,2021-12-05,2022-12-24,3,2021,2-3 orders,2
+JB-16000,Joy Bell-,Consumer,2023-01-10,2024-11-17,7,2023,7+ orders,4
+JB-16045,Julia Barnett,Home Office,2022-05-03,2024-12-23,5,2022,4-6 orders,3
+JC-15340,Jasper Cacioppo,Consumer,2021-01-28,2024-09-07,4,2021,4-6 orders,3
+JC-15385,Jenna Caffey,Consumer,2024-07-08,2024-07-08,1,2024,1 order,1
+JC-15775,John Castell,Consumer,2021-09-14,2024-07-25,9,2021,7+ orders,4
+JC-16105,Julie Creighton,Corporate,2021-11-18,2024-11-03,5,2021,4-6 orders,3
+JD-15790,John Dryer,Consumer,2022-04-02,2024-09-04,5,2022,4-6 orders,3
+JD-15895,Jonathan Doherty,Corporate,2021-03-26,2023-12-01,11,2021,7+ orders,4
+JD-16015,Joy Daniels,Consumer,2021-10-04,2024-09-09,6,2021,4-6 orders,3
+JD-16060,Julia Dunbar,Consumer,2021-09-24,2024-03-05,3,2021,2-3 orders,2
+JD-16150,Justin Deggeller,Corporate,2021-11-16,2024-11-19,8,2021,7+ orders,4
+JE-15475,Jeremy Ellison,Consumer,2022-03-16,2024-06-20,6,2022,4-6 orders,3
+JE-15610,Jim Epp,Corporate,2021-10-14,2024-11-12,7,2021,7+ orders,4
+JE-15715,Joe Elijah,Consumer,2021-08-25,2024-11-14,10,2021,7+ orders,4
+JE-15745,Joel Eaton,Consumer,2021-06-22,2024-11-09,13,2021,7+ orders,4
+JE-16165,Justin Ellison,Corporate,2023-12-05,2024-12-10,3,2023,2-3 orders,2
+JF-15190,Jamie Frazer,Consumer,2021-11-15,2024-10-26,6,2021,4-6 orders,3
+JF-15295,Jason Fortune-,Consumer,2021-03-14,2024-05-19,5,2021,4-6 orders,3
+JF-15355,Jay Fein,Consumer,2022-10-23,2024-09-16,6,2022,4-6 orders,3
+JF-15415,Jennifer Ferguson,Consumer,2021-08-22,2024-12-28,5,2021,4-6 orders,3
+JF-15490,Jeremy Farry,Consumer,2021-10-19,2024-08-31,10,2021,7+ orders,4
+JF-15565,Jill Fjeld,Consumer,2021-10-11,2024-11-06,8,2021,7+ orders,4
+JG-15115,Jack Garza,Consumer,2021-09-21,2022-12-03,3,2021,2-3 orders,2
+JG-15160,James Galang,Consumer,2021-05-30,2024-12-29,11,2021,7+ orders,4
+JG-15310,Jason Gross,Corporate,2023-03-03,2024-12-28,6,2023,4-6 orders,3
+JG-15805,John Grady,Corporate,2021-04-05,2024-05-21,6,2021,4-6 orders,3
+JH-15430,Jennifer Halladay,Consumer,2021-02-24,2024-12-25,4,2021,4-6 orders,3
+JH-15820,John Huston,Consumer,2021-05-19,2024-07-09,6,2021,4-6 orders,3
+JH-15910,Jonathan Howell,Consumer,2022-06-12,2024-11-19,7,2022,7+ orders,4
+JH-15985,Joseph Holt,Consumer,2021-08-09,2024-12-01,6,2021,4-6 orders,3
+JH-16180,Justin Hirsh,Consumer,2022-05-25,2023-11-21,4,2022,4-6 orders,3
+JJ-15445,Jennifer Jackson,Consumer,2022-03-05,2023-09-03,5,2022,4-6 orders,3
+JJ-15760,Joel Jenkins,Home Office,2022-10-05,2022-12-08,2,2022,2-3 orders,2
+JK-15205,Jamie Kunitz,Consumer,2022-09-27,2024-10-30,4,2022,4-6 orders,3
+JK-15325,Jason Klamczynski,Corporate,2021-11-21,2024-03-18,3,2021,2-3 orders,2
+JK-15370,Jay Kimmel,Consumer,2021-04-11,2024-11-16,7,2021,7+ orders,4
+JK-15625,Jim Karlsson,Consumer,2021-05-31,2024-10-30,7,2021,7+ orders,4
+JK-15640,Jim Kriz,Home Office,2021-09-19,2024-07-03,9,2021,7+ orders,4
+JK-15730,Joe Kamberova,Consumer,2021-11-18,2024-10-07,9,2021,7+ orders,4
+JK-16090,Juliana Krohn,Consumer,2022-04-21,2024-12-02,3,2022,2-3 orders,2
+JK-16120,Julie Kriz,Home Office,2021-11-02,2024-09-04,10,2021,7+ orders,4
+JL-15130,Jack Lebron,Consumer,2021-07-18,2024-12-22,6,2021,4-6 orders,3
+JL-15175,James Lanier,Home Office,2021-12-31,2024-12-24,5,2021,4-6 orders,3
+JL-15235,Janet Lee,Consumer,2021-05-25,2024-09-02,5,2021,4-6 orders,3
+JL-15505,Jeremy Lonsdale,Consumer,2021-11-14,2024-11-11,6,2021,4-6 orders,3
+JL-15835,John Lee,Consumer,2021-04-18,2024-12-09,10,2021,7+ orders,4
+JL-15850,John Lucas,Consumer,2021-07-22,2023-04-25,6,2021,4-6 orders,3
+JM-15250,Janet Martin,Consumer,2023-03-29,2024-11-23,6,2023,4-6 orders,3
+JM-15265,Janet Molinari,Corporate,2021-08-25,2024-11-23,5,2021,4-6 orders,3
+JM-15535,Jessica Myrick,Consumer,2021-09-13,2024-09-19,7,2021,7+ orders,4
+JM-15580,Jill Matthias,Consumer,2023-04-14,2024-12-30,5,2023,4-6 orders,3
+JM-15655,Jim Mitchum,Corporate,2021-04-08,2024-12-22,5,2021,4-6 orders,3
+JM-15865,John Murray,Consumer,2021-11-19,2024-09-12,7,2021,7+ orders,4
+JM-16195,Justin MacKendrick,Consumer,2021-04-30,2024-11-03,10,2021,7+ orders,4
+JO-15145,Jack O'Briant,Corporate,2021-01-06,2024-11-03,9,2021,7+ orders,4
+JO-15280,Jas O'Carroll,Consumer,2021-03-31,2024-09-29,6,2021,4-6 orders,3
+JO-15550,Jesus Ocampo,Home Office,2022-03-19,2024-05-29,5,2022,4-6 orders,3
+JP-15460,Jennifer Patt,Corporate,2021-08-24,2024-11-23,7,2021,7+ orders,4
+JP-15520,Jeremy Pistek,Consumer,2021-08-22,2024-12-22,7,2021,7+ orders,4
+JP-16135,Julie Prescott,Home Office,2021-09-23,2024-09-19,9,2021,7+ orders,4
+JR-15670,Jim Radford,Consumer,2022-12-24,2023-05-16,2,2022,2-3 orders,2
+JR-15700,Jocasta Rupert,Consumer,2024-10-23,2024-10-23,1,2024,1 order,1
+JR-16210,Justin Ritter,Corporate,2022-09-18,2024-11-27,5,2022,4-6 orders,3
+JS-15595,Jill Stevenson,Corporate,2021-03-03,2024-09-02,4,2021,4-6 orders,3
+JS-15685,Jim Sink,Corporate,2023-06-14,2024-11-18,3,2023,2-3 orders,2
+JS-15880,John Stevenson,Consumer,2021-04-08,2023-07-14,5,2021,4-6 orders,3
+JS-15940,Joni Sundaresam,Home Office,2021-05-03,2023-09-23,5,2021,4-6 orders,3
+JS-16030,Joy Smith,Consumer,2021-02-27,2024-12-02,6,2021,4-6 orders,3
+JW-15220,Jane Waco,Corporate,2022-04-30,2024-11-18,6,2022,4-6 orders,3
+JW-15955,Joni Wasserman,Consumer,2022-08-16,2024-12-25,6,2022,4-6 orders,3
+JW-16075,Julia West,Consumer,2022-03-21,2023-09-25,4,2022,4-6 orders,3
+KA-16525,Kelly Andreada,Consumer,2021-03-11,2024-11-24,7,2021,7+ orders,4
+KB-16240,Karen Bern,Corporate,2021-03-31,2024-12-26,7,2021,7+ orders,4
+KB-16315,Karl Braun,Consumer,2021-08-26,2024-03-09,9,2021,7+ orders,4
+KB-16405,Katrina Bavinger,Home Office,2022-11-20,2024-09-04,3,2022,2-3 orders,2
+KB-16585,Ken Black,Corporate,2021-04-04,2024-05-14,12,2021,7+ orders,4
+KB-16600,Ken Brennan,Corporate,2021-12-30,2024-12-29,7,2021,7+ orders,4
+KC-16255,Karen Carlisle,Corporate,2021-09-08,2023-11-18,6,2021,4-6 orders,3
+KC-16540,Kelly Collister,Consumer,2022-11-02,2024-09-24,4,2022,4-6 orders,3
+KC-16675,Kimberly Carter,Corporate,2021-12-13,2024-11-03,4,2021,4-6 orders,3
+KD-16270,Karen Daniels,Consumer,2021-11-11,2023-09-02,5,2021,4-6 orders,3
+KD-16345,Katherine Ducich,Consumer,2021-09-02,2024-11-19,6,2021,4-6 orders,3
+KD-16495,Keith Dawkins,Corporate,2021-09-28,2024-09-09,12,2021,7+ orders,4
+KD-16615,Ken Dana,Corporate,2023-04-30,2024-03-16,4,2023,4-6 orders,3
+KE-16420,Katrina Edelman,Corporate,2021-06-08,2024-12-04,7,2021,7+ orders,4
+KF-16285,Karen Ferguson,Home Office,2021-09-26,2024-09-24,7,2021,7+ orders,4
+KH-16330,Katharine Harms,Corporate,2021-04-01,2024-11-20,8,2021,7+ orders,4
+KH-16360,Katherine Hughes,Consumer,2021-04-29,2024-12-29,6,2021,4-6 orders,3
+KH-16510,Keith Herrera,Consumer,2021-08-15,2024-12-08,6,2021,4-6 orders,3
+KH-16630,Ken Heidel,Corporate,2021-11-01,2024-11-02,9,2021,7+ orders,4
+KH-16690,Kristen Hastings,Corporate,2021-03-21,2024-12-28,7,2021,7+ orders,4
+KL-16555,Kelly Lampkin,Corporate,2021-06-15,2024-12-14,8,2021,7+ orders,4
+KL-16645,Ken Lonsdale,Consumer,2021-07-25,2024-11-13,12,2021,7+ orders,4
+KM-16225,Kalyca Meade,Corporate,2022-07-06,2024-12-16,6,2022,4-6 orders,3
+KM-16375,Katherine Murray,Home Office,2021-07-20,2024-11-04,8,2021,7+ orders,4
+KM-16660,Khloe Miller,Consumer,2021-12-22,2024-12-15,5,2021,4-6 orders,3
+KM-16720,Kunst Miller,Consumer,2021-03-30,2024-12-02,8,2021,7+ orders,4
+KN-16390,Katherine Nockton,Corporate,2021-12-02,2024-12-11,8,2021,7+ orders,4
+KN-16450,Kean Nguyen,Corporate,2021-04-12,2024-11-08,5,2021,4-6 orders,3
+KN-16705,Kristina Nunn,Home Office,2021-03-02,2024-09-23,7,2021,7+ orders,4
+KS-16300,Karen Seio,Corporate,2022-01-13,2024-03-10,3,2022,2-3 orders,2
+KT-16465,Kean Takahito,Consumer,2021-09-08,2023-12-04,7,2021,7+ orders,4
+KT-16480,Kean Thornton,Consumer,2021-03-10,2024-09-21,10,2021,7+ orders,4
+KW-16435,Katrina Willman,Consumer,2022-08-24,2024-09-25,5,2022,4-6 orders,3
+KW-16570,Kelly Williams,Consumer,2021-09-30,2022-11-20,4,2021,4-6 orders,3
+LA-16780,Laura Armstrong,Corporate,2021-04-29,2024-07-29,11,2021,7+ orders,4
+LB-16735,Larry Blacks,Consumer,2023-07-25,2024-11-12,3,2023,2-3 orders,2
+LB-16795,Laurel Beltran,Home Office,2021-04-23,2024-07-31,8,2021,7+ orders,4
+LC-16870,Lena Cacioppo,Consumer,2022-05-03,2024-12-03,8,2022,7+ orders,4
+LC-16885,Lena Creighton,Consumer,2021-04-25,2024-12-14,12,2021,7+ orders,4
+LC-16930,Linda Cazamias,Corporate,2021-02-20,2024-11-19,8,2021,7+ orders,4
+LC-16960,Lindsay Castell,Home Office,2022-02-23,2023-10-20,4,2022,4-6 orders,3
+LC-17050,Liz Carlisle,Consumer,2021-01-31,2024-11-06,5,2021,4-6 orders,3
+LC-17140,Logan Currie,Consumer,2021-09-09,2024-12-17,9,2021,7+ orders,4
+LD-16855,Lela Donovan,Corporate,2023-06-26,2023-06-26,1,2023,1 order,1
+LD-17005,Lisa DeCherney,Consumer,2021-09-29,2023-11-11,4,2021,4-6 orders,3
+LE-16810,Laurel Elliston,Consumer,2021-05-27,2024-12-09,6,2021,4-6 orders,3
+LF-17185,Luke Foster,Consumer,2021-07-26,2024-12-08,7,2021,7+ orders,4
+LH-16750,Larry Hughes,Consumer,2021-09-21,2024-08-01,3,2021,2-3 orders,2
+LH-16900,Lena Hernandez,Consumer,2021-08-19,2024-12-09,9,2021,7+ orders,4
+LH-17020,Lisa Hazard,Consumer,2021-09-08,2024-05-05,4,2021,4-6 orders,3
+LH-17155,Logan Haushalter,Consumer,2021-12-12,2023-12-10,9,2021,7+ orders,4
+LL-16840,Lauren Leatherbury,Consumer,2021-04-29,2024-04-25,5,2021,4-6 orders,3
+LM-17065,Liz MacKendrick,Consumer,2021-06-27,2023-12-04,5,2021,4-6 orders,3
+LO-17170,Lori Olson,Corporate,2022-02-06,2024-12-28,5,2022,4-6 orders,3
+LP-17080,Liz Pelletier,Consumer,2021-06-24,2024-11-20,4,2021,4-6 orders,3
+LP-17095,Liz Preis,Consumer,2023-09-08,2024-12-21,6,2023,4-6 orders,3
+LR-16915,Lena Radford,Consumer,2021-08-08,2024-12-04,6,2021,4-6 orders,3
+LR-17035,Lisa Ryan,Corporate,2021-09-07,2024-08-20,5,2021,4-6 orders,3
+LS-16945,Linda Southworth,Corporate,2022-04-25,2024-07-05,6,2022,4-6 orders,3
+LS-16975,Lindsay Shagiari,Home Office,2021-10-20,2024-12-10,9,2021,7+ orders,4
+LS-17200,Luke Schmidt,Corporate,2021-10-18,2024-09-25,6,2021,4-6 orders,3
+LS-17230,Lycoris Saunders,Consumer,2021-01-06,2022-11-14,3,2021,2-3 orders,2
+LS-17245,Lynn Smith,Consumer,2021-10-16,2024-11-26,6,2021,4-6 orders,3
+LT-16765,Larry Tron,Consumer,2021-09-01,2024-12-04,3,2021,2-3 orders,2
+LT-17110,Liz Thompson,Consumer,2021-06-01,2024-11-26,8,2021,7+ orders,4
+LW-16825,Laurel Workman,Corporate,2021-05-30,2024-10-03,5,2021,4-6 orders,3
+LW-16990,Lindsay Williams,Corporate,2023-05-05,2024-11-27,6,2023,4-6 orders,3
+LW-17125,Liz Willingham,Consumer,2021-09-11,2024-06-08,3,2021,2-3 orders,2
+LW-17215,Luke Weiss,Consumer,2021-09-12,2024-12-09,7,2021,7+ orders,4
+MA-17560,Matt Abelman,Home Office,2021-08-08,2024-10-27,11,2021,7+ orders,4
+MA-17995,Michelle Arnett,Home Office,2021-09-20,2024-06-27,6,2021,4-6 orders,3
+MB-17305,Maria Bertelson,Consumer,2021-08-08,2024-11-12,10,2021,7+ orders,4
+MB-18085,Mick Brown,Consumer,2021-01-05,2024-11-16,7,2021,7+ orders,4
+MC-17275,Marc Crier,Consumer,2021-09-08,2024-10-15,8,2021,7+ orders,4
+MC-17425,Mark Cousins,Corporate,2021-05-30,2023-11-26,5,2021,4-6 orders,3
+MC-17575,Matt Collins,Consumer,2021-12-02,2024-12-03,8,2021,7+ orders,4
+MC-17590,Matt Collister,Corporate,2021-05-20,2024-11-09,6,2021,4-6 orders,3
+MC-17605,Matt Connell,Corporate,2021-03-19,2024-09-09,8,2021,7+ orders,4
+MC-17635,Matthew Clasen,Corporate,2021-11-28,2024-06-24,4,2021,4-6 orders,3
+MC-17845,Michael Chen,Consumer,2021-07-05,2024-12-29,7,2021,7+ orders,4
+MC-18100,Mick Crebagga,Consumer,2021-06-18,2024-11-19,10,2021,7+ orders,4
+MC-18130,Mike Caudle,Corporate,2021-09-19,2023-12-26,5,2021,4-6 orders,3
+MD-17350,Maribeth Dona,Consumer,2021-11-05,2024-09-04,6,2021,4-6 orders,3
+MD-17860,Michael Dominguez,Corporate,2021-12-02,2024-11-24,5,2021,4-6 orders,3
+ME-17320,Maria Etezadi,Home Office,2021-01-06,2024-11-18,10,2021,7+ orders,4
+ME-17725,Max Engle,Consumer,2021-07-12,2024-12-02,8,2021,7+ orders,4
+ME-18010,Michelle Ellison,Corporate,2021-07-21,2024-09-29,4,2021,4-6 orders,3
+MF-17665,Maureen Fritzler,Corporate,2021-12-30,2023-11-04,5,2021,4-6 orders,3
+MF-18250,Monica Federle,Corporate,2021-09-15,2024-12-23,5,2021,4-6 orders,3
+MG-17650,Matthew Grinstein,Home Office,2021-08-09,2024-12-01,7,2021,7+ orders,4
+MG-17680,Maureen Gastineau,Home Office,2021-10-22,2024-09-29,4,2021,4-6 orders,3
+MG-17695,Maureen Gnade,Consumer,2021-12-26,2023-06-23,3,2021,2-3 orders,2
+MG-17875,Michael Grace,Home Office,2021-02-23,2024-09-05,5,2021,4-6 orders,3
+MG-17890,Michael Granlund,Home Office,2021-12-29,2024-09-22,9,2021,7+ orders,4
+MG-18145,Mike Gockenbach,Consumer,2021-03-29,2024-10-07,4,2021,4-6 orders,3
+MG-18205,Mitch Gastineau,Corporate,2024-04-10,2024-04-10,1,2024,1 order,1
+MH-17290,Marc Harrigan,Home Office,2021-04-26,2024-03-11,5,2021,4-6 orders,3
+MH-17440,Mark Haberlin,Corporate,2021-02-04,2023-12-19,4,2021,4-6 orders,3
+MH-17455,Mark Hamilton,Consumer,2021-07-11,2024-07-13,7,2021,7+ orders,4
+MH-17620,Matt Hagelstein,Corporate,2022-12-05,2024-07-28,4,2022,4-6 orders,3
+MH-17785,Maya Herman,Corporate,2021-05-27,2024-09-23,7,2021,7+ orders,4
+MH-18025,Michelle Huthwaite,Consumer,2021-07-08,2024-11-11,5,2021,4-6 orders,3
+MH-18115,Mick Hernandez,Home Office,2023-08-23,2024-12-25,9,2023,7+ orders,4
+MJ-17740,Max Jones,Consumer,2022-06-09,2024-12-08,7,2022,7+ orders,4
+MK-17905,Michael Kennedy,Corporate,2021-11-18,2024-12-02,8,2021,7+ orders,4
+MK-18160,Mike Kennedy,Consumer,2021-12-19,2024-05-04,4,2021,4-6 orders,3
+ML-17395,Marina Lichtenstein,Corporate,2021-02-14,2024-10-22,9,2021,7+ orders,4
+ML-17410,Maris LaWare,Consumer,2021-11-14,2024-11-06,5,2021,4-6 orders,3
+ML-17755,Max Ludwig,Home Office,2023-08-04,2024-12-01,7,2023,7+ orders,4
+ML-18040,Michelle Lonsdale,Corporate,2024-03-26,2024-10-12,3,2024,2-3 orders,2
+ML-18265,Muhammed Lee,Consumer,2022-05-31,2024-09-21,2,2022,2-3 orders,2
+MM-17260,Magdelene Morse,Consumer,2021-05-28,2024-07-15,4,2021,4-6 orders,3
+MM-17920,Michael Moore,Consumer,2021-01-13,2024-12-23,10,2021,7+ orders,4
+MM-18055,Michelle Moray,Consumer,2021-04-11,2024-10-30,8,2021,7+ orders,4
+MM-18280,Muhammed MacIntyre,Corporate,2021-01-20,2024-10-06,9,2021,7+ orders,4
+MN-17935,Michael Nguyen,Consumer,2021-02-16,2024-11-26,6,2021,4-6 orders,3
+MO-17500,Mary O'Rourke,Consumer,2021-11-28,2024-10-19,4,2021,4-6 orders,3
+MO-17800,Meg O'Connel,Home Office,2022-09-17,2024-09-17,8,2022,7+ orders,4
+MO-17950,Michael Oakman,Consumer,2022-04-02,2024-07-03,2,2022,2-3 orders,2
+MP-17470,Mark Packer,Home Office,2021-03-30,2023-01-11,6,2021,4-6 orders,3
+MP-17965,Michael Paige,Corporate,2022-04-18,2024-10-19,9,2022,7+ orders,4
+MP-18175,Mike Pelletier,Home Office,2021-11-25,2024-12-14,8,2021,7+ orders,4
+MR-17545,Mathew Reese,Home Office,2021-09-03,2024-08-27,4,2021,4-6 orders,3
+MS-17365,Maribeth Schnelling,Consumer,2021-09-09,2024-04-01,10,2021,7+ orders,4
+MS-17530,MaryBeth Skach,Consumer,2021-11-04,2023-10-22,4,2021,4-6 orders,3
+MS-17710,Maurice Satty,Consumer,2021-03-24,2023-11-12,6,2021,4-6 orders,3
+MS-17770,Maxwell Schwartz,Consumer,2021-07-04,2024-08-31,9,2021,7+ orders,4
+MS-17830,Melanie Seite,Consumer,2021-01-09,2023-10-04,4,2021,4-6 orders,3
+MS-17980,Michael Stewart,Corporate,2021-06-30,2024-12-04,6,2021,4-6 orders,3
+MT-17815,Meg Tillman,Consumer,2022-11-06,2024-11-11,6,2022,4-6 orders,3
+MT-18070,Michelle Tran,Home Office,2021-09-25,2024-06-10,4,2021,4-6 orders,3
+MV-17485,Mark Van Huff,Consumer,2021-01-20,2024-12-03,9,2021,7+ orders,4
+MV-18190,Mike Vittorini,Consumer,2021-01-30,2024-12-11,7,2021,7+ orders,4
+MW-18220,Mitch Webber,Consumer,2021-08-25,2024-12-13,7,2021,7+ orders,4
+MW-18235,Mitch Willingham,Corporate,2021-05-21,2024-11-16,2,2021,2-3 orders,2
+MY-17380,Maribeth Yedwab,Corporate,2022-10-26,2024-12-01,7,2022,7+ orders,4
+MY-18295,Muhammed Yedwab,Corporate,2021-04-28,2024-10-20,10,2021,7+ orders,4
+MZ-17335,Maria Zettner,Home Office,2022-11-08,2024-11-30,4,2022,4-6 orders,3
+MZ-17515,Mary Zewe,Corporate,2021-04-04,2024-03-23,6,2021,4-6 orders,3
+NB-18580,Nicole Brennan,Corporate,2021-09-26,2021-10-22,2,2021,2-3 orders,2
+NB-18655,Nona Balk,Corporate,2021-12-05,2024-12-11,9,2021,7+ orders,4
+NC-18340,Nat Carroll,Consumer,2021-03-30,2024-05-20,5,2021,4-6 orders,3
+NC-18415,Nathan Cano,Consumer,2021-05-03,2024-11-19,6,2021,4-6 orders,3
+NC-18535,Nick Crebassa,Corporate,2021-07-23,2024-12-24,7,2021,7+ orders,4
+NC-18625,Noah Childs,Corporate,2021-10-29,2024-06-09,5,2021,4-6 orders,3
+ND-18370,Natalie DeCherney,Consumer,2021-01-13,2024-12-03,9,2021,7+ orders,4
+ND-18460,Neil Ducich,Corporate,2021-02-06,2024-06-30,6,2021,4-6 orders,3
+NF-18385,Natalie Fritzler,Consumer,2021-02-11,2024-10-12,6,2021,4-6 orders,3
+NF-18475,Neil Französisch,Home Office,2021-03-14,2023-07-23,4,2021,4-6 orders,3
+NF-18595,Nicole Fjeld,Home Office,2021-04-19,2024-09-07,7,2021,7+ orders,4
+NG-18355,Nat Gilpin,Corporate,2021-11-24,2024-11-12,5,2021,4-6 orders,3
+NG-18430,Nathan Gelder,Consumer,2021-11-24,2024-11-12,5,2021,4-6 orders,3
+NH-18610,Nicole Hansen,Corporate,2022-09-19,2024-06-24,6,2022,4-6 orders,3
+NK-18490,Neil Knudson,Home Office,2022-05-28,2024-10-21,7,2022,7+ orders,4
+NL-18310,Nancy Lomonaco,Home Office,2021-10-31,2024-11-02,4,2021,4-6 orders,3
+NM-18445,Nathan Mautz,Home Office,2021-02-08,2024-07-23,7,2021,7+ orders,4
+NM-18520,Neoma Murray,Consumer,2022-09-08,2024-04-30,10,2022,7+ orders,4
+NP-18325,Naresj Patel,Consumer,2021-05-13,2024-12-05,6,2021,4-6 orders,3
+NP-18670,Nora Paige,Consumer,2022-02-27,2024-11-02,5,2022,4-6 orders,3
+NP-18685,Nora Pelletier,Home Office,2021-03-07,2023-11-19,5,2021,4-6 orders,3
+NP-18700,Nora Preis,Consumer,2021-09-05,2024-08-14,7,2021,7+ orders,4
+NR-18550,Nick Radford,Consumer,2021-06-07,2024-06-03,5,2021,4-6 orders,3
+NS-18505,Neola Schneider,Consumer,2023-11-24,2024-12-24,4,2023,4-6 orders,3
+NS-18640,Noel Staavos,Corporate,2021-06-25,2024-07-09,12,2021,7+ orders,4
+NW-18400,Natalie Webber,Consumer,2021-06-21,2024-07-11,7,2021,7+ orders,4
+NZ-18565,Nick Zandusky,Home Office,2021-08-02,2024-10-06,9,2021,7+ orders,4
+ON-18715,Odella Nelson,Corporate,2021-09-13,2023-11-15,9,2021,7+ orders,4
+OT-18730,Olvera Toch,Consumer,2022-04-20,2024-10-26,5,2022,4-6 orders,3
+PA-19060,Pete Armstrong,Home Office,2021-05-17,2024-09-18,6,2021,4-6 orders,3
+PB-18805,Patrick Bzostek,Home Office,2022-11-20,2024-12-05,3,2022,2-3 orders,2
+PB-19105,Peter Bühler,Consumer,2021-11-15,2024-11-03,4,2021,4-6 orders,3
+PB-19150,Philip Brown,Consumer,2021-07-14,2024-09-24,8,2021,7+ orders,4
+PB-19210,Phillip Breyer,Corporate,2021-11-23,2023-02-11,2,2021,2-3 orders,2
+PC-18745,Pamela Coakley,Corporate,2021-12-31,2024-12-28,4,2021,4-6 orders,3
+PC-19000,Pauline Chand,Home Office,2021-04-08,2022-08-01,2,2021,2-3 orders,2
+PF-19120,Peter Fuller,Consumer,2021-05-05,2022-09-17,4,2021,4-6 orders,3
+PF-19165,Philip Fox,Consumer,2021-09-20,2024-06-17,6,2021,4-6 orders,3
+PF-19225,Phillip Flathmann,Consumer,2023-06-26,2024-09-07,5,2023,4-6 orders,3
+PG-18820,Patrick Gardner,Consumer,2021-05-09,2024-11-24,13,2021,7+ orders,4
+PG-18895,Paul Gonzalez,Consumer,2021-05-11,2024-11-03,9,2021,7+ orders,4
+PH-18790,Patricia Hirasaki,Home Office,2024-10-21,2024-10-21,1,2024,1 order,1
+PJ-18835,Patrick Jones,Corporate,2021-05-28,2024-11-21,8,2021,7+ orders,4
+PJ-19015,Pauline Johnson,Consumer,2021-04-07,2024-08-18,6,2021,4-6 orders,3
+PK-18910,Paul Knutson,Home Office,2021-04-04,2023-09-03,2,2021,2-3 orders,2
+PK-19075,Pete Kriz,Consumer,2021-11-11,2024-12-21,12,2021,7+ orders,4
+PL-18925,Paul Lucas,Home Office,2021-11-01,2024-12-15,5,2021,4-6 orders,3
+PM-18940,Paul MacIntyre,Consumer,2021-05-04,2023-12-09,3,2021,2-3 orders,2
+PM-19135,Peter McVee,Home Office,2022-12-19,2024-11-09,4,2022,4-6 orders,3
+PN-18775,Parhena Norris,Home Office,2022-08-07,2024-11-30,8,2022,7+ orders,4
+PO-18850,Patrick O'Brill,Consumer,2021-11-02,2024-12-26,11,2021,7+ orders,4
+PO-18865,Patrick O'Donnell,Consumer,2021-03-23,2024-12-30,7,2021,7+ orders,4
+PO-19180,Philisse Overcash,Home Office,2022-08-11,2024-07-23,9,2022,7+ orders,4
+PO-19195,Phillina Ober,Home Office,2021-01-04,2024-10-05,5,2021,4-6 orders,3
+PP-18955,Paul Prost,Home Office,2021-08-26,2024-09-24,10,2021,7+ orders,4
+PR-18880,Patrick Ryan,Consumer,2021-09-05,2024-11-24,5,2021,4-6 orders,3
+PS-18760,Pamela Stobb,Consumer,2021-06-15,2024-09-14,6,2021,4-6 orders,3
+PS-18970,Paul Stevenson,Home Office,2021-04-15,2024-10-22,8,2021,7+ orders,4
+PS-19045,Penelope Sewall,Home Office,2021-12-20,2024-05-08,7,2021,7+ orders,4
+PT-19090,Pete Takahito,Consumer,2021-09-12,2024-10-20,3,2021,2-3 orders,2
+PV-18985,Paul Van Hugh,Home Office,2021-07-12,2024-10-02,5,2021,4-6 orders,3
+PW-19030,Pauline Webber,Corporate,2021-05-16,2024-11-14,10,2021,7+ orders,4
+PW-19240,Pierre Wener,Consumer,2021-11-18,2023-09-22,7,2021,7+ orders,4
+QJ-19255,Quincy Jones,Corporate,2021-03-17,2024-12-05,9,2021,7+ orders,4
+RA-19285,Ralph Arnett,Consumer,2021-12-13,2024-12-25,9,2021,7+ orders,4
+RA-19885,Ruben Ausman,Corporate,2021-04-08,2024-11-05,6,2021,4-6 orders,3
+RA-19915,Russell Applegate,Consumer,2021-06-30,2024-12-18,9,2021,7+ orders,4
+RA-19945,Ryan Akin,Consumer,2021-08-29,2024-10-30,5,2021,4-6 orders,3
+RB-19330,Randy Bradley,Consumer,2021-11-17,2024-10-23,2,2021,2-3 orders,2
+RB-19360,Raymond Buch,Consumer,2023-04-01,2024-09-25,6,2023,4-6 orders,3
+RB-19435,Richard Bierner,Consumer,2021-03-11,2024-11-19,7,2021,7+ orders,4
+RB-19465,Rick Bensley,Home Office,2021-03-14,2024-12-21,12,2021,7+ orders,4
+RB-19570,Rob Beeghly,Consumer,2023-04-28,2024-12-05,5,2023,4-6 orders,3
+RB-19645,Robert Barroso,Corporate,2021-08-23,2023-03-22,5,2021,4-6 orders,3
+RB-19705,Roger Barcio,Home Office,2022-08-22,2024-11-06,4,2022,4-6 orders,3
+RB-19795,Ross Baird,Home Office,2021-06-03,2024-11-28,8,2021,7+ orders,4
+RC-19825,Roy Collins,Consumer,2021-12-05,2023-12-26,6,2021,4-6 orders,3
+RC-19960,Ryan Crowe,Consumer,2021-08-25,2024-09-11,4,2021,4-6 orders,3
+RD-19480,Rick Duston,Consumer,2021-06-08,2024-10-19,8,2021,7+ orders,4
+RD-19585,Rob Dowd,Consumer,2021-04-02,2024-07-03,9,2021,7+ orders,4
+RD-19660,Robert Dilbeck,Home Office,2022-10-24,2024-09-07,4,2022,4-6 orders,3
+RD-19720,Roger Demir,Consumer,2021-07-20,2024-12-09,10,2021,7+ orders,4
+RD-19810,Ross DeVincentis,Home Office,2021-10-27,2024-12-16,8,2021,7+ orders,4
+RD-19900,Ruben Dartt,Consumer,2021-04-05,2024-09-07,9,2021,7+ orders,4
+RD-19930,Russell D'Ascenzo,Consumer,2021-10-03,2024-11-18,4,2021,4-6 orders,3
+RE-19405,Ricardo Emerson,Consumer,2021-12-29,2021-12-29,1,2021,1 order,1
+RE-19450,Richard Eichhorn,Consumer,2022-08-15,2024-03-03,4,2022,4-6 orders,3
+RF-19345,Randy Ferguson,Corporate,2021-05-20,2023-12-05,8,2021,7+ orders,4
+RF-19735,Roland Fjeld,Consumer,2021-08-06,2024-10-02,7,2021,7+ orders,4
+RF-19840,Roy Französisch,Consumer,2021-11-12,2024-12-24,7,2021,7+ orders,4
+RH-19495,Rick Hansen,Consumer,2021-08-23,2024-11-28,5,2021,4-6 orders,3
+RH-19510,Rick Huthwaite,Home Office,2021-11-16,2023-09-19,6,2021,4-6 orders,3
+RH-19555,Ritsa Hightower,Consumer,2022-12-04,2023-07-29,2,2022,2-3 orders,2
+RH-19600,Rob Haberlin,Consumer,2022-07-02,2023-07-14,3,2022,2-3 orders,2
+RK-19300,Ralph Kennedy,Consumer,2022-07-20,2024-09-02,3,2022,2-3 orders,2
+RL-19615,Rob Lucas,Consumer,2021-12-05,2024-08-31,8,2021,7+ orders,4
+RM-19375,Raymond Messe,Consumer,2021-05-11,2024-01-19,6,2021,4-6 orders,3
+RM-19675,Robert Marley,Home Office,2021-11-14,2024-12-24,5,2021,4-6 orders,3
+RM-19750,Roland Murray,Consumer,2024-03-06,2024-03-06,1,2024,1 order,1
+RO-19780,Rose O'Brian,Consumer,2022-05-12,2024-11-25,7,2022,7+ orders,4
+RP-19270,Rachel Payne,Corporate,2021-10-19,2023-08-21,4,2021,4-6 orders,3
+RP-19390,Resi Pölking,Consumer,2021-05-24,2024-11-27,12,2021,7+ orders,4
+RP-19855,Roy Phan,Corporate,2022-02-15,2024-12-02,7,2022,7+ orders,4
+RR-19315,Ralph Ritter,Consumer,2023-11-14,2024-12-11,2,2023,2-3 orders,2
+RR-19525,Rick Reed,Corporate,2021-09-09,2024-07-13,6,2021,4-6 orders,3
+RS-19420,Ricardo Sperren,Corporate,2021-08-05,2024-10-15,5,2021,4-6 orders,3
+RS-19765,Roland Schwarz,Corporate,2021-04-07,2024-11-24,8,2021,7+ orders,4
+RS-19870,Roy Skaria,Home Office,2023-06-07,2024-12-11,2,2023,2-3 orders,2
+RW-19540,Rick Wilson,Corporate,2022-02-03,2024-09-01,7,2022,7+ orders,4
+RW-19630,Rob Williams,Corporate,2021-06-28,2024-10-02,9,2021,7+ orders,4
+RW-19690,Robert Waldorf,Consumer,2023-05-30,2024-10-12,5,2023,4-6 orders,3
+SA-20830,Sue Ann Reed,Consumer,2021-02-22,2024-10-28,10,2021,7+ orders,4
+SB-20170,Sarah Bern,Consumer,2021-06-06,2024-06-12,3,2021,2-3 orders,2
+SB-20185,Sarah Brown,Consumer,2021-09-20,2024-06-25,6,2021,4-6 orders,3
+SB-20290,Sean Braxton,Corporate,2021-05-09,2024-11-13,7,2021,7+ orders,4
+SC-20020,Sam Craven,Consumer,2021-03-03,2022-11-10,5,2021,4-6 orders,3
+SC-20050,Sample Company A,Home Office,2021-03-18,2024-11-20,9,2021,7+ orders,4
+SC-20095,Sanjit Chand,Consumer,2021-02-12,2024-01-15,9,2021,7+ orders,4
+SC-20230,Scot Coram,Corporate,2023-06-06,2024-08-03,4,2023,4-6 orders,3
+SC-20260,Scott Cohen,Corporate,2021-04-06,2024-06-26,8,2021,7+ orders,4
+SC-20305,Sean Christensen,Consumer,2022-01-27,2024-12-01,6,2022,4-6 orders,3
+SC-20380,Shahid Collister,Consumer,2021-03-01,2024-11-30,9,2021,7+ orders,4
+SC-20440,Shaun Chance,Corporate,2022-08-17,2024-11-24,7,2022,7+ orders,4
+SC-20575,Sonia Cooley,Consumer,2021-06-16,2024-09-29,4,2021,4-6 orders,3
+SC-20680,Steve Carroll,Home Office,2021-11-21,2024-08-26,6,2021,4-6 orders,3
+SC-20695,Steve Chapman,Corporate,2021-12-16,2024-10-02,10,2021,7+ orders,4
+SC-20725,Steven Cartwright,Consumer,2021-06-03,2024-06-26,11,2021,7+ orders,4
+SC-20770,Stewart Carmichael,Corporate,2022-06-20,2024-11-19,7,2022,7+ orders,4
+SC-20800,Stuart Calhoun,Consumer,2022-12-11,2024-11-30,4,2022,4-6 orders,3
+SC-20845,Sung Chung,Consumer,2023-11-11,2023-11-11,1,2023,1 order,1
+SD-20485,Shirley Daniels,Home Office,2021-01-26,2024-06-13,9,2021,7+ orders,4
+SE-20110,Sanjit Engle,Consumer,2021-04-11,2024-12-21,11,2021,7+ orders,4
+SF-20065,Sandra Flanagan,Consumer,2021-09-10,2024-11-01,7,2021,7+ orders,4
+SF-20200,Sarah Foster,Consumer,2021-12-23,2024-11-01,9,2021,7+ orders,4
+SF-20965,Sylvia Foulston,Corporate,2021-10-21,2024-11-12,9,2021,7+ orders,4
+SG-20080,Sandra Glassco,Consumer,2022-10-31,2024-12-22,3,2022,2-3 orders,2
+SG-20470,Sheri Gordon,Consumer,2021-07-26,2024-06-30,8,2021,7+ orders,4
+SG-20605,Speros Goranitis,Consumer,2021-11-03,2024-09-13,5,2021,4-6 orders,3
+SG-20890,Susan Gilcrest,Corporate,2021-03-30,2024-05-18,3,2021,2-3 orders,2
+SH-19975,Sally Hughsby,Corporate,2021-12-10,2024-12-01,12,2021,7+ orders,4
+SH-20395,Shahid Hopkins,Consumer,2021-11-02,2024-12-07,10,2021,7+ orders,4
+SH-20635,Stefanie Holloman,Corporate,2021-12-16,2022-11-26,2,2021,2-3 orders,2
+SJ-20125,Sanjit Jacobs,Home Office,2022-09-22,2024-09-26,12,2022,7+ orders,4
+SJ-20215,Sarah Jordon,Consumer,2022-02-09,2024-12-01,6,2022,4-6 orders,3
+SJ-20500,Shirley Jackson,Consumer,2021-08-31,2024-04-21,5,2021,4-6 orders,3
+SK-19990,Sally Knutson,Consumer,2023-11-28,2024-12-22,3,2023,2-3 orders,2
+SL-20155,Sara Luxemburg,Home Office,2021-09-21,2024-10-21,6,2021,4-6 orders,3
+SM-20005,Sally Matthias,Consumer,2021-11-23,2023-11-04,4,2021,4-6 orders,3
+SM-20320,Sean Miller,Home Office,2021-03-18,2024-10-12,5,2021,4-6 orders,3
+SM-20905,Susan MacKendrick,Consumer,2023-05-03,2023-05-03,1,2023,1 order,1
+SM-20950,Suzanne McNair,Corporate,2021-09-29,2024-12-05,11,2021,7+ orders,4
+SN-20560,Skye Norling,Home Office,2022-06-18,2024-09-10,6,2022,4-6 orders,3
+SN-20710,Steve Nguyen,Home Office,2021-05-06,2024-10-12,7,2021,7+ orders,4
+SO-20335,Sean O'Donnell,Consumer,2022-10-11,2024-12-01,6,2022,4-6 orders,3
+SP-20545,Sibella Parks,Corporate,2021-10-13,2024-02-06,6,2021,4-6 orders,3
+SP-20620,Stefania Perrino,Corporate,2021-09-08,2024-11-13,9,2021,7+ orders,4
+SP-20650,Stephanie Phelps,Corporate,2021-04-16,2023-12-09,9,2021,7+ orders,4
+SP-20860,Sung Pak,Corporate,2021-12-15,2024-10-12,10,2021,7+ orders,4
+SP-20920,Susan Pistek,Consumer,2021-11-22,2024-10-21,6,2021,4-6 orders,3
+SR-20425,Sharelle Roach,Home Office,2021-06-14,2024-12-22,5,2021,4-6 orders,3
+SR-20740,Steven Roelle,Home Office,2021-02-20,2024-06-17,8,2021,7+ orders,4
+SS-20140,Saphhira Shifley,Corporate,2021-11-23,2024-12-15,8,2021,7+ orders,4
+SS-20410,Shahid Shariari,Consumer,2021-05-30,2024-09-11,6,2021,4-6 orders,3
+SS-20515,Shirley Schmidt,Home Office,2021-07-14,2023-08-26,3,2021,2-3 orders,2
+SS-20590,Sonia Sunley,Consumer,2021-08-05,2023-10-24,6,2021,4-6 orders,3
+SS-20875,Sung Shariari,Consumer,2021-12-14,2024-09-01,5,2021,4-6 orders,3
+ST-20530,Shui Tom,Consumer,2021-02-14,2024-08-27,7,2021,7+ orders,4
+SU-20665,Stephanie Ulpright,Home Office,2022-12-05,2024-12-10,7,2022,7+ orders,4
+SV-20365,Seth Vernon,Consumer,2021-01-11,2024-09-20,10,2021,7+ orders,4
+SV-20785,Stewart Visinsky,Consumer,2021-04-12,2024-02-13,9,2021,7+ orders,4
+SV-20815,Stuart Van,Corporate,2022-05-04,2024-10-15,4,2022,4-6 orders,3
+SV-20935,Susan Vittorini,Consumer,2023-03-19,2024-12-28,8,2023,7+ orders,4
+SW-20245,Scot Wooten,Consumer,2021-07-20,2024-10-10,7,2021,7+ orders,4
+SW-20275,Scott Williamson,Consumer,2021-03-10,2024-11-30,6,2021,4-6 orders,3
+SW-20350,Sean Wendt,Home Office,2023-04-09,2024-07-21,3,2023,2-3 orders,2
+SW-20455,Shaun Weien,Consumer,2022-06-22,2024-07-21,6,2022,4-6 orders,3
+SW-20755,Steven Ward,Corporate,2021-11-02,2023-07-14,2,2021,2-3 orders,2
+SZ-20035,Sam Zeldin,Home Office,2021-09-07,2024-11-25,11,2021,7+ orders,4
+TA-21385,Tom Ashbrook,Home Office,2021-09-12,2024-10-22,4,2021,4-6 orders,3
+TB-21055,Ted Butterfield,Consumer,2023-06-17,2024-09-02,4,2023,4-6 orders,3
+TB-21175,Thomas Boland,Corporate,2021-12-08,2024-11-02,4,2021,4-6 orders,3
+TB-21190,Thomas Brumley,Home Office,2021-12-27,2024-11-11,4,2021,4-6 orders,3
+TB-21250,Tim Brockman,Consumer,2021-12-08,2024-01-15,7,2021,7+ orders,4
+TB-21280,Toby Braunhardt,Consumer,2021-06-21,2023-05-26,6,2021,4-6 orders,3
+TB-21355,Todd Boyes,Corporate,2023-01-25,2024-08-06,5,2023,4-6 orders,3
+TB-21400,Tom Boeckenhauer,Consumer,2021-02-03,2024-06-11,6,2021,4-6 orders,3
+TB-21520,Tracy Blumstein,Consumer,2021-10-17,2024-09-14,9,2021,7+ orders,4
+TB-21595,Troy Blackwell,Consumer,2021-02-18,2024-03-20,4,2021,4-6 orders,3
+TB-21625,Trudy Brown,Consumer,2021-08-06,2024-11-30,9,2021,7+ orders,4
+TC-20980,Tamara Chand,Corporate,2021-11-07,2023-11-26,5,2021,4-6 orders,3
+TC-21145,Theresa Coyne,Corporate,2024-09-15,2024-09-15,1,2024,1 order,1
+TC-21295,Toby Carlisle,Consumer,2021-10-14,2024-12-03,8,2021,7+ orders,4
+TC-21475,Tony Chapman,Home Office,2021-11-22,2024-07-30,9,2021,7+ orders,4
+TC-21535,Tracy Collins,Home Office,2021-11-03,2024-12-26,7,2021,7+ orders,4
+TD-20995,Tamara Dahlen,Consumer,2021-05-19,2024-11-23,9,2021,7+ orders,4
+TG-21310,Toby Gnade,Consumer,2022-03-09,2024-01-27,5,2022,4-6 orders,3
+TG-21640,Trudy Glocke,Consumer,2021-03-31,2024-09-07,4,2021,4-6 orders,3
+TH-21100,Thea Hendricks,Consumer,2021-09-27,2024-01-20,5,2021,4-6 orders,3
+TH-21115,Thea Hudgings,Corporate,2021-09-23,2024-11-02,4,2021,4-6 orders,3
+TH-21235,Tiffany House,Corporate,2021-11-04,2024-09-04,8,2021,7+ orders,4
+TH-21550,Tracy Hopkins,Home Office,2021-04-05,2024-10-19,7,2021,7+ orders,4
+TM-21010,Tamara Manning,Consumer,2021-02-21,2024-09-18,7,2021,7+ orders,4
+TM-21490,Tony Molinari,Consumer,2024-03-30,2024-08-22,3,2024,2-3 orders,2
+TN-21040,Tanja Norvell,Home Office,2021-10-10,2024-10-01,7,2021,7+ orders,4
+TP-21130,Theone Pippenger,Consumer,2022-04-14,2024-12-22,9,2022,7+ orders,4
+TP-21415,Tom Prescott,Consumer,2022-11-28,2024-09-17,5,2022,4-6 orders,3
+TP-21565,Tracy Poddar,Corporate,2022-03-01,2024-01-14,4,2022,4-6 orders,3
+TR-21325,Toby Ritter,Consumer,2021-12-01,2024-06-20,5,2021,4-6 orders,3
+TS-21085,Thais Sissman,Consumer,2022-07-19,2024-01-07,2,2022,2-3 orders,2
+TS-21160,Theresa Swint,Corporate,2021-04-23,2023-08-13,6,2021,4-6 orders,3
+TS-21205,Thomas Seio,Corporate,2021-03-21,2024-06-15,7,2021,7+ orders,4
+TS-21340,Toby Swindell,Consumer,2021-01-19,2024-05-18,5,2021,4-6 orders,3
+TS-21370,Todd Sumrall,Corporate,2021-10-28,2024-11-24,6,2021,4-6 orders,3
+TS-21430,Tom Stivers,Corporate,2021-07-30,2024-07-11,5,2021,4-6 orders,3
+TS-21505,Tony Sayre,Consumer,2021-12-20,2024-12-19,6,2021,4-6 orders,3
+TS-21610,Troy Staebel,Consumer,2021-08-16,2024-11-05,7,2021,7+ orders,4
+TS-21655,Trudy Schmidt,Consumer,2022-02-06,2024-05-06,5,2022,4-6 orders,3
+TT-21070,Ted Trevino,Consumer,2021-05-18,2024-11-29,7,2021,7+ orders,4
+TT-21220,Thomas Thornton,Consumer,2021-09-23,2024-06-30,8,2021,7+ orders,4
+TT-21265,Tim Taslimi,Corporate,2022-08-15,2023-11-19,3,2022,2-3 orders,2
+TT-21460,Tonja Turnell,Home Office,2022-12-08,2024-12-18,7,2022,7+ orders,4
+TW-21025,Tamara Willingham,Home Office,2021-12-22,2024-10-27,7,2021,7+ orders,4
+TZ-21580,Tracy Zic,Consumer,2021-11-11,2024-11-25,4,2021,4-6 orders,3
+VB-21745,Victoria Brennan,Corporate,2022-07-17,2024-11-06,6,2022,4-6 orders,3
+VD-21670,Valerie Dominguez,Consumer,2021-08-04,2023-05-28,6,2021,4-6 orders,3
+VF-21715,Vicky Freymann,Home Office,2021-03-01,2024-12-17,5,2021,4-6 orders,3
+VG-21790,Vivek Gonzalez,Consumer,2021-08-08,2024-07-29,6,2021,4-6 orders,3
+VG-21805,Vivek Grady,Corporate,2021-09-22,2023-08-26,4,2021,4-6 orders,3
+VM-21685,Valerie Mitchum,Home Office,2021-04-07,2024-11-06,7,2021,7+ orders,4
+VM-21835,Vivian Mathis,Consumer,2021-03-22,2024-09-04,5,2021,4-6 orders,3
+VP-21730,Victor Preis,Home Office,2022-07-05,2024-11-30,3,2022,2-3 orders,2
+VP-21760,Victoria Pisteka,Corporate,2021-09-06,2024-10-16,7,2021,7+ orders,4
+VS-21820,Vivek Sundaresam,Consumer,2021-01-07,2024-05-23,4,2021,4-6 orders,3
+VT-21700,Valerie Takahito,Home Office,2021-06-06,2022-04-05,2,2021,2-3 orders,2
+VW-21775,Victoria Wilson,Corporate,2021-05-11,2024-12-02,10,2021,7+ orders,4
+WB-21850,William Brown,Consumer,2021-11-04,2024-12-10,10,2021,7+ orders,4
+XP-21865,Xylona Preis,Consumer,2021-01-20,2024-11-17,11,2021,7+ orders,4
+YC-21895,Yoseph Carroll,Corporate,2021-11-17,2024-12-26,5,2021,4-6 orders,3
+YS-21880,Yana Sorensen,Corporate,2022-01-12,2024-12-21,8,2022,7+ orders,4
+ZC-21910,Zuschuss Carroll,Consumer,2021-10-13,2024-11-06,13,2021,7+ orders,4
+ZD-21925,Zuschuss Donatelli,Consumer,2021-08-27,2024-06-11,5,2021,4-6 orders,3

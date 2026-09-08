@@ -1,0 +1,52 @@
+/// One row per (Product ID, Product Name) pair - 1,893 of them. Product ID is not a
+/// key in this extract: 32 IDs carry two different names and 16 names sit under two IDs,
+/// so keying on either would merge products that differ or split ones that do not. The
+/// surrogate key keeps every pair distinct; Product ID stays visible for reference.
+table Product
+	lineageTag: fee6b9ca-aa0a-5499-8fb2-6115cf22a6ea
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 9347cd2c-a179-5aec-be22-646928907fa5
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column 'Product ID'
+		dataType: string
+		lineageTag: 5d884773-3511-55f1-bc8f-d5959b8fb523
+		summarizeBy: none
+		sourceColumn: ProductID
+
+	column Product
+		dataType: string
+		lineageTag: 51d86c9b-1b31-517e-94ee-03807c8663e6
+		summarizeBy: none
+		sourceColumn: Product
+
+	/// Furniture, Office Supplies or Technology.
+	column Category
+		dataType: string
+		lineageTag: 193243e1-cb58-5bec-9520-5cda2b02ec60
+		summarizeBy: none
+		sourceColumn: Category
+
+	column 'Sub-Category'
+		dataType: string
+		lineageTag: e614f1c8-7f5a-5191-b922-2b577cbbd843
+		summarizeBy: none
+		sourceColumn: SubCategory
+
+	partition Product = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://raw.githubusercontent.com/owilliams84/powerbi-superstore-sales/main/data/dim_product.csv"), [Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Applied Types" = Table.TransformColumnTypes(#"Promoted Headers", {{"ProductKey", Int64.Type}, {"ProductID", type text}, {"Product", type text}, {"Category", type text}, {"SubCategory", type text}})
+				in
+				    #"Applied Types"
+
+	annotation PBI_ResultType = Table
