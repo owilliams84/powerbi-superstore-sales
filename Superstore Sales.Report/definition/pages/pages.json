@@ -4,7 +4,8 @@
     "pgOverview",
     "pgProducts",
     "pgCustomers",
-    "pgGeography"
+    "pgGeography",
+    "pgRevenue"
   ],
   "activePageName": "pgOverview"
 }

@@ -1,0 +1,29 @@
+/// Button slicer values for what the Revenue page compares against. No relationships:
+/// measures read the selection with SELECTEDVALUE.
+table Comparison
+	lineageTag: 500cbfc8-2a54-5696-84a6-c0db979ee161
+
+	column Comparison
+		dataType: string
+		lineageTag: 11176354-7b94-5060-9c58-cb2f9fff5a0d
+		summarizeBy: none
+		sourceColumn: Comparison
+		sortByColumn: 'Years Back'
+
+	column 'Years Back'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 81c3b2f9-4ae0-51f8-b521-afdf0079a304
+		summarizeBy: none
+		sourceColumn: Years Back
+
+	partition Comparison = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Comparison = text, #"Years Back" = Int64.Type], {{"Prior year", 1}, {"Two years earlier", 2}})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

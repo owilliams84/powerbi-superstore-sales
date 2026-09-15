@@ -19,6 +19,8 @@ import time
 import uuid
 from pathlib import Path
 
+import revenue_measures
+
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "Superstore Sales.SemanticModel"
 DEFN = MODEL / "definition"
@@ -394,18 +396,26 @@ def write_metrics() -> None:
                  "table needs one. Every number on the report comes from here.", 0)
     lines.append("table Metrics")
     lines.append(f"\tlineageTag: {tag('table', 'Metrics')}")
-    for name, dax, fmt, d in MEASURES:
+    specs = [dict(name=n, dax=x, fmt=f, doc=d) for n, x, f, d in MEASURES] + revenue_measures.measures()
+    for spec in specs:
+        name = spec["name"]
         lines.append("")
-        lines += doc(d, 1)
-        body = dax.split("\n")
+        lines += doc(spec["doc"], 1)
+        body = spec["dax"].split("\n")
         if len(body) == 1:
             lines.append(f"\tmeasure {q(name)} = {body[0]}")
         else:
             lines.append(f"\tmeasure {q(name)} =")
             for b in body:
+                # No blank lines inside an expression block: TMDL rejects them.
                 lines.append(("\t\t\t" + b) if b.strip() else "\t\t\t")
-        if fmt:
-            lines.append(f"\t\tformatString: {fmt}")
+        if spec["fmt"]:
+            lines.append(f"\t\tformatString: {spec['fmt']}")
+        if spec.get("folder"):
+            lines.append(f"\t\tdisplayFolder: {spec['folder']}")
+        if spec.get("category"):
+            # ImageUrl is what makes a table or image visual render the text as a picture.
+            lines.append(f"\t\tdataCategory: {spec['category']}")
         lines.append(f"\t\tlineageTag: {tag('measure', name)}")
     lines.append("")
     lines.append("\tcolumn Column")
@@ -425,6 +435,47 @@ def write_metrics() -> None:
     lines.append("")
     lines.append("\tannotation PBI_ResultType = Table")
     write(DEFN / "tables" / "Metrics.tmdl", lines)
+
+
+def write_disconnected(name: str, doc_text: str, columns: list, rows: list) -> None:
+    """A small typed table with no relationships, held inline in M, for a button slicer."""
+    lines: list[str] = []
+    lines += doc(doc_text, 0)
+    lines.append(f"table {q(name)}")
+    lines.append(f"\tlineageTag: {tag('table', name)}")
+    for col_name, dtype, sort_by in columns:
+        lines.append("")
+        lines.append(f"\tcolumn {q(col_name)}")
+        lines.append(f"\t\tdataType: {dtype}")
+        if dtype == "int64":
+            lines.append("\t\tisHidden")
+            lines.append("\t\tformatString: 0")
+        lines.append(f"\t\tlineageTag: {tag('column', name, col_name)}")
+        lines.append("\t\tsummarizeBy: none")
+        lines.append(f"\t\tsourceColumn: {col_name}")
+        if sort_by:
+            lines.append(f"\t\tsortByColumn: {q(sort_by)}")
+    m_types = ", ".join(f"{q_m(c)} = {'Int64.Type' if t == 'int64' else 'text'}" for c, t, _ in columns)
+    m_rows = ", ".join("{" + ", ".join(f'"{v}"' if isinstance(v, str) else str(v) for v in r) + "}"
+                       for r in rows)
+    lines += [
+        "",
+        f"\tpartition {q(name)} = m",
+        "\t\tmode: import",
+        "\t\tsource =",
+        "\t\t\t\tlet",
+        f"\t\t\t\t    Source = #table(type table [{m_types}], {{{m_rows}}})",
+        "\t\t\t\tin",
+        "\t\t\t\t    Source",
+        "",
+        "\tannotation PBI_ResultType = Table",
+    ]
+    write(DEFN / "tables" / f"{name}.tmdl", lines)
+
+
+def q_m(name: str) -> str:
+    """An M record field name: bare when it is a plain identifier, #"..." otherwise."""
+    return name if name.isidentifier() else f'#"{name}"'
 
 
 def write(path: Path, lines: list[str]) -> None:
@@ -458,10 +509,13 @@ def main() -> None:
     for name, spec in TABLES.items():
         write_table(name, spec, args.local)
     write_metrics()
+    for name, (doc_text, columns, rows) in revenue_measures.DISCONNECTED.items():
+        write_disconnected(name, doc_text, columns, rows)
 
     write(DEFN / "database.tmdl", ["database", "\tcompatibilityLevel: 1606"])
 
-    order = ", ".join(f'"{t}"' for t in TABLES)
+    all_tables = list(TABLES) + list(revenue_measures.DISCONNECTED)
+    order = ", ".join(f'"{t}"' for t in all_tables)
     write(DEFN / "model.tmdl", [
         "model Model",
         "\tculture: en-US",
@@ -475,7 +529,7 @@ def main() -> None:
         "",
         'annotation PBI_ProTooling = ["DevMode"]',
         "",
-    ] + [f"ref table {q(t)}" for t in list(TABLES) + ["Metrics"]])
+    ] + [f"ref table {q(t)}" for t in all_tables + ["Metrics"]])
 
     rel_lines: list[str] = []
     for i, (name, frm, to) in enumerate(RELATIONSHIPS):
@@ -506,7 +560,8 @@ def main() -> None:
 }}""")
 
     n_cols = sum(len(s["columns"]) for s in TABLES.values())
-    print(f"{len(TABLES) + 1} tables, {n_cols} columns, {len(MEASURES)} measures, "
+    n_measures = len(MEASURES) + len(revenue_measures.measures())
+    print(f"{len(all_tables) + 1} tables, {n_cols} columns, {n_measures} measures, "
           f"{len(RELATIONSHIPS)} relationships -> {MODEL.name} "
           f"({'local files' if args.local else 'GitHub raw'})")
 

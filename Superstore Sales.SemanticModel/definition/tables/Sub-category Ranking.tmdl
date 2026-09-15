@@ -1,0 +1,28 @@
+/// Top or Bottom for the Revenue page sub-category table.
+table 'Sub-category Ranking'
+	lineageTag: f7a79f5f-24b7-5cdd-9b49-26bda1c2e5e8
+
+	column Show
+		dataType: string
+		lineageTag: c917acf5-0820-5f66-bc7d-db08a55d56ee
+		summarizeBy: none
+		sourceColumn: Show
+		sortByColumn: 'Show Order'
+
+	column 'Show Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6189f639-b396-5651-9073-ba58dc8f7a96
+		summarizeBy: none
+		sourceColumn: Show Order
+
+	partition 'Sub-category Ranking' = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Show = text, #"Show Order" = Int64.Type], {{"Top", 1}, {"Bottom", 2}})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

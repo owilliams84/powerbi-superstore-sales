@@ -4,7 +4,7 @@ model Model
 	discourageImplicitMeasures
 	sourceQueryCulture: en-US
 
-annotation PBI_QueryOrder = ["Date", "Customer", "Product", "Geography", "Ship Mode", "Sales"]
+annotation PBI_QueryOrder = ["Date", "Customer", "Product", "Geography", "Ship Mode", "Sales", "Comparison", "Line View", "Customer Ranking", "Sub-category Ranking"]
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
@@ -16,4 +16,8 @@ ref table Product
 ref table Geography
 ref table 'Ship Mode'
 ref table Sales
+ref table Comparison
+ref table 'Line View'
+ref table 'Customer Ranking'
+ref table 'Sub-category Ranking'
 ref table Metrics

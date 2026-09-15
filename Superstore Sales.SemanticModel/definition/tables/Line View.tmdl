@@ -1,0 +1,28 @@
+/// Month-by-month or running total, for the Revenue page line chart.
+table 'Line View'
+	lineageTag: f6c4373d-c9e1-54b6-83fb-a2c7e7c9e047
+
+	column View
+		dataType: string
+		lineageTag: 24b42d74-a968-585c-b48c-d97deeae653f
+		summarizeBy: none
+		sourceColumn: View
+		sortByColumn: 'View Order'
+
+	column 'View Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7d5d19a5-e650-5b1b-b02c-84c50ebdb552
+		summarizeBy: none
+		sourceColumn: View Order
+
+	partition 'Line View' = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [View = text, #"View Order" = Int64.Type], {{"Month", 1}, {"Cumulative", 2}})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Revenue page mockup - Superstore Sales</title>
+<!--
+  Design mockup for the Revenue page, drawn at the report's 1440x900 canvas with the same tokens
+  and grid as etl/build_report.py. Numbers are real: etl/revenue_expected.py, injected by
+  design/build_mockup.py. Everything here has to be buildable in PBIR, so nothing uses a
+  control Power BI does not have - each block is annotated with the visual it becomes.
+-->
+<style>
+  :root {
+    --paper: #F4F6FA; --card: #FFFFFF; --rule: #E3E7EF; --ink: #0A0917; --body: #4A5768;
+    --muted: #667284; --gold: #C9A227; --gold-text: #8A6D14; --navy: #111F38; --slate: #7C8598;
+    --light: #BCC1D2; --good: #1E7A4C; --bad: #B3261E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #d9dde6; font-family: "Segoe UI", system-ui, sans-serif; color: var(--body); }
+  .stage { width: 1440px; height: 900px; position: relative; background: var(--paper); margin: 24px auto;
+           transform-origin: top left; overflow: hidden; }
+  .abs { position: absolute; }
+  .band { left: 0; top: 0; width: 1440px; height: 60px; background: var(--ink); }
+  .wordmark { left: 76px; top: 15px; color: #fff; font-weight: 700; font-size: 20px; }
+  .wordmark b { color: var(--gold); }
+  .ref { right: 24px; top: 22px; color: var(--gold); font: 700 11px Consolas, monospace; letter-spacing: 2px; }
+  .mark { left: 24px; top: 14px; width: 40px; height: 32px; border: 2px solid #fff; border-radius: 4px; }
+  h1 { margin: 0; left: 24px; top: 74px; font-size: 29px; color: var(--ink); font-weight: 700; }
+  .stand { left: 24px; top: 118px; width: 700px; font-size: 13px; line-height: 1.45; }
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; }
+  .ptitle { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .psub { font-size: 11.3px; color: var(--muted); margin-top: 1px; }
+  .note { position: absolute; font: 600 10px Consolas, monospace; color: #fff; background: #7a3cff;
+          padding: 1px 5px; border-radius: 2px; z-index: 50; pointer-events: none; opacity: .9; }
+  body.clean .note { display: none; }
+  /* button slicer */
+  .seg { display: flex; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); overflow: hidden; }
+  .seg button { flex: 1; border: 0; background: transparent; font: 600 12px "Segoe UI"; color: var(--body);
+                cursor: pointer; padding: 0 10px; }
+  .seg button + button { border-left: 1px solid var(--rule); }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .slabel { font: 700 11px "Segoe UI"; color: var(--muted); letter-spacing: .5px; margin-bottom: 4px; }
+  .btn { border: 1px solid var(--ink); background: var(--card); color: var(--ink); font: 600 12.5px "Segoe UI";
+         border-radius: 4px; cursor: pointer; }
+  .scrim { inset: 0; background: rgba(10, 9, 23, .35); display: none; z-index: 40; }
+  .popup { right: 24px; top: 118px; width: 340px; height: 356px; display: none; z-index: 41;
+           box-shadow: 0 10px 30px rgba(10, 9, 23, .18); padding: 16px; }
+  .open .scrim, .open .popup { display: block; }
+  .dd { border: 1px solid var(--rule); border-radius: 3px; height: 32px; margin: 4px 0 14px; padding: 6px 10px;
+        font-size: 12.5px; color: var(--body); display: flex; justify-content: space-between; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th { font-weight: 700; color: var(--ink); text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--rule); }
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  td { padding: 2px 6px; text-align: right; border-bottom: 1px solid var(--rule); height: 22px; color: var(--body); }
+  td.bar { width: 170px; padding: 0 6px; }
+  .toolbar { position: fixed; left: 12px; top: 8px; font: 12px "Segoe UI"; z-index: 99; }
+</style>
+</head>
+<body>
+<div class="toolbar"><label><input type="checkbox" id="clean"> hide build notes</label></div>
+<div class="stage" id="stage">
+  <div class="abs band"></div>
+  <div class="abs mark"></div>
+  <div class="abs wordmark">Milestone <b>BI</b></div>
+  <div class="abs ref">05 / REVENUE</div>
+
+  <h1 class="abs">Revenue against the comparison year</h1>
+  <div class="abs stand" id="stand"></div>
+
+  <!-- Year: button slicer on Date[Year], forced single select -->
+  <div class="abs" style="left:760px; top:78px; width:220px;">
+    <div class="slabel">YEAR</div>
+    <div class="seg" id="segYear" style="height:34px"></div>
+  </div>
+  <span class="note" style="left:760px; top:64px">advancedSlicerVisual · Date[Year]</span>
+
+  <!-- Comparison: button slicer on a disconnected table -->
+  <div class="abs" style="left:996px; top:78px; width:250px;">
+    <div class="slabel">COMPARE WITH</div>
+    <div class="seg" id="segComp" style="height:34px"></div>
+  </div>
+  <span class="note" style="left:996px; top:64px">advancedSlicerVisual · disconnected 'Comparison'</span>
+
+  <button class="abs btn" id="openFilters" style="left:1262px; top:96px; width:154px; height:34px;">Filters</button>
+  <div class="abs" id="chip" style="left:1262px; top:136px; width:154px; font-size:11px; color:var(--muted); text-align:center;"></div>
+  <span class="note" style="left:1262px; top:82px">actionButton → bookmark</span>
+  <span class="note" style="left:1262px; top:152px">image · SVG measure</span>
+
+  <!-- KPI cards -->
+  <div id="cards"></div>
+  <span class="note" style="left:24px; top:170px">4 × image visual bound to an SVG measure (ImageUrl)</span>
+
+  <!-- Line -->
+  <div class="abs panel" style="left:24px; top:332px; width:688px; height:264px;">
+    <div class="ptitle" id="lineTitle"></div>
+    <div class="psub" id="lineSub"></div>
+    <svg id="line" width="666" height="206" style="margin-top:4px"></svg>
+  </div>
+  <div class="abs seg" id="segView" style="left:526px; top:342px; width:176px; height:28px;"></div>
+  <span class="note" style="left:526px; top:328px">advancedSlicerVisual · 'Line View'</span>
+  <span class="note" style="left:30px; top:588px">lineChart · title = measure</span>
+
+  <!-- Variance -->
+  <div class="abs panel" style="left:728px; top:332px; width:688px; height:264px;">
+    <div class="ptitle" id="varTitle"></div>
+    <div class="psub" id="varSub"></div>
+    <svg id="var" width="666" height="206" style="margin-top:4px"></svg>
+  </div>
+  <span class="note" style="left:734px; top:588px">columnChart · fill = colour measure</span>
+
+  <!-- Tables -->
+  <div class="abs panel" style="left:24px; top:612px; width:688px; height:264px;">
+    <div class="ptitle" id="custTitle"></div>
+    <div class="psub" id="custSub"></div>
+    <div id="custTable" style="margin-top:6px"></div>
+  </div>
+  <div class="abs seg" id="segCust" style="left:562px; top:622px; width:140px; height:28px;"></div>
+  <span class="note" style="left:30px; top:868px">pivotTable · SVG bar measure · blank rows outside top 8</span>
+
+  <div class="abs panel" style="left:728px; top:612px; width:688px; height:264px;">
+    <div class="ptitle" id="subTitle"></div>
+    <div class="psub" id="subSub"></div>
+    <div id="subTable" style="margin-top:6px"></div>
+  </div>
+  <div class="abs seg" id="segSub" style="left:1266px; top:622px; width:140px; height:28px;"></div>
+
+  <!-- Pop-up filter panel -->
+  <div class="abs scrim" id="scrim"></div>
+  <div class="abs panel popup" id="popup">
+    <div class="ptitle" style="font-size:17px">Filters</div>
+    <div class="psub" style="margin-bottom:14px">Apply to every number on this page, cards included.</div>
+    <div class="slabel">SEGMENT</div><div class="dd">All <span>▾</span></div>
+    <div class="slabel">REGION</div><div class="dd">All <span>▾</span></div>
+    <div class="slabel">CATEGORY</div><div class="dd">All <span>▾</span></div>
+    <div style="display:flex; gap:10px; margin-top:6px">
+      <button class="btn" style="flex:1; height:34px; border-color:var(--rule); color:var(--body)">Clear all</button>
+      <button class="btn" id="closeFilters" style="flex:1; height:34px; background:var(--ink); color:#fff">Done</button>
+    </div>
+    <span class="note" style="left:8px; top:-14px">hidden by default · 3 slicers + ClearAllSlicers + close bookmark · scrim closes too</span>
+  </div>
+</div>
+
+<script>
+const DATA = /*DATA*/;
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const C = { ink:"#0A0917", body:"#4A5768", muted:"#667284", rule:"#E3E7EF", gold:"#C9A227",
+            navy:"#111F38", slate:"#7C8598", light:"#BCC1D2", good:"#1E7A4C", bad:"#B3261E" };
+const state = { year: 2024, offset: 1, view: "Month", cust: "Top", sub: "Top" };
+
+const usd = v => (v < 0 ? "−$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
+const usdK = v => (v < 0 ? "−$" : "$") + (Math.abs(v) / 1000).toFixed(0) + "k";
+const signed = v => (v >= 0 ? "+" : "") + usd(v);
+const pct = p => p == null ? "new" : Math.abs(p) >= 10 ? (p > 0 ? ">+999%" : "<−999%")
+                 : (p >= 0 ? "+" : "−") + Math.abs(p * 100).toFixed(1) + "%";
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function seg(id, options, key) {
+  const el = document.getElementById(id);
+  el.innerHTML = options.map(o => `<button data-v="${o[0]}">${o[1]}</button>`).join("");
+  el.querySelectorAll("button").forEach(b => b.onclick = () => {
+    state[key] = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v; render();
+  });
+}
+seg("segYear", [[2022,"2022"],[2023,"2023"],[2024,"2024"]], "year");
+seg("segComp", [[1,"Prior year"],[2,"Two years earlier"]], "offset");
+seg("segView", [["Month","Month"],["Cumulative","Cumulative"]], "view");
+seg("segCust", [["Top","Top"],["Bottom","Bottom"]], "cust");
+seg("segSub", [["Top","Top"],["Bottom","Bottom"]], "sub");
+
+// ---- The four cards. Each is a single SVG so it can be rebuilt as one DAX measure. ----
+function ring(cx, cy, r, share, colour, over) {
+  const arc = (from, to, col) => {
+    const a0 = 2 * Math.PI * from - Math.PI / 2, a1 = 2 * Math.PI * Math.min(to, from + 0.9999) - Math.PI / 2;
+    const large = (to - from) > 0.5 ? 1 : 0;
+    return `<path d="M${cx + r * Math.cos(a0)},${cy + r * Math.sin(a0)} A${r},${r} 0 ${large} 1 ${cx + r * Math.cos(a1)},${cy + r * Math.sin(a1)}" stroke="${col}" stroke-width="7" fill="none"/>`;
+  };
+  let s = `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.rule}" stroke-width="7" fill="none"/>`;
+  if (share > 0) s += arc(0, Math.min(share, 1), colour);
+  if (over > 0) s += arc(0, Math.min(over, 1), C.gold);
+  return s;
+}
+function cardShell(label, value, valueNote, rows, graphic) {
+  return `<svg width="336" height="140" viewBox="0 0 336 140" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI">
+    <rect x="0.5" y="0.5" width="335" height="139" rx="4" fill="#fff" stroke="${C.rule}"/>
+    <rect x="0" y="0" width="3" height="140" fill="${C.gold}"/>
+    <text x="16" y="24" font-size="11" font-weight="700" fill="${C.muted}" letter-spacing=".4">${label}</text>
+    <text x="16" y="58" font-size="28" font-weight="700" fill="${C.ink}">${value}</text>
+    <text x="16" y="76" font-size="11.5" fill="${C.muted}">${valueNote}</text>
+    <line x1="16" y1="88" x2="320" y2="88" stroke="${C.rule}"/>
+    ${rows.map((r, i) => `<text x="16" y="${107 + i * 20}" font-size="11.5" fill="${C.body}">${r[0]}</text>
+      <text x="320" y="${107 + i * 20}" font-size="11.5" font-weight="600" text-anchor="end" fill="${r[2]}">${r[1]}</text>`).join("")}
+    ${graphic}
+  </svg>`;
+}
+const tone = v => v >= 0 ? C.good : C.bad;
+
+function render() {
+  const key = `${state.year}_${state.year - state.offset}`;
+  const d = DATA[key];
+  document.querySelectorAll("#segYear button").forEach(b => b.classList.toggle("on", +b.dataset.v === state.year));
+  document.querySelectorAll("#segComp button").forEach(b => b.classList.toggle("on", +b.dataset.v === state.offset));
+  document.querySelectorAll("#segView button").forEach(b => b.classList.toggle("on", b.dataset.v === state.view));
+  document.querySelectorAll("#segCust button").forEach(b => b.classList.toggle("on", b.dataset.v === state.cust));
+  document.querySelectorAll("#segSub button").forEach(b => b.classList.toggle("on", b.dataset.v === state.sub));
+  document.getElementById("chip").textContent = "No filters applied";
+
+  if (!d) {
+    document.getElementById("stand").textContent = `There are no sales before 2021, so ${state.year} has nothing two years earlier to compare with. Pick a later year or the prior year.`;
+    ["cards", "line", "var", "custTable", "subTable"].forEach(id => document.getElementById(id).innerHTML = "");
+    return;
+  }
+  const cy = d.comp, y = d.year;
+  const aovPct = (d.aov - d.aov_comp) / d.aov_comp, ordPct = (d.orders - d.orders_comp) / d.orders_comp;
+  const moved = (p, up, down) => `${p >= 0 ? up : down} ${Math.abs(p * 100).toFixed(1)}%`;
+  document.getElementById("stand").textContent =
+    `${y} sales were ${moved(d.sales_pct, "up", "down")} on ${cy}. Orders ${moved(ordPct, "rose", "fell")} and the average ` +
+    `order ${moved(aovPct, "rose", "fell")}: the change came from ${Math.abs(ordPct) > Math.abs(aovPct) ? "the number of orders, not their size" : "order size more than order count"}.`;
+
+  // Cards
+  const ratio = d.sales / d.sales_comp;
+  const c1 = cardShell(`SALES, ${y}`, usd(d.sales), `${pct(d.sales_pct)} on ${cy} (${usd(d.sales_comp)})`,
+    [[`Orders ${d.orders.toLocaleString()}`, pct(ordPct), tone(ordPct)],
+     [`Average order ${usd(d.aov)}`, pct(aovPct), tone(aovPct)]],
+    ring(286, 42, 26, Math.min(ratio, 1), C.navy, ratio - 1) +
+    `<text x="286" y="47" font-size="13" font-weight="700" text-anchor="middle" fill="${C.ink}">${Math.round(ratio * 100)}%</text>`);
+
+  const all = [...d.customers_top];
+  const c2 = cardShell(`CUSTOMERS ABOVE ${cy}`, `${d.customers_above}`, `of ${d.customers_in_play} who bought in either year`,
+    [[`Biggest gain · ${esc(d.customers_top[0].name)}`, signed(d.customers_top[0].change), C.good],
+     [`Biggest fall · ${esc(d.customers_bottom[0].name)}`, signed(d.customers_bottom[0].change), C.bad]],
+    ring(286, 42, 26, d.customers_above / d.customers_in_play, C.navy, 0) +
+    `<text x="286" y="47" font-size="13" font-weight="700" text-anchor="middle" fill="${C.ink}">${Math.round(100 * d.customers_above / d.customers_in_play)}%</text>`);
+
+  const regs = [...d.regions].sort((a, b) => a.name.localeCompare(b.name));
+  const c3 = cardShell(`REGIONS ABOVE ${cy}`, `${d.regions_above}`, `of ${d.regions.length} regions`,
+    [[`Best · ${d.regions[0].name}`, `${signed(d.regions[0].change)} (${pct(d.regions[0].pct)})`, tone(d.regions[0].change)],
+     [`Weakest · ${d.regions.at(-1).name}`, `${signed(d.regions.at(-1).change)} (${pct(d.regions.at(-1).pct)})`, tone(d.regions.at(-1).change)]],
+    regs.map((r, i) => `<rect x="${176 + i * 38}" y="22" width="32" height="40" rx="3" fill="${tone(r.change)}" fill-opacity="${r.change >= 0 ? 1 : 1}"/>
+      <text x="${192 + i * 38}" y="40" font-size="10" font-weight="700" text-anchor="middle" fill="#fff">${r.name.slice(0, 1)}</text>
+      <text x="${192 + i * 38}" y="55" font-size="9" text-anchor="middle" fill="#fff">${pct(r.pct).replace(".0", "").replace(/\.\d/, "")}</text>`).join(""));
+
+  const subs = [...d.subcats_top, ...d.subcats_bottom.slice().reverse()]
+    .filter((v, i, a) => a.findIndex(x => x.name === v.name) === i).sort((a, b) => b.change - a.change);
+  const maxS = d.max_abs_subcat_change;
+  const c4 = cardShell(`SUB-CATEGORIES ABOVE ${cy}`, `${d.subcats_above}`, `of ${d.subcats_in_play} sub-categories`,
+    [[`Best · ${d.subcats_top[0].name}`, signed(d.subcats_top[0].change), tone(d.subcats_top[0].change)],
+     [`Weakest · ${d.subcats_bottom[0].name}`, signed(d.subcats_bottom[0].change), tone(d.subcats_bottom[0].change)]],
+    `<line x1="206" y1="58" x2="320" y2="58" stroke="${C.rule}"/>` +
+    subs.map((s, i) => { const h = Math.max(1.5, 20 * Math.abs(s.change) / maxS);
+      return `<rect x="${206 + i * 6.8}" y="${s.change >= 0 ? 58 - h : 58}" width="5" height="${h}" fill="${tone(s.change)}"/>`; }).join(""));
+
+  document.getElementById("cards").innerHTML = [c1, c2, c3, c4]
+    .map((s, i) => `<div class="abs" style="left:${24 + i * 352}px; top:176px">${s}</div>`).join("");
+
+  // Line chart
+  const W = 666, H = 206, L = 46, R = 10, T = 12, B = 22;
+  const cur = state.view === "Month" ? d.monthly.map(m => m.sales) : d.cumulative;
+  const cmp = state.view === "Month" ? d.monthly.map(m => m.comp) : d.cumulative_comp;
+  const max = Math.max(...cur, ...cmp) * 1.08;
+  const X = i => L + i * (W - L - R) / 11, Y = v => T + (H - T - B) * (1 - v / max);
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const v = max * k / 4;
+    g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${C.rule}"/><text x="${L - 6}" y="${Y(v) + 3}" font-size="10" text-anchor="end" fill="${C.muted}">${usdK(v)}</text>`; }
+  MONTHS.forEach((m, i) => g += `<text x="${X(i)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="${C.muted}">${m}</text>`);
+  const path = arr => arr.map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`).join("");
+  g += `<path d="${path(cmp)}" stroke="${C.slate}" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  g += `<path d="${path(cur)}" stroke="${C.navy}" stroke-width="2.5" fill="none"/>`;
+  g += `<g font-size="10.5"><line x1="${L + 4}" x2="${L + 22}" y1="${T + 2}" y2="${T + 2}" stroke="${C.navy}" stroke-width="2.5"/><text x="${L + 26}" y="${T + 6}" fill="${C.body}">${y}</text>
+        <line x1="${L + 64}" x2="${L + 82}" y1="${T + 2}" y2="${T + 2}" stroke="${C.slate}" stroke-width="2" stroke-dasharray="5 4"/><text x="${L + 86}" y="${T + 6}" fill="${C.body}">${cy}</text></g>`;
+  document.getElementById("line").innerHTML = g;
+  document.getElementById("lineTitle").textContent = state.view === "Month"
+    ? `${y} against ${cy}, month by month` : `${y} against ${cy}, running total`;
+  const monthsAbove = d.monthly.filter(m => m.change > 0).length;
+  document.getElementById("lineSub").textContent = state.view === "Month"
+    ? `Above ${cy} in ${monthsAbove} of 12 months` : `${usd(d.sales - d.sales_comp)} ahead by December`;
+
+  // Variance columns
+  const ch = d.monthly.map(m => m.change), vmax = Math.max(...ch.map(Math.abs)) * 1.15;
+  const VY = v => T + (H - T - B) * (0.5 - v / vmax / 2);
+  let vg = `<line x1="${L}" x2="${W - R}" y1="${VY(0)}" y2="${VY(0)}" stroke="${C.muted}"/>`;
+  const bw = (W - L - R) / 12;
+  ch.forEach((v, i) => { const x = L + i * bw + bw * 0.2;
+    vg += `<rect x="${x}" y="${Math.min(VY(v), VY(0))}" width="${bw * 0.6}" height="${Math.abs(VY(v) - VY(0))}" fill="${tone(v)}"/>
+           <text x="${x + bw * 0.3}" y="${v >= 0 ? VY(v) - 4 : VY(v) + 12}" font-size="10" text-anchor="middle" fill="${C.body}">${usdK(v)}</text>
+           <text x="${x + bw * 0.3}" y="${H - 6}" font-size="10" text-anchor="middle" fill="${C.muted}">${MONTHS[i]}</text>`; });
+  document.getElementById("var").innerHTML = vg;
+  const best = d.monthly.reduce((a, b) => b.change > a.change ? b : a), worst = d.monthly.reduce((a, b) => b.change < a.change ? b : a);
+  document.getElementById("varTitle").textContent = `Which months moved the year`;
+  document.getElementById("varSub").textContent = `Sales less ${cy}: ${MONTHS[best.month - 1]} added most (${signed(best.change)}), ${MONTHS[worst.month - 1]} lost most (${signed(worst.change)})`;
+
+  // Tables
+  function table(rows, max, first) {
+    return `<table><tr><th>#</th><th>${first}</th><th>${y}</th><th>${cy}</th><th>Change</th><th style="text-align:center">vs ${cy}</th><th>%</th></tr>` +
+      rows.map((r, i) => { const w = 78 * Math.abs(r.change) / max;
+        const bar = `<svg width="170" height="16"><line x1="85" x2="85" y1="0" y2="16" stroke="${C.muted}"/>
+          <rect x="${r.change >= 0 ? 85 : 85 - w}" y="3" width="${w}" height="10" fill="${tone(r.change)}"/></svg>`;
+        return `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td>${usd(r.sales)}</td><td>${usd(r.comp)}</td>
+          <td style="color:${tone(r.change)}">${signed(r.change)}</td><td class="bar">${bar}</td><td>${pct(r.pct)}</td></tr>`; }).join("") + "</table>";
+  }
+  const cRows = state.cust === "Top" ? d.customers_top : d.customers_bottom;
+  document.getElementById("custTable").innerHTML = table(cRows, d.max_abs_customer_change, "Customer");
+  document.getElementById("custTitle").textContent = state.cust === "Top"
+    ? `The 8 customers who grew most on ${cy}` : `The 8 customers who fell furthest below ${cy}`;
+  document.getElementById("custSub").textContent = `Bars share one scale, the largest move either way among ${d.customers_in_play} customers`;
+  const sRows = state.sub === "Top" ? d.subcats_top : d.subcats_bottom;
+  document.getElementById("subTable").innerHTML = table(sRows, d.max_abs_subcat_change, "Sub-category");
+  document.getElementById("subTitle").textContent = state.sub === "Top"
+    ? `The 8 sub-categories that grew most on ${cy}` : `The 8 sub-categories that did worst against ${cy}`;
+  document.getElementById("subSub").textContent = `${d.subcats_in_play - d.subcats_above} of ${d.subcats_in_play} were below ${cy}`;
+}
+
+const stage = document.getElementById("stage");
+const open = on => stage.classList.toggle("open", on);
+document.getElementById("openFilters").onclick = () => open(true);
+document.getElementById("closeFilters").onclick = () => open(false);
+document.getElementById("scrim").onclick = () => open(false);
+document.getElementById("clean").onchange = e => document.body.classList.toggle("clean", e.target.checked);
+render();
+</script>
+</body>
+</html>

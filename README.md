@@ -103,7 +103,7 @@ and every sub-category selling more than it — so on a chart sorted by sales it
 
 ## The report
 
-Four pages, 1440 × 900, in the Milestone BI palette — near-black indigo, gold, and the site's
+Five pages, 1440 × 900, in the Milestone BI palette — near-black indigo, gold, and the site's
 greys — with the brand mark in a band across the top of every page.
 
 **01 Overview** — headline figures, sales by month with one line per year, a year-by-year table,
@@ -125,6 +125,37 @@ ship, ship mode mix by year, cities ranked.
 
 ![The geography page](screenshots/geography.png)
 
+**05 Revenue** — one year against a comparison year, where every block is a measure. Buttons pick
+the year (2022–2024), the comparison (prior year or two years earlier), month-by-month or running
+total, and Top or Bottom 8 on each table; a Filters button opens a panel of segment, region and
+category slicers over a dimmed page.
+
+![The revenue page](screenshots/revenue.png)
+
+It is built from techniques the other pages do not use, each generated rather than placed:
+
+- **KPI cards are SVG.** Each card — ring gauge, region tiles, a bar per sub-category — is one DAX
+  measure with `dataCategory: ImageUrl` returning an SVG data URI, shown in an image visual.
+  `%` and `#` are percent-encoded, in that order, or "20.3%" breaks the image.
+- **Bars inside the tables are SVG too**, one per row, all drawn to one scale.
+- **Button slicers on disconnected tables.** `Comparison`, `Line View` and the two ranking tables
+  have no relationships; measures read the choice with `SELECTEDVALUE`, and `DATEADD` takes the
+  one-or-two-year offset from a variable.
+- **Top/Bottom that flips.** A TopN filter has a fixed direction, so the rank is a measure whose
+  direction follows the button, and the table keeps ranks 1–8 with a visual-level measure filter.
+  That filter also narrows `ALLSELECTED` to the eight rows on screen — the subtitle first read
+  "among 8 customers" — so every pool and scale uses `ALL` instead.
+- **Titles rewrite themselves.** Panel titles, subtitles and the standfirst are measures; the
+  standfirst is a transparent shape whose title is the measure, because a textbox cannot bind one.
+- **The filter panel is two bookmarks** that show or hide the panel's visuals and carry no data
+  state, so opening it never resets a slicer.
+
+The page was mocked up in HTML first with the real figures (`design/revenue-mockup.html`), then
+generated. Every number on it was checked over XMLA against `etl/revenue_expected.py` for 2024
+against 2023 and against 2022, to the cent.
+
+![The revenue page with the other states: two years earlier, running total, Bottom 8, filters open](screenshots/revenue-other-states.png)
+
 ### Some of what it says
 
 | | |
@@ -137,6 +168,8 @@ ship, ship mode mix by year, cities ranked.
 | Top states | California 19.7%, New York 13.6%, Texas 7.5% |
 | Shipping | Standard Class is 59.8% of orders at 5.0 days; Same Day is 5.3% at 0.0 |
 | Top product | Canon imageCLASS 2200 Advanced Copier, $61,600 on three orders |
+| Where 2024's growth came from | Orders +28.3%, average order −6.2%: more orders, not bigger ones |
+| Against 2023 | 445 of 773 customers, 3 of 4 regions (not Central) and 14 of 17 sub-categories grew; Machines fell most, −$12,362 |
 
 ## Rebuilding
 
@@ -167,6 +200,10 @@ powerbi-report-author validate "Superstore Sales.pbip"
 powershell -File etl/refresh_model.ps1
 powershell -File etl/verify_measures.ps1
 python etl/verify_expected.py
+
+# The revenue page, for any year and comparison
+powershell -File etl/verify_revenue.ps1 -Year 2024 -Comparison "Two years earlier"
+python etl/revenue_expected.py 2024 2022
 ```
 
 Every figure in `verify_measures.ps1` matched `verify_expected.py` to four decimal places — after
@@ -180,7 +217,8 @@ data/                             the star schema the model loads
 etl/shift_dates.py                the +4 year shift, with the Order ID re-sync
 etl/build_star_schema.py          cleaning and dimensional build, with assertions
 etl/build_model.py                generates the TMDL semantic model
-etl/build_report.py               generates the PBIR report definition, theme and brand mark
+etl/revenue_measures.py           the revenue page's measures, SVG cards and toggle tables
+etl/build_report.py               generates the PBIR report definition, theme, bookmarks and brand mark
 etl/build_web_data.py             emits the compact JSON the milestonebi.com page reads
 etl/publish_to_service.ps1        publishes model + report to a workspace, sets creds, refreshes
 etl/crop_screenshots.py           crops Desktop captures to the report canvas
@@ -188,9 +226,12 @@ etl/check_tmdl.ps1                parses the TMDL with Desktop's own serializer
 etl/refresh_model.ps1             refreshes the open model over its local XMLA endpoint
 etl/verify_measures.ps1           reads the measures back out of the live model
 etl/verify_expected.py            the same figures from the CSVs, in pandas
+etl/verify_revenue.ps1            reads every revenue-page figure out of the live model
+etl/revenue_expected.py           the revenue page's figures from the CSVs, in pandas
+design/                           the HTML mockup the revenue page was built from
 web/superstore-sales.json         the page's data - about 100x smaller than the star schema
-Superstore Sales.SemanticModel/   TMDL: 7 tables, 40 measures
-Superstore Sales.Report/          PBIR: 4 pages, 54 visuals, theme, brand mark
+Superstore Sales.SemanticModel/   TMDL: 11 tables, 79 measures
+Superstore Sales.Report/          PBIR: 5 pages, 82 visuals, 2 bookmarks, theme, brand mark
 ```
 
 Both the model and the report are generated rather than hand-edited. TMDL is indentation-sensitive

@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Revenue page mockup - Superstore Sales</title>
+<!--
+  Design mockup for the Revenue page, drawn at the report's 1440x900 canvas with the same tokens
+  and grid as etl/build_report.py. Numbers are real: etl/revenue_expected.py, injected by
+  design/build_mockup.py. Everything here has to be buildable in PBIR, so nothing uses a
+  control Power BI does not have - each block is annotated with the visual it becomes.
+-->
+<style>
+  :root {
+    --paper: #F4F6FA; --card: #FFFFFF; --rule: #E3E7EF; --ink: #0A0917; --body: #4A5768;
+    --muted: #667284; --gold: #C9A227; --gold-text: #8A6D14; --navy: #111F38; --slate: #7C8598;
+    --light: #BCC1D2; --good: #1E7A4C; --bad: #B3261E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #d9dde6; font-family: "Segoe UI", system-ui, sans-serif; color: var(--body); }
+  .stage { width: 1440px; height: 900px; position: relative; background: var(--paper); margin: 24px auto;
+           transform-origin: top left; overflow: hidden; }
+  .abs { position: absolute; }
+  .band { left: 0; top: 0; width: 1440px; height: 60px; background: var(--ink); }
+  .wordmark { left: 76px; top: 15px; color: #fff; font-weight: 700; font-size: 20px; }
+  .wordmark b { color: var(--gold); }
+  .ref { right: 24px; top: 22px; color: var(--gold); font: 700 11px Consolas, monospace; letter-spacing: 2px; }
+  .mark { left: 24px; top: 14px; width: 40px; height: 32px; border: 2px solid #fff; border-radius: 4px; }
+  h1 { margin: 0; left: 24px; top: 74px; font-size: 29px; color: var(--ink); font-weight: 700; }
+  .stand { left: 24px; top: 118px; width: 700px; font-size: 13px; line-height: 1.45; }
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; }
+  .ptitle { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .psub { font-size: 11.3px; color: var(--muted); margin-top: 1px; }
+  .note { position: absolute; font: 600 10px Consolas, monospace; color: #fff; background: #7a3cff;
+          padding: 1px 5px; border-radius: 2px; z-index: 50; pointer-events: none; opacity: .9; }
+  body.clean .note { display: none; }
+  /* button slicer */
+  .seg { display: flex; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); overflow: hidden; }
+  .seg button { flex: 1; border: 0; background: transparent; font: 600 12px "Segoe UI"; color: var(--body);
+                cursor: pointer; padding: 0 10px; }
+  .seg button + button { border-left: 1px solid var(--rule); }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .slabel { font: 700 11px "Segoe UI"; color: var(--muted); letter-spacing: .5px; margin-bottom: 4px; }
+  .btn { border: 1px solid var(--ink); background: var(--card); color: var(--ink); font: 600 12.5px "Segoe UI";
+         border-radius: 4px; cursor: pointer; }
+  .scrim { inset: 0; background: rgba(10, 9, 23, .35); display: none; z-index: 40; }
+  .popup { right: 24px; top: 118px; width: 340px; height: 356px; display: none; z-index: 41;
+           box-shadow: 0 10px 30px rgba(10, 9, 23, .18); padding: 16px; }
+  .open .scrim, .open .popup { display: block; }
+  .dd { border: 1px solid var(--rule); border-radius: 3px; height: 32px; margin: 4px 0 14px; padding: 6px 10px;
+        font-size: 12.5px; color: var(--body); display: flex; justify-content: space-between; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th { font-weight: 700; color: var(--ink); text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--rule); }
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  td { padding: 2px 6px; text-align: right; border-bottom: 1px solid var(--rule); height: 22px; color: var(--body); }
+  td.bar { width: 170px; padding: 0 6px; }
+  .toolbar { position: fixed; left: 12px; top: 8px; font: 12px "Segoe UI"; z-index: 99; }
+</style>
+</head>
+<body>
+<div class="toolbar"><label><input type="checkbox" id="clean"> hide build notes</label></div>
+<div class="stage" id="stage">
+  <div class="abs band"></div>
+  <div class="abs mark"></div>
+  <div class="abs wordmark">Milestone <b>BI</b></div>
+  <div class="abs ref">05 / REVENUE</div>
+
+  <h1 class="abs">Revenue against the comparison year</h1>
+  <div class="abs stand" id="stand"></div>
+
+  <!-- Year: button slicer on Date[Year], forced single select -->
+  <div class="abs" style="left:760px; top:78px; width:220px;">
+    <div class="slabel">YEAR</div>
+    <div class="seg" id="segYear" style="height:34px"></div>
+  </div>
+  <span class="note" style="left:760px; top:64px">advancedSlicerVisual · Date[Year]</span>
+
+  <!-- Comparison: button slicer on a disconnected table -->
+  <div class="abs" style="left:996px; top:78px; width:250px;">
+    <div class="slabel">COMPARE WITH</div>
+    <div class="seg" id="segComp" style="height:34px"></div>
+  </div>
+  <span class="note" style="left:996px; top:64px">advancedSlicerVisual · disconnected 'Comparison'</span>
+
+  <button class="abs btn" id="openFilters" style="left:1262px; top:96px; width:154px; height:34px;">Filters</button>
+  <div class="abs" id="chip" style="left:1262px; top:136px; width:154px; font-size:11px; color:var(--muted); text-align:center;"></div>
+  <span class="note" style="left:1262px; top:82px">actionButton → bookmark</span>
+  <span class="note" style="left:1262px; top:152px">image · SVG measure</span>
+
+  <!-- KPI cards -->
+  <div id="cards"></div>
+  <span class="note" style="left:24px; top:170px">4 × image visual bound to an SVG measure (ImageUrl)</span>
+
+  <!-- Line -->
+  <div class="abs panel" style="left:24px; top:332px; width:688px; height:264px;">
+    <div class="ptitle" id="lineTitle"></div>
+    <div class="psub" id="lineSub"></div>
+    <svg id="line" width="666" height="206" style="margin-top:4px"></svg>
+  </div>
+  <div class="abs seg" id="segView" style="left:526px; top:342px; width:176px; height:28px;"></div>
+  <span class="note" style="left:526px; top:328px">advancedSlicerVisual · 'Line View'</span>
+  <span class="note" style="left:30px; top:588px">lineChart · title = measure</span>
+
+  <!-- Variance -->
+  <div class="abs panel" style="left:728px; top:332px; width:688px; height:264px;">
+    <div class="ptitle" id="varTitle"></div>
+    <div class="psub" id="varSub"></div>
+    <svg id="var" width="666" height="206" style="margin-top:4px"></svg>
+  </div>
+  <span class="note" style="left:734px; top:588px">columnChart · fill = colour measure</span>
+
+  <!-- Tables -->
+  <div class="abs panel" style="left:24px; top:612px; width:688px; height:264px;">
+    <div class="ptitle" id="custTitle"></div>
+    <div class="psub" id="custSub"></div>
+    <div id="custTable" style="margin-top:6px"></div>
+  </div>
+  <div class="abs seg" id="segCust" style="left:562px; top:622px; width:140px; height:28px;"></div>
+  <span class="note" style="left:30px; top:868px">pivotTable · SVG bar measure · blank rows outside top 8</span>
+
+  <div class="abs panel" style="left:728px; top:612px; width:688px; height:264px;">
+    <div class="ptitle" id="subTitle"></div>
+    <div class="psub" id="subSub"></div>
+    <div id="subTable" style="margin-top:6px"></div>
+  </div>
+  <div class="abs seg" id="segSub" style="left:1266px; top:622px; width:140px; height:28px;"></div>
+
+  <!-- Pop-up filter panel -->
+  <div class="abs scrim" id="scrim"></div>
+  <div class="abs panel popup" id="popup">
+    <div class="ptitle" style="font-size:17px">Filters</div>
+    <div class="psub" style="margin-bottom:14px">Apply to every number on this page, cards included.</div>
+    <div class="slabel">SEGMENT</div><div class="dd">All <span>▾</span></div>
+    <div class="slabel">REGION</div><div class="dd">All <span>▾</span></div>
+    <div class="slabel">CATEGORY</div><div class="dd">All <span>▾</span></div>
+    <div style="display:flex; gap:10px; margin-top:6px">
+      <button class="btn" style="flex:1; height:34px; border-color:var(--rule); color:var(--body)">Clear all</button>
+      <button class="btn" id="closeFilters" style="flex:1; height:34px; background:var(--ink); color:#fff">Done</button>
+    </div>
+    <span class="note" style="left:8px; top:-14px">hidden by default · 3 slicers + ClearAllSlicers + close bookmark · scrim closes too</span>
+  </div>
+</div>
+
+<script>
+const DATA = {"2022_2021": {"year": 2022, "comp": 2021, "sales": 459436.01, "sales_comp": 479856.21, "sales_pct": -0.0426, "orders": 1019, "orders_comp": 947, "aov": 450.87, "aov_comp": 506.71, "customers_above": 379, "customers_in_play": 730, "regions_above": 1, "regions": [{"name": "East", "sales": 153225.18, "comp": 127652.82, "change": 25572.36, "pct": 0.2003}, {"name": "Central", "sales": 102425.17, "comp": 102920.52, "change": -495.35, "pct": -0.0048}, {"name": "West", "sales": 133709.57, "comp": 145907.96, "change": -12198.4, "pct": -0.0836}, {"name": "South", "sales": 70076.08, "comp": 103374.91, "change": -33298.82, "pct": -0.3221}], "subcats_above": 9, "subcats_in_play": 17, "monthly": [{"month": 1, "sales": 18066.96, "comp": 14205.71, "change": 3861.25}, {"month": 2, "sales": 11951.41, "comp": 4519.89, "change": 7431.52}, {"month": 3, "sales": 32339.32, "comp": 55205.8, "change": -22866.48}, {"month": 4, "sales": 34154.47, "comp": 27906.86, "change": 6247.61}, {"month": 5, "sales": 29959.53, "comp": 23644.3, "change": 6315.23}, {"month": 6, "sales": 23599.37, "comp": 34322.94, "change": -10723.56}, {"month": 7, "sales": 28608.26, "comp": 33781.54, "change": -5173.28}, {"month": 8, "sales": 36818.34, "comp": 27117.54, "change": 9700.81}, {"month": 9, "sales": 63133.61, "comp": 81623.53, "change": -18489.92}, {"month": 10, "sales": 31011.74, "comp": 31453.39, "change": -441.66}, {"month": 11, "sales": 75249.4, "comp": 77907.66, "change": -2658.26}, {"month": 12, "sales": 74543.6, "comp": 68167.06, "change": 6376.54}], "cumulative": [18066.96, 30018.37, 62357.69, 96512.16, 126471.69, 150071.06, 178679.32, 215497.66, 278631.27, 309643.0, 384892.4, 459436.01], "cumulative_comp": [14205.71, 18725.6, 73931.4, 101838.25, 125482.55, 159805.49, 193587.03, 220704.57, 302328.1, 333781.49, 411689.15, 479856.21], "customers_top": [{"name": "Peter Fuller", "sales": 9022.32, "comp": 40.54, "change": 8981.78, "pct": 221.5536}, {"name": "Keith Dawkins", "sales": 7039.04, "comp": 106.94, "change": 6932.1, "pct": 64.8199}, {"name": "Christopher Martinez", "sales": 6682.26, "comp": 0.0, "change": 6682.26, "pct": null}, {"name": "Fred Hopkins", "sales": 6056.09, "comp": 426.94, "change": 5629.15, "pct": 13.1848}, {"name": "Sarah Brown", "sales": 5414.25, "comp": 504.55, "change": 4909.7, "pct": 9.7308}, {"name": "Cassandra Brandow", "sales": 4662.55, "comp": 20.54, "change": 4642.02, "pct": 226.0429}, {"name": "Harry Marie", "sales": 5327.8, "comp": 751.89, "change": 4575.92, "pct": 6.0859}, {"name": "Quincy Jones", "sales": 4409.85, "comp": 330.7, "change": 4079.15, "pct": 12.3347}], "customers_bottom": [{"name": "Sean Miller", "sales": 847.4, "comp": 23661.23, "change": -22813.82, "pct": -0.9642}, {"name": "Sanjit Chand", "sales": 256.35, "comp": 12876.48, "change": -12620.13, "pct": -0.9801}, {"name": "Becky Martin", "sales": 0.0, "comp": 10539.9, "change": -10539.9, "pct": -1.0}, {"name": "Tom Boeckenhauer", "sales": 0.0, "comp": 8137.26, "change": -8137.26, "pct": -1.0}, {"name": "Ken Lonsdale", "sales": 913.51, "comp": 8694.63, "change": -7781.12, "pct": -0.8949}, {"name": "Sean Braxton", "sales": 265.86, "comp": 6277.72, "change": -6011.86, "pct": -0.9577}, {"name": "Nora Preis", "sales": 0.0, "comp": 5168.93, "change": -5168.93, "pct": -1.0}, {"name": "Mitch Webber", "sales": 240.02, "comp": 5030.44, "change": -4790.43, "pct": -0.9523}], "subcats_top": [{"name": "Bookcases", "sales": 37476.77, "comp": 20036.68, "change": 17440.1, "pct": 0.8704}, {"name": "Accessories", "sales": 40443.97, "comp": 23766.4, "change": 16677.57, "pct": 0.7017}, {"name": "Copiers", "sales": 26179.45, "comp": 10849.78, "change": 15329.67, "pct": 1.4129}, {"name": "Appliances", "sales": 23228.18, "comp": 15160.72, "change": 8067.46, "pct": 0.5321}, {"name": "Furnishings", "sales": 20525.22, "comp": 13636.99, "change": 6888.24, "pct": 0.5051}, {"name": "Envelopes", "sales": 4448.22, "comp": 3844.59, "change": 603.63, "pct": 0.157}, {"name": "Paper", "sales": 14664.76, "comp": 14332.72, "change": 332.04, "pct": 0.0232}, {"name": "Art", "sales": 6091.64, "comp": 5897.53, "change": 194.1, "pct": 0.0329}], "subcats_bottom": [{"name": "Machines", "sales": 27763.7, "comp": 62023.37, "change": -34259.68, "pct": -0.5524}, {"name": "Supplies", "sales": 1890.52, "comp": 14335.62, "change": -12445.1, "pct": -0.8681}, {"name": "Tables", "sales": 35397.2, "comp": 45757.78, "change": -10360.58, "pct": -0.2264}, {"name": "Phones", "sales": 67870.61, "comp": 77225.96, "change": -9355.34, "pct": -0.1211}, {"name": "Binders", "sales": 36049.75, "comp": 43263.27, "change": -7213.52, "pct": -0.1667}, {"name": "Chairs", "sales": 70654.67, "comp": 77046.44, "change": -6391.77, "pct": -0.083}, {"name": "Storage", "sales": 43321.21, "comp": 49197.53, "change": -5876.32, "pct": -0.1194}, {"name": "Fasteners", "sales": 545.22, "comp": 655.39, "change": -110.16, "pct": -0.1681}], "max_abs_customer_change": 22813.82, "max_abs_subcat_change": 34259.68}, "2023_2022": {"year": 2023, "comp": 2022, "sales": 600192.55, "sales_comp": 459436.01, "sales_pct": 0.3064, "orders": 1295, "orders_comp": 1019, "aov": 463.47, "aov_comp": 450.87, "customers_above": 406, "customers_in_play": 758, "regions_above": 4, "regions": [{"name": "West", "sales": 182471.23, "comp": 133709.57, "change": 48761.66, "pct": 0.3647}, {"name": "Central", "sales": 145673.88, "comp": 102425.17, "change": 43248.71, "pct": 0.4222}, {"name": "East", "sales": 178511.54, "comp": 153225.18, "change": 25286.36, "pct": 0.165}, {"name": "South", "sales": 93535.9, "comp": 70076.08, "change": 23459.82, "pct": 0.3348}], "subcats_above": 14, "subcats_in_play": 17, "monthly": [{"month": 1, "sales": 18542.49, "comp": 18066.96, "change": 475.53}, {"month": 2, "sales": 22978.82, "comp": 11951.41, "change": 11027.4}, {"month": 3, "sales": 51165.06, "comp": 32339.32, "change": 18825.74}, {"month": 4, "sales": 38679.77, "comp": 34154.47, "change": 4525.3}, {"month": 5, "sales": 56656.91, "comp": 29959.53, "change": 26697.38}, {"month": 6, "sales": 39724.49, "comp": 23599.37, "change": 16125.11}, {"month": 7, "sales": 38320.78, "comp": 28608.26, "change": 9712.52}, {"month": 8, "sales": 30542.2, "comp": 36818.34, "change": -6276.14}, {"month": 9, "sales": 69193.39, "comp": 63133.61, "change": 6059.78}, {"month": 10, "sales": 59583.03, "comp": 31011.74, "change": 28571.3}, {"month": 11, "sales": 79066.5, "comp": 75249.4, "change": 3817.1}, {"month": 12, "sales": 95739.12, "comp": 74543.6, "change": 21195.52}], "cumulative": [18542.49, 41521.31, 92686.37, 131366.13, 188023.04, 227747.53, 266068.31, 296610.51, 365803.9, 425386.93, 504453.43, 600192.55], "cumulative_comp": [18066.96, 30018.37, 62357.69, 96512.16, 126471.69, 150071.06, 178679.32, 215497.66, 278631.27, 309643.0, 384892.4, 459436.01], "customers_top": [{"name": "Tamara Chand", "sales": 18344.05, "comp": 85.85, "change": 18258.2, "pct": 212.6806}, {"name": "Christopher Conant", "sales": 11901.18, "comp": 0.0, "change": 11901.18, "pct": null}, {"name": "Adrian Barton", "sales": 10403.86, "comp": 671.0, "change": 9732.86, "pct": 14.505}, {"name": "Sanjit Engle", "sales": 9879.22, "comp": 513.73, "change": 9365.49, "pct": 18.2304}, {"name": "Bill Shonely", "sales": 9199.78, "comp": 0.0, "change": 9199.78, "pct": null}, {"name": "Joe Elijah", "sales": 7587.97, "comp": 235.79, "change": 7352.18, "pct": 31.1808}, {"name": "Edward Hooks", "sales": 7606.69, "comp": 702.74, "change": 6903.95, "pct": 9.8243}, {"name": "Laura Armstrong", "sales": 6451.22, "comp": 64.19, "change": 6387.03, "pct": 99.5051}], "customers_bottom": [{"name": "Peter Fuller", "sales": 0.0, "comp": 9022.32, "change": -9022.32, "pct": -1.0}, {"name": "Christopher Martinez", "sales": 0.0, "comp": 6682.26, "change": -6682.26, "pct": -1.0}, {"name": "Keith Dawkins", "sales": 504.86, "comp": 7039.04, "change": -6534.19, "pct": -0.9283}, {"name": "Fred Hopkins", "sales": 23.04, "comp": 6056.09, "change": -6033.05, "pct": -0.9962}, {"name": "Sarah Brown", "sales": 0.0, "comp": 5414.25, "change": -5414.25, "pct": -1.0}, {"name": "Natalie Webber", "sales": 184.15, "comp": 5511.32, "change": -5327.17, "pct": -0.9666}, {"name": "Joseph Holt", "sales": 165.37, "comp": 5352.79, "change": -5187.42, "pct": -0.9691}, {"name": "Cassandra Brandow", "sales": 0.0, "comp": 4662.55, "change": -4662.55, "pct": -1.0}], "subcats_top": [{"name": "Machines", "sales": 55906.89, "comp": 27763.7, "change": 28143.19, "pct": 1.0137}, {"name": "Tables", "sales": 60762.11, "comp": 35397.2, "change": 25364.92, "pct": 0.7166}, {"name": "Copiers", "sales": 46319.47, "comp": 26179.45, "change": 20140.02, "pct": 0.7693}, {"name": "Storage", "sales": 58751.96, "comp": 43321.21, "change": 15430.75, "pct": 0.3562}, {"name": "Binders", "sales": 48994.52, "comp": 36049.75, "change": 12944.77, "pct": 0.3591}, {"name": "Supplies", "sales": 14242.06, "comp": 1890.52, "change": 12351.53, "pct": 6.5334}, {"name": "Chairs", "sales": 81930.34, "comp": 70654.67, "change": 11275.67, "pct": 0.1596}, {"name": "Phones", "sales": 78000.22, "comp": 67870.61, "change": 10129.61, "pct": 0.1492}], "subcats_bottom": [{"name": "Bookcases", "sales": 26275.47, "comp": 37476.77, "change": -11201.31, "pct": -0.2989}, {"name": "Art", "sales": 5890.61, "comp": 6091.64, "change": -201.03, "pct": -0.033}, {"name": "Labels", "sales": 2792.66, "comp": 2884.91, "change": -92.25, "pct": -0.032}, {"name": "Envelopes", "sales": 4456.66, "comp": 4448.22, "change": 8.45, "pct": 0.0019}, {"name": "Fasteners", "sales": 946.27, "comp": 545.22, "change": 401.05, "pct": 0.7356}, {"name": "Accessories", "sales": 41735.36, "comp": 40443.97, "change": 1291.39, "pct": 0.0319}, {"name": "Appliances", "sales": 26016.79, "comp": 23228.18, "change": 2788.61, "pct": 0.1201}, {"name": "Paper", "sales": 20326.04, "comp": 14664.76, "change": 5661.28, "pct": 0.386}], "max_abs_customer_change": 18258.2, "max_abs_subcat_change": 28143.19}, "2023_2021": {"year": 2023, "comp": 2021, "sales": 600192.55, "sales_comp": 479856.21, "sales_pct": 0.2508, "orders": 1295, "orders_comp": 947, "aov": 463.47, "aov_comp": 506.71, "customers_above": 413, "customers_in_play": 748, "regions_above": 3, "regions": [{"name": "East", "sales": 178511.54, "comp": 127652.82, "change": 50858.72, "pct": 0.3984}, {"name": "Central", "sales": 145673.88, "comp": 102920.52, "change": 42753.36, "pct": 0.4154}, {"name": "West", "sales": 182471.23, "comp": 145907.96, "change": 36563.27, "pct": 0.2506}, {"name": "South", "sales": 93535.9, "comp": 103374.91, "change": -9839.0, "pct": -0.0952}], "subcats_above": 13, "subcats_in_play": 17, "monthly": [{"month": 1, "sales": 18542.49, "comp": 14205.71, "change": 4336.78}, {"month": 2, "sales": 22978.82, "comp": 4519.89, "change": 18458.92}, {"month": 3, "sales": 51165.06, "comp": 55205.8, "change": -4040.74}, {"month": 4, "sales": 38679.77, "comp": 27906.86, "change": 10772.91}, {"month": 5, "sales": 56656.91, "comp": 23644.3, "change": 33012.61}, {"month": 6, "sales": 39724.49, "comp": 34322.94, "change": 5401.55}, {"month": 7, "sales": 38320.78, "comp": 33781.54, "change": 4539.24}, {"month": 8, "sales": 30542.2, "comp": 27117.54, "change": 3424.66}, {"month": 9, "sales": 69193.39, "comp": 81623.53, "change": -12430.14}, {"month": 10, "sales": 59583.03, "comp": 31453.39, "change": 28129.64}, {"month": 11, "sales": 79066.5, "comp": 77907.66, "change": 1158.84}, {"month": 12, "sales": 95739.12, "comp": 68167.06, "change": 27572.06}], "cumulative": [18542.49, 41521.31, 92686.37, 131366.13, 188023.04, 227747.53, 266068.31, 296610.51, 365803.9, 425386.93, 504453.43, 600192.55], "cumulative_comp": [14205.71, 18725.6, 73931.4, 101838.25, 125482.55, 159805.49, 193587.03, 220704.57, 302328.1, 333781.49, 411689.15, 479856.21], "customers_top": [{"name": "Tamara Chand", "sales": 18344.05, "comp": 622.32, "change": 17721.73, "pct": 28.477}, {"name": "Christopher Conant", "sales": 11901.18, "comp": 0.0, "change": 11901.18, "pct": null}, {"name": "Sanjit Engle", "sales": 9879.22, "comp": 270.73, "change": 9608.49, "pct": 35.491}, {"name": "Adrian Barton", "sales": 10403.86, "comp": 1107.66, "change": 9296.2, "pct": 8.3927}, {"name": "Bill Shonely", "sales": 9199.78, "comp": 1301.87, "change": 7897.91, "pct": 6.0666}, {"name": "Joe Elijah", "sales": 7587.97, "comp": 38.06, "change": 7549.91, "pct": 198.3477}, {"name": "Edward Hooks", "sales": 7606.69, "comp": 249.47, "change": 7357.22, "pct": 29.4912}, {"name": "Rick Huthwaite", "sales": 5973.97, "comp": 273.96, "change": 5700.01, "pct": 20.806}], "customers_bottom": [{"name": "Sean Miller", "sales": 0.0, "comp": 23661.23, "change": -23661.23, "pct": -1.0}, {"name": "Sanjit Chand", "sales": 996.8, "comp": 12876.48, "change": -11879.68, "pct": -0.9226}, {"name": "Becky Martin", "sales": 892.94, "comp": 10539.9, "change": -9646.95, "pct": -0.9153}, {"name": "Tom Boeckenhauer", "sales": 81.2, "comp": 8137.26, "change": -8056.06, "pct": -0.99}, {"name": "Sean Braxton", "sales": 103.97, "comp": 6277.72, "change": -6173.76, "pct": -0.9834}, {"name": "Nathan Mautz", "sales": 0.0, "comp": 5370.39, "change": -5370.39, "pct": -1.0}, {"name": "Mitch Webber", "sales": 40.0, "comp": 5030.44, "change": -4990.44, "pct": -0.992}, {"name": "Greg Tran", "sales": 1561.3, "comp": 6391.78, "change": -4830.47, "pct": -0.7557}], "subcats_top": [{"name": "Copiers", "sales": 46319.47, "comp": 10849.78, "change": 35469.69, "pct": 3.2692}, {"name": "Accessories", "sales": 41735.36, "comp": 23766.4, "change": 17968.97, "pct": 0.7561}, {"name": "Tables", "sales": 60762.11, "comp": 45757.78, "change": 15004.34, "pct": 0.3279}, {"name": "Furnishings", "sales": 26845.12, "comp": 13636.99, "change": 13208.13, "pct": 0.9686}, {"name": "Appliances", "sales": 26016.79, "comp": 15160.72, "change": 10856.07, "pct": 0.7161}, {"name": "Storage", "sales": 58751.96, "comp": 49197.53, "change": 9554.43, "pct": 0.1942}, {"name": "Bookcases", "sales": 26275.47, "comp": 20036.68, "change": 6238.79, "pct": 0.3114}, {"name": "Paper", "sales": 20326.04, "comp": 14332.72, "change": 5993.32, "pct": 0.4182}], "subcats_bottom": [{"name": "Machines", "sales": 55906.89, "comp": 62023.37, "change": -6116.49, "pct": -0.0986}, {"name": "Supplies", "sales": 14242.06, "comp": 14335.62, "change": -93.56, "pct": -0.0065}, {"name": "Labels", "sales": 2792.66, "comp": 2825.46, "change": -32.8, "pct": -0.0116}, {"name": "Art", "sales": 5890.61, "comp": 5897.53, "change": -6.93, "pct": -0.0012}, {"name": "Fasteners", "sales": 946.27, "comp": 655.39, "change": 290.89, "pct": 0.4438}, {"name": "Envelopes", "sales": 4456.66, "comp": 3844.59, "change": 612.07, "pct": 0.1592}, {"name": "Phones", "sales": 78000.22, "comp": 77225.96, "change": 774.26, "pct": 0.01}, {"name": "Chairs", "sales": 81930.34, "comp": 77046.44, "change": 4883.9, "pct": 0.0634}], "max_abs_customer_change": 23661.23, "max_abs_subcat_change": 35469.69}, "2024_2023": {"year": 2024, "comp": 2023, "sales": 722052.02, "sales_comp": 600192.55, "sales_pct": 0.203, "orders": 1661, "orders_comp": 1295, "aov": 434.71, "aov_comp": 463.47, "customers_above": 445, "customers_in_play": 773, "regions_above": 3, "regions": [{"name": "West", "sales": 248130.93, "comp": 182471.23, "change": 65659.7, "pct": 0.3598}, {"name": "East", "sales": 210129.19, "comp": 178511.54, "change": 31617.65, "pct": 0.1771}, {"name": "South", "sales": 122164.57, "comp": 93535.9, "change": 28628.66, "pct": 0.3061}, {"name": "Central", "sales": 141627.34, "comp": 145673.88, "change": -4046.54, "pct": -0.0278}], "subcats_above": 14, "subcats_in_play": 17, "monthly": [{"month": 1, "sales": 43476.47, "comp": 18542.49, "change": 24933.98}, {"month": 2, "sales": 19921.0, "comp": 22978.82, "change": -3057.82}, {"month": 3, "sales": 58863.41, "comp": 51165.06, "change": 7698.35}, {"month": 4, "sales": 35541.91, "comp": 38679.77, "change": -3137.86}, {"month": 5, "sales": 43825.98, "comp": 56656.91, "change": -12830.93}, {"month": 6, "sales": 48190.73, "comp": 39724.49, "change": 8466.24}, {"month": 7, "sales": 44825.1, "comp": 38320.78, "change": 6504.32}, {"month": 8, "sales": 62837.85, "comp": 30542.2, "change": 32295.65}, {"month": 9, "sales": 86152.89, "comp": 69193.39, "change": 16959.5}, {"month": 10, "sales": 77448.13, "comp": 59583.03, "change": 17865.1}, {"month": 11, "sales": 117938.16, "comp": 79066.5, "change": 38871.66}, {"month": 12, "sales": 83030.39, "comp": 95739.12, "change": -12708.73}], "cumulative": [43476.47, 63397.47, 122260.88, 157802.79, 201628.78, 249819.5, 294644.61, 357482.46, 443635.34, 521083.48, 639021.63, 722052.02], "cumulative_comp": [18542.49, 41521.31, 92686.37, 131366.13, 188023.04, 227747.53, 266068.31, 296610.51, 365803.9, 425386.93, 504453.43, 600192.55], "customers_top": [{"name": "Tom Ashbrook", "sales": 13723.5, "comp": 84.27, "change": 13639.23, "pct": 161.8477}, {"name": "Raymond Buch", "sales": 14203.28, "comp": 914.06, "change": 13289.22, "pct": 14.5387}, {"name": "Hunter Lopez", "sales": 10522.55, "comp": 456.56, "change": 10065.99, "pct": 22.0476}, {"name": "Grant Thornton", "sales": 8167.42, "comp": 0.0, "change": 8167.42, "pct": null}, {"name": "Seth Vernon", "sales": 8459.94, "comp": 1041.21, "change": 7418.72, "pct": 7.1251}, {"name": "Todd Sumrall", "sales": 6702.29, "comp": 0.0, "change": 6702.29, "pct": null}, {"name": "Rick Wilson", "sales": 6193.45, "comp": 0.0, "change": 6193.45, "pct": null}, {"name": "Andy Reiter", "sales": 5820.58, "comp": 27.24, "change": 5793.34, "pct": 212.6777}], "customers_bottom": [{"name": "Tamara Chand", "sales": 0.0, "comp": 18344.05, "change": -18344.05, "pct": -1.0}, {"name": "Christopher Conant", "sales": 227.89, "comp": 11901.18, "change": -11673.3, "pct": -0.9809}, {"name": "Bill Shonely", "sales": 0.0, "comp": 9199.78, "change": -9199.78, "pct": -1.0}, {"name": "Sanjit Engle", "sales": 1545.76, "comp": 9879.22, "change": -8333.46, "pct": -0.8435}, {"name": "Adrian Barton", "sales": 2291.04, "comp": 10403.86, "change": -8112.82, "pct": -0.7798}, {"name": "Joe Elijah", "sales": 836.02, "comp": 7587.97, "change": -6751.96, "pct": -0.8898}, {"name": "Laura Armstrong", "sales": 127.69, "comp": 6451.22, "change": -6323.53, "pct": -0.9802}, {"name": "Karen Daniels", "sales": 0.0, "comp": 6317.16, "change": -6317.16, "pct": -1.0}], "subcats_top": [{"name": "Phones", "sales": 104685.66, "comp": 78000.22, "change": 26685.44, "pct": 0.3421}, {"name": "Binders", "sales": 71721.26, "comp": 48994.52, "change": 22726.74, "pct": 0.4639}, {"name": "Copiers", "sales": 62899.39, "comp": 46319.47, "change": 16579.91, "pct": 0.3579}, {"name": "Accessories", "sales": 58240.97, "comp": 41735.36, "change": 16505.61, "pct": 0.3955}, {"name": "Appliances", "sales": 40212.72, "comp": 26016.79, "change": 14195.94, "pct": 0.5456}, {"name": "Chairs", "sales": 93191.27, "comp": 81930.34, "change": 11260.93, "pct": 0.1374}, {"name": "Storage", "sales": 68072.7, "comp": 58751.96, "change": 9320.75, "pct": 0.1586}, {"name": "Paper", "sales": 27504.78, "comp": 20326.04, "change": 7178.73, "pct": 0.3532}], "subcats_bottom": [{"name": "Machines", "sales": 43544.68, "comp": 55906.89, "change": -12362.21, "pct": -0.2211}, {"name": "Envelopes", "sales": 3378.57, "comp": 4456.66, "change": -1078.09, "pct": -0.2419}, {"name": "Fasteners", "sales": 855.07, "comp": 946.27, "change": -91.2, "pct": -0.0964}, {"name": "Tables", "sales": 60893.54, "comp": 60762.11, "change": 131.43, "pct": 0.0022}, {"name": "Labels", "sales": 3844.7, "comp": 2792.66, "change": 1052.04, "pct": 0.3767}, {"name": "Furnishings", "sales": 28204.69, "comp": 26845.12, "change": 1359.58, "pct": 0.0506}, {"name": "Supplies", "sales": 15952.11, "comp": 14242.06, "change": 1710.05, "pct": 0.1201}, {"name": "Art", "sales": 8825.63, "comp": 5890.61, "change": 2935.02, "pct": 0.4983}], "max_abs_customer_change": 18344.05, "max_abs_subcat_change": 26685.44}, "2024_2022": {"year": 2024, "comp": 2022, "sales": 722052.02, "sales_comp": 459436.01, "sales_pct": 0.5716, "orders": 1661, "orders_comp": 1019, "aov": 434.71, "aov_comp": 450.87, "customers_above": 479, "customers_in_play": 767, "regions_above": 4, "regions": [{"name": "West", "sales": 248130.93, "comp": 133709.57, "change": 114421.36, "pct": 0.8557}, {"name": "East", "sales": 210129.19, "comp": 153225.18, "change": 56904.0, "pct": 0.3714}, {"name": "South", "sales": 122164.57, "comp": 70076.08, "change": 52088.48, "pct": 0.7433}, {"name": "Central", "sales": 141627.34, "comp": 102425.17, "change": 39202.17, "pct": 0.3827}], "subcats_above": 15, "subcats_in_play": 17, "monthly": [{"month": 1, "sales": 43476.47, "comp": 18066.96, "change": 25409.52}, {"month": 2, "sales": 19921.0, "comp": 11951.41, "change": 7969.59}, {"month": 3, "sales": 58863.41, "comp": 32339.32, "change": 26524.09}, {"month": 4, "sales": 35541.91, "comp": 34154.47, "change": 1387.44}, {"month": 5, "sales": 43825.98, "comp": 29959.53, "change": 13866.45}, {"month": 6, "sales": 48190.73, "comp": 23599.37, "change": 24591.35}, {"month": 7, "sales": 44825.1, "comp": 28608.26, "change": 16216.84}, {"month": 8, "sales": 62837.85, "comp": 36818.34, "change": 26019.51}, {"month": 9, "sales": 86152.89, "comp": 63133.61, "change": 23019.28}, {"month": 10, "sales": 77448.13, "comp": 31011.74, "change": 46436.39}, {"month": 11, "sales": 117938.16, "comp": 75249.4, "change": 42688.76}, {"month": 12, "sales": 83030.39, "comp": 74543.6, "change": 8486.79}], "cumulative": [43476.47, 63397.47, 122260.88, 157802.79, 201628.78, 249819.5, 294644.61, 357482.46, 443635.34, 521083.48, 639021.63, 722052.02], "cumulative_comp": [18066.96, 30018.37, 62357.69, 96512.16, 126471.69, 150071.06, 178679.32, 215497.66, 278631.27, 309643.0, 384892.4, 459436.01], "customers_top": [{"name": "Raymond Buch", "sales": 14203.28, "comp": 0.0, "change": 14203.28, "pct": null}, {"name": "Tom Ashbrook", "sales": 13723.5, "comp": 0.0, "change": 13723.5, "pct": null}, {"name": "Hunter Lopez", "sales": 10522.55, "comp": 0.0, "change": 10522.55, "pct": null}, {"name": "Grant Thornton", "sales": 8167.42, "comp": 25.34, "change": 8142.08, "pct": 321.2625}, {"name": "Seth Vernon", "sales": 8459.94, "comp": 769.33, "change": 7690.6, "pct": 9.9965}, {"name": "Pete Kriz", "sales": 5979.14, "comp": 0.0, "change": 5979.14, "pct": null}, {"name": "Karen Ferguson", "sales": 5825.46, "comp": 0.0, "change": 5825.46, "pct": null}, {"name": "Nick Crebassa", "sales": 5773.14, "comp": 0.0, "change": 5773.14, "pct": null}], "customers_bottom": [{"name": "Peter Fuller", "sales": 0.0, "comp": 9022.32, "change": -9022.32, "pct": -1.0}, {"name": "Keith Dawkins", "sales": 530.41, "comp": 7039.04, "change": -6508.63, "pct": -0.9246}, {"name": "Fred Hopkins", "sales": 481.12, "comp": 6056.09, "change": -5574.97, "pct": -0.9206}, {"name": "Natalie Webber", "sales": 30.32, "comp": 5511.32, "change": -5481.0, "pct": -0.9945}, {"name": "Joseph Holt", "sales": 376.1, "comp": 5352.79, "change": -4976.69, "pct": -0.9297}, {"name": "Sarah Brown", "sales": 492.2, "comp": 5414.25, "change": -4922.05, "pct": -0.9091}, {"name": "Harry Marie", "sales": 558.43, "comp": 5327.8, "change": -4769.37, "pct": -0.8952}, {"name": "Christopher Martinez", "sales": 2271.76, "comp": 6682.26, "change": -4410.5, "pct": -0.66}], "subcats_top": [{"name": "Phones", "sales": 104685.66, "comp": 67870.61, "change": 36815.04, "pct": 0.5424}, {"name": "Copiers", "sales": 62899.39, "comp": 26179.45, "change": 36719.94, "pct": 1.4026}, {"name": "Binders", "sales": 71721.26, "comp": 36049.75, "change": 35671.51, "pct": 0.9895}, {"name": "Tables", "sales": 60893.54, "comp": 35397.2, "change": 25496.35, "pct": 0.7203}, {"name": "Storage", "sales": 68072.7, "comp": 43321.21, "change": 24751.49, "pct": 0.5713}, {"name": "Chairs", "sales": 93191.27, "comp": 70654.67, "change": 22536.6, "pct": 0.319}, {"name": "Accessories", "sales": 58240.97, "comp": 40443.97, "change": 17797.0, "pct": 0.44}, {"name": "Appliances", "sales": 40212.72, "comp": 23228.18, "change": 16984.54, "pct": 0.7312}], "subcats_bottom": [{"name": "Bookcases", "sales": 30024.28, "comp": 37476.77, "change": -7452.5, "pct": -0.1989}, {"name": "Envelopes", "sales": 3378.57, "comp": 4448.22, "change": -1069.64, "pct": -0.2405}, {"name": "Fasteners", "sales": 855.07, "comp": 545.22, "change": 309.85, "pct": 0.5683}, {"name": "Labels", "sales": 3844.7, "comp": 2884.91, "change": 959.78, "pct": 0.3327}, {"name": "Art", "sales": 8825.63, "comp": 6091.64, "change": 2734.0, "pct": 0.4488}, {"name": "Furnishings", "sales": 28204.69, "comp": 20525.22, "change": 7679.47, "pct": 0.3741}, {"name": "Paper", "sales": 27504.78, "comp": 14664.76, "change": 12840.01, "pct": 0.8756}, {"name": "Supplies", "sales": 15952.11, "comp": 1890.52, "change": 14061.59, "pct": 7.4379}], "max_abs_customer_change": 14203.28, "max_abs_subcat_change": 36815.04}};
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const C = { ink:"#0A0917", body:"#4A5768", muted:"#667284", rule:"#E3E7EF", gold:"#C9A227",
+            navy:"#111F38", slate:"#7C8598", light:"#BCC1D2", good:"#1E7A4C", bad:"#B3261E" };
+const state = { year: 2024, offset: 1, view: "Month", cust: "Top", sub: "Top" };
+
+const usd = v => (v < 0 ? "−$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
+const usdK = v => (v < 0 ? "−$" : "$") + (Math.abs(v) / 1000).toFixed(0) + "k";
+const signed = v => (v >= 0 ? "+" : "") + usd(v);
+const pct = p => p == null ? "new" : Math.abs(p) >= 10 ? (p > 0 ? ">+999%" : "<−999%")
+                 : (p >= 0 ? "+" : "−") + Math.abs(p * 100).toFixed(1) + "%";
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function seg(id, options, key) {
+  const el = document.getElementById(id);
+  el.innerHTML = options.map(o => `<button data-v="${o[0]}">${o[1]}</button>`).join("");
+  el.querySelectorAll("button").forEach(b => b.onclick = () => {
+    state[key] = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v; render();
+  });
+}
+seg("segYear", [[2022,"2022"],[2023,"2023"],[2024,"2024"]], "year");
+seg("segComp", [[1,"Prior year"],[2,"Two years earlier"]], "offset");
+seg("segView", [["Month","Month"],["Cumulative","Cumulative"]], "view");
+seg("segCust", [["Top","Top"],["Bottom","Bottom"]], "cust");
+seg("segSub", [["Top","Top"],["Bottom","Bottom"]], "sub");
+
+// ---- The four cards. Each is a single SVG so it can be rebuilt as one DAX measure. ----
+function ring(cx, cy, r, share, colour, over) {
+  const arc = (from, to, col) => {
+    const a0 = 2 * Math.PI * from - Math.PI / 2, a1 = 2 * Math.PI * Math.min(to, from + 0.9999) - Math.PI / 2;
+    const large = (to - from) > 0.5 ? 1 : 0;
+    return `<path d="M${cx + r * Math.cos(a0)},${cy + r * Math.sin(a0)} A${r},${r} 0 ${large} 1 ${cx + r * Math.cos(a1)},${cy + r * Math.sin(a1)}" stroke="${col}" stroke-width="7" fill="none"/>`;
+  };
+  let s = `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${C.rule}" stroke-width="7" fill="none"/>`;
+  if (share > 0) s += arc(0, Math.min(share, 1), colour);
+  if (over > 0) s += arc(0, Math.min(over, 1), C.gold);
+  return s;
+}
+function cardShell(label, value, valueNote, rows, graphic) {
+  return `<svg width="336" height="140" viewBox="0 0 336 140" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI">
+    <rect x="0.5" y="0.5" width="335" height="139" rx="4" fill="#fff" stroke="${C.rule}"/>
+    <rect x="0" y="0" width="3" height="140" fill="${C.gold}"/>
+    <text x="16" y="24" font-size="11" font-weight="700" fill="${C.muted}" letter-spacing=".4">${label}</text>
+    <text x="16" y="58" font-size="28" font-weight="700" fill="${C.ink}">${value}</text>
+    <text x="16" y="76" font-size="11.5" fill="${C.muted}">${valueNote}</text>
+    <line x1="16" y1="88" x2="320" y2="88" stroke="${C.rule}"/>
+    ${rows.map((r, i) => `<text x="16" y="${107 + i * 20}" font-size="11.5" fill="${C.body}">${r[0]}</text>
+      <text x="320" y="${107 + i * 20}" font-size="11.5" font-weight="600" text-anchor="end" fill="${r[2]}">${r[1]}</text>`).join("")}
+    ${graphic}
+  </svg>`;
+}
+const tone = v => v >= 0 ? C.good : C.bad;
+
+function render() {
+  const key = `${state.year}_${state.year - state.offset}`;
+  const d = DATA[key];
+  document.querySelectorAll("#segYear button").forEach(b => b.classList.toggle("on", +b.dataset.v === state.year));
+  document.querySelectorAll("#segComp button").forEach(b => b.classList.toggle("on", +b.dataset.v === state.offset));
+  document.querySelectorAll("#segView button").forEach(b => b.classList.toggle("on", b.dataset.v === state.view));
+  document.querySelectorAll("#segCust button").forEach(b => b.classList.toggle("on", b.dataset.v === state.cust));
+  document.querySelectorAll("#segSub button").forEach(b => b.classList.toggle("on", b.dataset.v === state.sub));
+  document.getElementById("chip").textContent = "No filters applied";
+
+  if (!d) {
+    document.getElementById("stand").textContent = `There are no sales before 2021, so ${state.year} has nothing two years earlier to compare with. Pick a later year or the prior year.`;
+    ["cards", "line", "var", "custTable", "subTable"].forEach(id => document.getElementById(id).innerHTML = "");
+    return;
+  }
+  const cy = d.comp, y = d.year;
+  const aovPct = (d.aov - d.aov_comp) / d.aov_comp, ordPct = (d.orders - d.orders_comp) / d.orders_comp;
+  const moved = (p, up, down) => `${p >= 0 ? up : down} ${Math.abs(p * 100).toFixed(1)}%`;
+  document.getElementById("stand").textContent =
+    `${y} sales were ${moved(d.sales_pct, "up", "down")} on ${cy}. Orders ${moved(ordPct, "rose", "fell")} and the average ` +
+    `order ${moved(aovPct, "rose", "fell")}: the change came from ${Math.abs(ordPct) > Math.abs(aovPct) ? "the number of orders, not their size" : "order size more than order count"}.`;
+
+  // Cards
+  const ratio = d.sales / d.sales_comp;
+  const c1 = cardShell(`SALES, ${y}`, usd(d.sales), `${pct(d.sales_pct)} on ${cy} (${usd(d.sales_comp)})`,
+    [[`Orders ${d.orders.toLocaleString()}`, pct(ordPct), tone(ordPct)],
+     [`Average order ${usd(d.aov)}`, pct(aovPct), tone(aovPct)]],
+    ring(286, 42, 26, Math.min(ratio, 1), C.navy, ratio - 1) +
+    `<text x="286" y="47" font-size="13" font-weight="700" text-anchor="middle" fill="${C.ink}">${Math.round(ratio * 100)}%</text>`);
+
+  const all = [...d.customers_top];
+  const c2 = cardShell(`CUSTOMERS ABOVE ${cy}`, `${d.customers_above}`, `of ${d.customers_in_play} who bought in either year`,
+    [[`Biggest gain · ${esc(d.customers_top[0].name)}`, signed(d.customers_top[0].change), C.good],
+     [`Biggest fall · ${esc(d.customers_bottom[0].name)}`, signed(d.customers_bottom[0].change), C.bad]],
+    ring(286, 42, 26, d.customers_above / d.customers_in_play, C.navy, 0) +
+    `<text x="286" y="47" font-size="13" font-weight="700" text-anchor="middle" fill="${C.ink}">${Math.round(100 * d.customers_above / d.customers_in_play)}%</text>`);
+
+  const regs = [...d.regions].sort((a, b) => a.name.localeCompare(b.name));
+  const c3 = cardShell(`REGIONS ABOVE ${cy}`, `${d.regions_above}`, `of ${d.regions.length} regions`,
+    [[`Best · ${d.regions[0].name}`, `${signed(d.regions[0].change)} (${pct(d.regions[0].pct)})`, tone(d.regions[0].change)],
+     [`Weakest · ${d.regions.at(-1).name}`, `${signed(d.regions.at(-1).change)} (${pct(d.regions.at(-1).pct)})`, tone(d.regions.at(-1).change)]],
+    regs.map((r, i) => `<rect x="${176 + i * 38}" y="22" width="32" height="40" rx="3" fill="${tone(r.change)}" fill-opacity="${r.change >= 0 ? 1 : 1}"/>
+      <text x="${192 + i * 38}" y="40" font-size="10" font-weight="700" text-anchor="middle" fill="#fff">${r.name.slice(0, 1)}</text>
+      <text x="${192 + i * 38}" y="55" font-size="9" text-anchor="middle" fill="#fff">${pct(r.pct).replace(".0", "").replace(/\.\d/, "")}</text>`).join(""));
+
+  const subs = [...d.subcats_top, ...d.subcats_bottom.slice().reverse()]
+    .filter((v, i, a) => a.findIndex(x => x.name === v.name) === i).sort((a, b) => b.change - a.change);
+  const maxS = d.max_abs_subcat_change;
+  const c4 = cardShell(`SUB-CATEGORIES ABOVE ${cy}`, `${d.subcats_above}`, `of ${d.subcats_in_play} sub-categories`,
+    [[`Best · ${d.subcats_top[0].name}`, signed(d.subcats_top[0].change), tone(d.subcats_top[0].change)],
+     [`Weakest · ${d.subcats_bottom[0].name}`, signed(d.subcats_bottom[0].change), tone(d.subcats_bottom[0].change)]],
+    `<line x1="206" y1="58" x2="320" y2="58" stroke="${C.rule}"/>` +
+    subs.map((s, i) => { const h = Math.max(1.5, 20 * Math.abs(s.change) / maxS);
+      return `<rect x="${206 + i * 6.8}" y="${s.change >= 0 ? 58 - h : 58}" width="5" height="${h}" fill="${tone(s.change)}"/>`; }).join(""));
+
+  document.getElementById("cards").innerHTML = [c1, c2, c3, c4]
+    .map((s, i) => `<div class="abs" style="left:${24 + i * 352}px; top:176px">${s}</div>`).join("");
+
+  // Line chart
+  const W = 666, H = 206, L = 46, R = 10, T = 12, B = 22;
+  const cur = state.view === "Month" ? d.monthly.map(m => m.sales) : d.cumulative;
+  const cmp = state.view === "Month" ? d.monthly.map(m => m.comp) : d.cumulative_comp;
+  const max = Math.max(...cur, ...cmp) * 1.08;
+  const X = i => L + i * (W - L - R) / 11, Y = v => T + (H - T - B) * (1 - v / max);
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const v = max * k / 4;
+    g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${C.rule}"/><text x="${L - 6}" y="${Y(v) + 3}" font-size="10" text-anchor="end" fill="${C.muted}">${usdK(v)}</text>`; }
+  MONTHS.forEach((m, i) => g += `<text x="${X(i)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="${C.muted}">${m}</text>`);
+  const path = arr => arr.map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`).join("");
+  g += `<path d="${path(cmp)}" stroke="${C.slate}" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  g += `<path d="${path(cur)}" stroke="${C.navy}" stroke-width="2.5" fill="none"/>`;
+  g += `<g font-size="10.5"><line x1="${L + 4}" x2="${L + 22}" y1="${T + 2}" y2="${T + 2}" stroke="${C.navy}" stroke-width="2.5"/><text x="${L + 26}" y="${T + 6}" fill="${C.body}">${y}</text>
+        <line x1="${L + 64}" x2="${L + 82}" y1="${T + 2}" y2="${T + 2}" stroke="${C.slate}" stroke-width="2" stroke-dasharray="5 4"/><text x="${L + 86}" y="${T + 6}" fill="${C.body}">${cy}</text></g>`;
+  document.getElementById("line").innerHTML = g;
+  document.getElementById("lineTitle").textContent = state.view === "Month"
+    ? `${y} against ${cy}, month by month` : `${y} against ${cy}, running total`;
+  const monthsAbove = d.monthly.filter(m => m.change > 0).length;
+  document.getElementById("lineSub").textContent = state.view === "Month"
+    ? `Above ${cy} in ${monthsAbove} of 12 months` : `${usd(d.sales - d.sales_comp)} ahead by December`;
+
+  // Variance columns
+  const ch = d.monthly.map(m => m.change), vmax = Math.max(...ch.map(Math.abs)) * 1.15;
+  const VY = v => T + (H - T - B) * (0.5 - v / vmax / 2);
+  let vg = `<line x1="${L}" x2="${W - R}" y1="${VY(0)}" y2="${VY(0)}" stroke="${C.muted}"/>`;
+  const bw = (W - L - R) / 12;
+  ch.forEach((v, i) => { const x = L + i * bw + bw * 0.2;
+    vg += `<rect x="${x}" y="${Math.min(VY(v), VY(0))}" width="${bw * 0.6}" height="${Math.abs(VY(v) - VY(0))}" fill="${tone(v)}"/>
+           <text x="${x + bw * 0.3}" y="${v >= 0 ? VY(v) - 4 : VY(v) + 12}" font-size="10" text-anchor="middle" fill="${C.body}">${usdK(v)}</text>
+           <text x="${x + bw * 0.3}" y="${H - 6}" font-size="10" text-anchor="middle" fill="${C.muted}">${MONTHS[i]}</text>`; });
+  document.getElementById("var").innerHTML = vg;
+  const best = d.monthly.reduce((a, b) => b.change > a.change ? b : a), worst = d.monthly.reduce((a, b) => b.change < a.change ? b : a);
+  document.getElementById("varTitle").textContent = `Which months moved the year`;
+  document.getElementById("varSub").textContent = `Sales less ${cy}: ${MONTHS[best.month - 1]} added most (${signed(best.change)}), ${MONTHS[worst.month - 1]} lost most (${signed(worst.change)})`;
+
+  // Tables
+  function table(rows, max, first) {
+    return `<table><tr><th>#</th><th>${first}</th><th>${y}</th><th>${cy}</th><th>Change</th><th style="text-align:center">vs ${cy}</th><th>%</th></tr>` +
+      rows.map((r, i) => { const w = 78 * Math.abs(r.change) / max;
+        const bar = `<svg width="170" height="16"><line x1="85" x2="85" y1="0" y2="16" stroke="${C.muted}"/>
+          <rect x="${r.change >= 0 ? 85 : 85 - w}" y="3" width="${w}" height="10" fill="${tone(r.change)}"/></svg>`;
+        return `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td>${usd(r.sales)}</td><td>${usd(r.comp)}</td>
+          <td style="color:${tone(r.change)}">${signed(r.change)}</td><td class="bar">${bar}</td><td>${pct(r.pct)}</td></tr>`; }).join("") + "</table>";
+  }
+  const cRows = state.cust === "Top" ? d.customers_top : d.customers_bottom;
+  document.getElementById("custTable").innerHTML = table(cRows, d.max_abs_customer_change, "Customer");
+  document.getElementById("custTitle").textContent = state.cust === "Top"
+    ? `The 8 customers who grew most on ${cy}` : `The 8 customers who fell furthest below ${cy}`;
+  document.getElementById("custSub").textContent = `Bars share one scale, the largest move either way among ${d.customers_in_play} customers`;
+  const sRows = state.sub === "Top" ? d.subcats_top : d.subcats_bottom;
+  document.getElementById("subTable").innerHTML = table(sRows, d.max_abs_subcat_change, "Sub-category");
+  document.getElementById("subTitle").textContent = state.sub === "Top"
+    ? `The 8 sub-categories that grew most on ${cy}` : `The 8 sub-categories that did worst against ${cy}`;
+  document.getElementById("subSub").textContent = `${d.subcats_in_play - d.subcats_above} of ${d.subcats_in_play} were below ${cy}`;
+}
+
+const stage = document.getElementById("stage");
+const open = on => stage.classList.toggle("open", on);
+document.getElementById("openFilters").onclick = () => open(true);
+document.getElementById("closeFilters").onclick = () => open(false);
+document.getElementById("scrim").onclick = () => open(false);
+document.getElementById("clean").onchange = e => document.body.classList.toggle("clean", e.target.checked);
+render();
+</script>
+</body>
+</html>

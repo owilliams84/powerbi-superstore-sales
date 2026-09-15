@@ -245,6 +245,486 @@ table Metrics
 		formatString: d mmm yyyy
 		lineageTag: 93029cc6-af25-5510-89a2-8bad0931c660
 
+	/// 1 for the prior year, 2 for two years earlier. Defaults to 1 with nothing selected.
+	measure 'Comparison Years Back' = SELECTEDVALUE(Comparison[Years Back], 1)
+		formatString: 0
+		displayFolder: Revenue page
+		lineageTag: d4b4f548-8f68-5e4e-88ff-28496ecc1770
+
+	/// The year on screen. The page forces a single year, so MAX is that year.
+	measure 'Selected Year' = MAX('Date'[Year])
+		formatString: 0
+		displayFolder: Revenue page
+		lineageTag: c8d50aa7-1476-5d87-bf50-37cf2acb50fd
+
+	measure 'Comparison Year' = [Selected Year] - [Comparison Years Back]
+		formatString: 0
+		displayFolder: Revenue page
+		lineageTag: 9c0c57df-43c8-5c2f-aa3e-e66830c2c9ac
+
+	/// False when the comparison year is before the calendar starts - 2022 against two years
+	/// earlier. Everything comparative returns blank rather than a change against nothing.
+	measure 'Comparison Available' = [Comparison Year] >= CALCULATE(MIN('Date'[Year]), REMOVEFILTERS('Date'))
+		displayFolder: Revenue page
+		lineageTag: 35941fe4-ae28-5b18-bc65-af7a91f1d348
+
+	/// Sales in the same dates, one or two years earlier. DATEADD takes the offset from a
+	/// variable, so one measure serves both buttons.
+	measure 'Sales Comparison' =
+			VAR YearsBack = [Comparison Years Back]
+			RETURN
+			    IF([Comparison Available], CALCULATE([Sales], DATEADD('Date'[Date], -YearsBack, YEAR)))
+		formatString: \$#,0
+		displayFolder: Revenue page
+		lineageTag: f138255a-7696-5a74-8853-a0c53c6facbf
+
+	measure 'Sales vs Comparison' = IF([Comparison Available], [Sales] - [Sales Comparison])
+		formatString: \$#,0
+		displayFolder: Revenue page
+		lineageTag: d7ba8874-17e6-5789-b5ad-145f27e9a9e6
+
+	measure 'Sales vs Comparison %' = DIVIDE([Sales vs Comparison], [Sales Comparison])
+		formatString: 0.0%
+		displayFolder: Revenue page
+		lineageTag: 0ef6c047-9c52-5fc1-a345-5129be7f07b4
+
+	measure 'Orders Comparison' =
+			VAR YearsBack = [Comparison Years Back]
+			RETURN
+			    IF([Comparison Available], CALCULATE([Orders], DATEADD('Date'[Date], -YearsBack, YEAR)))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: e793e576-c17c-5dc2-9ae0-6512e400c21f
+
+	measure 'Orders vs Comparison %' = DIVIDE([Orders] - [Orders Comparison], [Orders Comparison])
+		formatString: 0.0%
+		displayFolder: Revenue page
+		lineageTag: b06b799d-1c0f-5b21-b890-e0b55c7400b0
+
+	measure 'Average Order Value Comparison' = DIVIDE([Sales Comparison], [Orders Comparison])
+		formatString: \$#,0
+		displayFolder: Revenue page
+		lineageTag: 8694b70f-9650-5c2e-a15b-67968f3f42a1
+
+	measure 'Average Order Value vs Comparison %' = DIVIDE([Average Order Value] - [Average Order Value Comparison], [Average Order Value Comparison])
+		formatString: 0.0%
+		displayFolder: Revenue page
+		lineageTag: 3ac2b687-32c9-518f-9d97-7f7865ab0f18
+
+	measure 'Line View Selected' = SELECTEDVALUE('Line View'[View], "Month")
+		displayFolder: Revenue page
+		lineageTag: 43c0db67-4792-54bb-8c27-fc288af8a8d6
+
+	/// The selected year on the line chart: each month, or the running total to that month.
+	measure 'Sales Line' = IF([Line View Selected] = "Cumulative", CALCULATE([Sales], DATESYTD('Date'[Date])), [Sales])
+		formatString: \$#,0
+		displayFolder: Revenue page
+		lineageTag: ba2d4889-7893-51e8-85ae-60cfe98dbac0
+
+	measure 'Comparison Line' =
+			VAR YearsBack = [Comparison Years Back]
+			RETURN
+			    IF(
+			        [Comparison Available],
+			        IF(
+			            [Line View Selected] = "Cumulative",
+			            CALCULATE([Sales YTD], DATEADD('Date'[Date], -YearsBack, YEAR)),
+			            [Sales Comparison]
+			        )
+			    )
+		formatString: \$#,0
+		displayFolder: Revenue page
+		lineageTag: 9b9b2e64-6bb5-5a52-9918-8cd591b362a2
+
+	/// Fill for the monthly variance columns, bound as a field value.
+	measure 'Variance Colour' = IF([Sales vs Comparison] >= 0, "#1E7A4C", "#B3261E")
+		displayFolder: Revenue page
+		lineageTag: 1dd2d246-1acc-57d2-9fd1-29355376dbbd
+
+	/// Customers who bought in the selected year, the comparison year, or both.
+	measure 'Customers In Play' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Customer[Customer]), [Sales] + [Sales Comparison] > 0)))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: df3e6e89-2b5a-52bb-9324-9db98ed489c2
+
+	/// Customers whose sales beat the comparison year, including customers new since.
+	measure 'Customers Above Comparison' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Customer[Customer]), [Sales] > [Sales Comparison])))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: f3943c39-b84c-5a87-a035-679926b44c21
+
+	measure 'Regions Above Comparison' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Geography[Region]), [Sales] > [Sales Comparison])))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: 94f217e9-7bdf-516b-852a-1ccd676e0b24
+
+	measure 'Sub-categories In Play' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Product[Sub-Category]), [Sales] + [Sales Comparison] > 0)))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: 0e410c11-b8b4-5d05-93b3-f33602808390
+
+	measure 'Sub-categories Above Comparison' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Product[Sub-Category]), [Sales] > [Sales Comparison])))
+		formatString: #,0
+		displayFolder: Revenue page
+		lineageTag: ee468628-e9a5-541b-a116-65d0c066c469
+
+	/// The change as text for the ranked tables: 'new' where there was nothing to compare with,
+	/// and capped at >+999% so a customer who went from $27 to $5,821 does not read 21268%.
+	measure 'Sales vs Comparison % Label' =
+			VAR P = [Sales vs Comparison %]
+			RETURN
+			    IF(
+			        [Comparison Available] && [Sales] + [Sales Comparison] > 0,
+			        SWITCH(
+			            TRUE(),
+			            ISBLANK(P), "new",
+			            P >= 10, ">+999%",
+			            FORMAT(P, "+0.0%;-0.0%;0.0%")
+			        )
+			    )
+		displayFolder: Revenue page
+		lineageTag: c7f36afa-c01f-565b-8e69-01f64f9073ff
+
+	measure 'Title Variance Chart' = IF([Comparison Available], "Which months beat " & [Comparison Year] & ", and by how much", "Which months moved the year")
+		displayFolder: Revenue page
+		lineageTag: 523576be-9c24-551b-8860-126305616c9e
+
+	/// Position by change on the comparison year, from the top or the bottom as the
+	/// 'Customer Ranking' button says. Blank for anything that sold in neither year. The table
+	/// keeps ranks 1 to 8 with a visual-level filter on this measure.
+	measure 'Customer Change Rank' =
+			VAR Direction = SELECTEDVALUE('Customer Ranking'[Show], "Top")
+			VAR Pool = FILTER(ALL(Customer[Customer]), [Sales] + [Sales Comparison] > 0)
+			VAR Me = [Sales vs Comparison]
+			RETURN
+			    IF(
+			        HASONEVALUE(Customer[Customer]) && [Comparison Available] && [Sales] + [Sales Comparison] > 0,
+			        IF(
+			            Direction = "Top",
+			            COUNTROWS(FILTER(Pool, [Sales vs Comparison] > Me)) + 1,
+			            COUNTROWS(FILTER(Pool, [Sales vs Comparison] < Me)) + 1
+			        )
+			    )
+		formatString: 0
+		displayFolder: Revenue page
+		lineageTag: ce3e74a2-b79c-593a-afff-44269deea33d
+
+	/// Diverging bar for the change. Every row shares one scale - the largest move either way
+	/// in the pool - so a Top and a Bottom view can be compared by eye.
+	measure 'Customer Change Bar' =
+			VAR Change = [Sales vs Comparison]
+			VAR Scale = MAXX(FILTER(ALL(Customer[Customer]), [Sales] + [Sales Comparison] > 0), ABS([Sales vs Comparison]))
+			VAR W = DIVIDE(ABS(Change), Scale) * 76
+			VAR X = IF(Change >= 0, 80, 80 - W)
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='16' viewBox='0 0 160 16'>"
+			        & "<line x1='80' y1='0' x2='80' y2='16' stroke='#667284'/>"
+			        & "<rect x='" & FORMAT(X, "0.0") & "' y='3' width='" & FORMAT(W, "0.0") & "' height='10' fill='" & IF(Change >= 0, "#1E7A4C", "#B3261E") & "'/>"
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK([Customer Change Rank]), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: 961d714e-4bfd-57bb-9369-fb3034951279
+
+	/// Position by change on the comparison year, from the top or the bottom as the
+	/// 'Sub-category Ranking' button says. Blank for anything that sold in neither year. The table
+	/// keeps ranks 1 to 8 with a visual-level filter on this measure.
+	measure 'Sub-category Change Rank' =
+			VAR Direction = SELECTEDVALUE('Sub-category Ranking'[Show], "Top")
+			VAR Pool = FILTER(ALL(Product[Sub-Category]), [Sales] + [Sales Comparison] > 0)
+			VAR Me = [Sales vs Comparison]
+			RETURN
+			    IF(
+			        HASONEVALUE(Product[Sub-Category]) && [Comparison Available] && [Sales] + [Sales Comparison] > 0,
+			        IF(
+			            Direction = "Top",
+			            COUNTROWS(FILTER(Pool, [Sales vs Comparison] > Me)) + 1,
+			            COUNTROWS(FILTER(Pool, [Sales vs Comparison] < Me)) + 1
+			        )
+			    )
+		formatString: 0
+		displayFolder: Revenue page
+		lineageTag: 41274e4b-a5de-526e-9999-856c4fb645d6
+
+	/// Diverging bar for the change. Every row shares one scale - the largest move either way
+	/// in the pool - so a Top and a Bottom view can be compared by eye.
+	measure 'Sub-category Change Bar' =
+			VAR Change = [Sales vs Comparison]
+			VAR Scale = MAXX(FILTER(ALL(Product[Sub-Category]), [Sales] + [Sales Comparison] > 0), ABS([Sales vs Comparison]))
+			VAR W = DIVIDE(ABS(Change), Scale) * 76
+			VAR X = IF(Change >= 0, 80, 80 - W)
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='16' viewBox='0 0 160 16'>"
+			        & "<line x1='80' y1='0' x2='80' y2='16' stroke='#667284'/>"
+			        & "<rect x='" & FORMAT(X, "0.0") & "' y='3' width='" & FORMAT(W, "0.0") & "' height='10' fill='" & IF(Change >= 0, "#1E7A4C", "#B3261E") & "'/>"
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK([Sub-category Change Rank]), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: a915fdf0-8023-51e0-a6b3-04ba8b44ab76
+
+	/// The page standfirst, rewritten for whatever year and comparison is selected.
+	measure 'Title Standfirst' =
+			VAR Y = [Selected Year]
+			VAR C = [Comparison Year]
+			VAR S = [Sales vs Comparison %]
+			VAR O = [Orders vs Comparison %]
+			VAR A = [Average Order Value vs Comparison %]
+			VAR Moved = S >= 0
+			RETURN
+			    IF(
+			        NOT [Comparison Available],
+			        "There are no sales before 2021, so " & Y & " has no " & C & " sales to compare with. Pick a later year or the prior year.",
+			        Y & " sales were " & IF(Moved, "up ", "down ") & FORMAT(ABS(S), "0.0%") & " on " & C & ". Orders "
+			            & IF(O >= 0, "rose ", "fell ") & FORMAT(ABS(O), "0.0%") & " and the average order "
+			            & IF(A >= 0, "rose ", "fell ") & FORMAT(ABS(A), "0.0%") & ": the change came from "
+			            & IF(ABS(O) > ABS(A), "the number of orders, not their size.", "order size more than order count.")
+			    )
+		displayFolder: Revenue page
+		lineageTag: 8af09937-1687-5b69-94cb-0bb38452f7a2
+
+	measure 'Title Line Chart' =
+			IF(
+			    [Comparison Available],
+			    [Selected Year] & " against " & [Comparison Year]
+			        & IF([Line View Selected] = "Cumulative", ", running total", ", month by month"),
+			    [Selected Year] & ", with no comparison year"
+			)
+		displayFolder: Revenue page
+		lineageTag: 66233182-25ed-55aa-90b2-25a46fafc8b4
+
+	measure 'Subtitle Line Chart' =
+			VAR C = [Comparison Year]
+			VAR MonthsAbove = COUNTROWS(FILTER(VALUES('Date'[Month No]), [Sales vs Comparison] > 0))
+			VAR Gap = [Sales vs Comparison]
+			RETURN
+			    IF(
+			        [Comparison Available],
+			        IF(
+			            [Line View Selected] = "Cumulative",
+			            FORMAT(ABS(Gap), "$#,0") & IF(Gap >= 0, " ahead of ", " behind ") & C & " by the year end",
+			            "Above " & C & " in " & MonthsAbove & " of " & COUNTROWS(VALUES('Date'[Month No])) & " months"
+			        )
+			    )
+		displayFolder: Revenue page
+		lineageTag: ac3411f1-98d5-5ed9-90f5-8d1bb73de570
+
+	measure 'Subtitle Variance Chart' =
+			VAR ByMonth = ADDCOLUMNS(VALUES('Date'[Month No]), "@Change", [Sales vs Comparison])
+			VAR Best = TOPN(1, ByMonth, [@Change], DESC)
+			VAR Worst = TOPN(1, ByMonth, [@Change], ASC)
+			VAR BestMonth = FORMAT(DATE(2000, MAXX(Best, 'Date'[Month No]), 1), "mmm")
+			VAR WorstMonth = FORMAT(DATE(2000, MAXX(Worst, 'Date'[Month No]), 1), "mmm")
+			VAR BestValue = MAXX(Best, [@Change])
+			VAR WorstValue = MAXX(Worst, [@Change])
+			RETURN
+			    IF(
+			        [Comparison Available],
+			        "Sales less " & [Comparison Year] & ": " & BestMonth & " added most ("
+			            & IF(BestValue < 0, "-", "+") & FORMAT(ABS(BestValue), "$#,0") & "), "
+			            & WorstMonth & IF(WorstValue < 0, " lost most (-", " added least (+") & FORMAT(ABS(WorstValue), "$#,0") & ")"
+			    )
+		displayFolder: Revenue page
+		lineageTag: 5596f525-2154-57f7-b677-4177c7efff0c
+
+	measure 'Title Customer Table' =
+			IF(
+			    SELECTEDVALUE('Customer Ranking'[Show], "Top") = "Top",
+			    "The 8 customers who grew most on " & [Comparison Year],
+			    "The 8 customers who fell furthest below " & [Comparison Year]
+			)
+		displayFolder: Revenue page
+		lineageTag: 45570ca4-8edf-5ed8-8781-3ccbb28e28a8
+
+	measure 'Subtitle Customer Table' =
+			IF(
+			    [Comparison Available],
+			    "Bars share one scale: the largest move either way among " & FORMAT([Customers In Play], "#,0") & " customers"
+			)
+		displayFolder: Revenue page
+		lineageTag: 39af6aec-4395-5245-a00d-9bc65dd9772f
+
+	measure 'Title Sub-category Table' =
+			IF(
+			    SELECTEDVALUE('Sub-category Ranking'[Show], "Top") = "Top",
+			    "The 8 sub-categories that grew most on " & [Comparison Year],
+			    "The 8 sub-categories that did worst against " & [Comparison Year]
+			)
+		displayFolder: Revenue page
+		lineageTag: 79081212-3ad9-5a84-9caf-02151b1205a6
+
+	measure 'Subtitle Sub-category Table' =
+			IF(
+			    [Comparison Available],
+			    [Sub-categories In Play] - [Sub-categories Above Comparison] & " of " & [Sub-categories In Play]
+			        & " were below " & [Comparison Year]
+			)
+		displayFolder: Revenue page
+		lineageTag: bd81ed3d-3039-5492-8765-a10ca885314c
+
+	/// Shown under the Filters button so a closed panel still says what it is doing.
+	measure 'Filter Summary' =
+			VAR Names =
+			    FILTER(
+			        {
+			            ("segment", ISFILTERED(Customer[Segment]), 1),
+			            ("region", ISFILTERED(Geography[Region]), 2),
+			            ("category", ISFILTERED(Product[Category]), 3)
+			        },
+			        [Value2]
+			    )
+			RETURN
+			    IF(
+			        COUNTROWS(Names) = 0,
+			        "No filters applied",
+			        "Filtered by " & CONCATENATEX(Names, [Value1], ", ", [Value3], ASC)
+			    )
+		displayFolder: Revenue page
+		lineageTag: 272dd9a9-223f-5bff-b998-9dd6d4d5cbb9
+
+	/// KPI card as one SVG: sales, the change on the comparison year, and a ring showing sales
+	/// as a share of the comparison, the part above 100% in gold.
+	measure 'Card Sales' =
+			VAR Y = [Selected Year]
+			VAR C = [Comparison Year]
+			VAR S = [Sales]
+			VAR SC = [Sales Comparison]
+			VAR SP = [Sales vs Comparison %]
+			VAR OP = [Orders vs Comparison %]
+			VAR AP = [Average Order Value vs Comparison %]
+			VAR Ratio = DIVIDE(S, SC)
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='140' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "SALES, " & Y & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & "$" & FORMAT(S, "#,0") & "</text>"
+			    & "<text x='16' y='76' font-size='11.5' fill='#667284'>" & IF(ISBLANK(SP), "new", IF(ABS(SP) >= 10, IF(SP > 0, ">+999%", "<-999%"), IF(SP < 0, "&#8722;", "+") & FORMAT(ABS(SP), "0.0%"))) & " on " & C & " (" & "$" & FORMAT(SC, "#,0") & ")" & "</text>"
+			    & "<line x1='16' y1='88' x2='320' y2='88' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='107' font-size='11.5' fill='#4A5768'>" & "Orders " & FORMAT([Orders], "#,0") & "</text><text x='320' y='107' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(OP >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(ISBLANK(OP), "new", IF(ABS(OP) >= 10, IF(OP > 0, ">+999%", "<-999%"), IF(OP < 0, "&#8722;", "+") & FORMAT(ABS(OP), "0.0%"))) & "</text>"
+			    & "<text x='16' y='127' font-size='11.5' fill='#4A5768'>" & "Average order " & "$" & FORMAT([Average Order Value], "#,0") & "</text><text x='320' y='127' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(AP >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(ISBLANK(AP), "new", IF(ABS(AP) >= 10, IF(AP > 0, ">+999%", "<-999%"), IF(AP < 0, "&#8722;", "+") & FORMAT(ABS(AP), "0.0%"))) & "</text>"
+			    & "<circle cx='286' cy='42' r='26' stroke='#E3E7EF' stroke-width='7' fill='none'/>" & IF(MIN(Ratio, 1) > 0, "<path d='M286,16 A26,26 0 " & IF(MIN(Ratio, 1) > 0.5, "1", "0") & " 1 " & FORMAT(286 + 26 * COS(2 * PI() * MIN(MIN(Ratio, 1), 0.9999) - PI() / 2), "0.00") & "," & FORMAT(42 + 26 * SIN(2 * PI() * MIN(MIN(Ratio, 1), 0.9999) - PI() / 2), "0.00") & "' stroke='#111F38' stroke-width='7' fill='none'/>") & IF(Ratio - 1 > 0, "<path d='M286,16 A26,26 0 " & IF(Ratio - 1 > 0.5, "1", "0") & " 1 " & FORMAT(286 + 26 * COS(2 * PI() * MIN(Ratio - 1, 0.9999) - PI() / 2), "0.00") & "," & FORMAT(42 + 26 * SIN(2 * PI() * MIN(Ratio - 1, 0.9999) - PI() / 2), "0.00") & "' stroke='#C9A227' stroke-width='7' fill='none'/>") & "<text x='286' y='47' font-size='13' font-weight='700' text-anchor='middle' fill='#0A0917'>" & FORMAT(Ratio, "0%") & "</text>"
+			    & "</svg>"
+			VAR NoComparison = "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'><rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><text x='16' y='24' font-size='11' font-weight='700' fill='#667284'>SALES</text><text x='16' y='64' font-size='13' fill='#4A5768'>No sales in " & [Comparison Year] & " to compare with.</text></svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(IF([Comparison Available], Svg, NoComparison), "%", "%25"), "#", "%23")
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: b3e28504-5bf2-5c65-9c7d-677b86809c0e
+
+	/// How many customers beat the comparison year, with the biggest move each way.
+	measure 'Card Customers' =
+			VAR C = [Comparison Year]
+			VAR Above = [Customers Above Comparison]
+			VAR InPlay = [Customers In Play]
+			VAR Changes = ADDCOLUMNS(FILTER(ALL(Customer[Customer]), [Sales] + [Sales Comparison] > 0), "@Change", [Sales vs Comparison])
+			VAR BestRow = TOPN(1, Changes, [@Change], DESC, Customer[Customer], ASC)
+			VAR WorstRow = TOPN(1, Changes, [@Change], ASC, Customer[Customer], ASC)
+			VAR BestName = SUBSTITUTE(SUBSTITUTE(MAXX(BestRow, Customer[Customer]), "&", "&amp;"), "<", "&lt;")
+			VAR WorstName = SUBSTITUTE(SUBSTITUTE(MAXX(WorstRow, Customer[Customer]), "&", "&amp;"), "<", "&lt;")
+			VAR BestValue = MAXX(BestRow, [@Change])
+			VAR WorstValue = MAXX(WorstRow, [@Change])
+			VAR Share = DIVIDE(Above, InPlay)
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='140' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "CUSTOMERS ABOVE " & C & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & FORMAT(Above, "#,0") & "</text>"
+			    & "<text x='16' y='76' font-size='11.5' fill='#667284'>" & "of " & FORMAT(InPlay, "#,0") & " who bought in either year" & "</text>"
+			    & "<line x1='16' y1='88' x2='320' y2='88' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='107' font-size='11.5' fill='#4A5768'>" & "Biggest gain &#183; " & LEFT(BestName, 24) & "</text><text x='320' y='107' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(BestValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(BestValue < 0, "&#8722;$", "+$") & FORMAT(ABS(BestValue), "#,0") & "</text>"
+			    & "<text x='16' y='127' font-size='11.5' fill='#4A5768'>" & "Biggest fall &#183; " & LEFT(WorstName, 24) & "</text><text x='320' y='127' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(WorstValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(WorstValue < 0, "&#8722;$", "+$") & FORMAT(ABS(WorstValue), "#,0") & "</text>"
+			    & "<circle cx='286' cy='42' r='26' stroke='#E3E7EF' stroke-width='7' fill='none'/>" & IF(Share > 0, "<path d='M286,16 A26,26 0 " & IF(Share > 0.5, "1", "0") & " 1 " & FORMAT(286 + 26 * COS(2 * PI() * MIN(Share, 0.9999) - PI() / 2), "0.00") & "," & FORMAT(42 + 26 * SIN(2 * PI() * MIN(Share, 0.9999) - PI() / 2), "0.00") & "' stroke='#111F38' stroke-width='7' fill='none'/>") & "<text x='286' y='47' font-size='13' font-weight='700' text-anchor='middle' fill='#0A0917'>" & FORMAT(Share, "0%") & "</text>"
+			    & "</svg>"
+			VAR NoComparison = "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'><rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><text x='16' y='24' font-size='11' font-weight='700' fill='#667284'>CUSTOMERS</text><text x='16' y='64' font-size='13' fill='#4A5768'>No sales in " & [Comparison Year] & " to compare with.</text></svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(IF([Comparison Available], Svg, NoComparison), "%", "%25"), "#", "%23")
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: 362216f6-f5ec-5b4a-84cc-18a9c0fcd856
+
+	/// One tile per region, green above the comparison year and red below, alphabetical.
+	measure 'Card Regions' =
+			VAR C = [Comparison Year]
+			VAR Regions = ADDCOLUMNS(FILTER(ALL(Geography[Region]), [Sales] + [Sales Comparison] > 0), "@Change", [Sales vs Comparison], "@Pct", [Sales vs Comparison %])
+			VAR N = COUNTROWS(Regions)
+			VAR BestRow = TOPN(1, Regions, [@Change], DESC, Geography[Region], ASC)
+			VAR WorstRow = TOPN(1, Regions, [@Change], ASC, Geography[Region], ASC)
+			VAR BestValue = MAXX(BestRow, [@Change])
+			VAR WorstValue = MAXX(WorstRow, [@Change])
+			VAR BestPct = MAXX(BestRow, [@Pct])
+			VAR WorstPct = MAXX(WorstRow, [@Pct])
+			VAR Tiles =
+			    CONCATENATEX(
+			        Regions,
+			        VAR RegionName = Geography[Region]
+			        VAR I = COUNTROWS(FILTER(Regions, Geography[Region] < RegionName))
+			        VAR X = 176 + I * 38
+			        RETURN
+			            "<rect x='" & X & "' y='22' width='32' height='40' rx='3' fill='" & IF([@Change] >= 0, "#1E7A4C", "#B3261E") & "'/>"
+			                & "<text x='" & X + 16 & "' y='40' font-size='10' font-weight='700' text-anchor='middle' fill='#FFFFFF'>" & LEFT(RegionName, 1) & "</text>"
+			                & "<text x='" & X + 16 & "' y='55' font-size='9' text-anchor='middle' fill='#FFFFFF'>"
+			                & IF(ISBLANK([@Pct]), "new", IF([@Pct] < 0, "-", "+") & FORMAT(ABS([@Pct]), "0%")) & "</text>",
+			        ""
+			    )
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='140' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "REGIONS ABOVE " & C & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & FORMAT([Regions Above Comparison], "0") & "</text>"
+			    & "<text x='16' y='76' font-size='11.5' fill='#667284'>" & "of " & N & IF(N = 1, " region", " regions") & "</text>"
+			    & "<line x1='16' y1='88' x2='320' y2='88' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='107' font-size='11.5' fill='#4A5768'>" & "Best &#183; " & MAXX(BestRow, Geography[Region]) & "</text><text x='320' y='107' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(BestValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(BestValue < 0, "&#8722;$", "+$") & FORMAT(ABS(BestValue), "#,0") & " (" & IF(ISBLANK(BestPct), "new", IF(ABS(BestPct) >= 10, IF(BestPct > 0, ">+999%", "<-999%"), IF(BestPct < 0, "&#8722;", "+") & FORMAT(ABS(BestPct), "0.0%"))) & ")" & "</text>"
+			    & "<text x='16' y='127' font-size='11.5' fill='#4A5768'>" & "Weakest &#183; " & MAXX(WorstRow, Geography[Region]) & "</text><text x='320' y='127' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(WorstValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(WorstValue < 0, "&#8722;$", "+$") & FORMAT(ABS(WorstValue), "#,0") & " (" & IF(ISBLANK(WorstPct), "new", IF(ABS(WorstPct) >= 10, IF(WorstPct > 0, ">+999%", "<-999%"), IF(WorstPct < 0, "&#8722;", "+") & FORMAT(ABS(WorstPct), "0.0%"))) & ")" & "</text>"
+			    & Tiles
+			    & "</svg>"
+			VAR NoComparison = "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'><rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><text x='16' y='24' font-size='11' font-weight='700' fill='#667284'>REGIONS</text><text x='16' y='64' font-size='13' fill='#4A5768'>No sales in " & [Comparison Year] & " to compare with.</text></svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(IF([Comparison Available], Svg, NoComparison), "%", "%25"), "#", "%23")
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: 1a66e5a9-dd8c-5957-93b3-8e9aea130718
+
+	/// Every sub-category as a bar, sorted from the biggest gain to the biggest fall.
+	measure 'Card Sub-categories' =
+			VAR C = [Comparison Year]
+			VAR Subs = ADDCOLUMNS(FILTER(ALL(Product[Sub-Category]), [Sales] + [Sales Comparison] > 0), "@Change", [Sales vs Comparison])
+			VAR Scale = MAXX(Subs, ABS([@Change]))
+			VAR BestRow = TOPN(1, Subs, [@Change], DESC, Product[Sub-Category], ASC)
+			VAR WorstRow = TOPN(1, Subs, [@Change], ASC, Product[Sub-Category], ASC)
+			VAR BestValue = MAXX(BestRow, [@Change])
+			VAR WorstValue = MAXX(WorstRow, [@Change])
+			VAR Bars =
+			    "<line x1='206' y1='58' x2='320' y2='58' stroke='#E3E7EF'/>"
+			        & CONCATENATEX(
+			            Subs,
+			            VAR Change = [@Change]
+			            VAR I = COUNTROWS(FILTER(Subs, [@Change] > Change))
+			            VAR H = MAX(1.5, 20 * DIVIDE(ABS(Change), Scale))
+			            RETURN
+			                "<rect x='" & FORMAT(206 + I * 6.8, "0.0") & "' y='" & FORMAT(IF(Change >= 0, 58 - H, 58), "0.0")
+			                    & "' width='5' height='" & FORMAT(H, "0.0") & "' fill='" & IF(Change >= 0, "#1E7A4C", "#B3261E") & "'/>",
+			            ""
+			        )
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='140' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "SUB-CATEGORIES ABOVE " & C & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & FORMAT([Sub-categories Above Comparison], "0") & "</text>"
+			    & "<text x='16' y='76' font-size='11.5' fill='#667284'>" & "of " & [Sub-categories In Play] & " sub-categories" & "</text>"
+			    & "<line x1='16' y1='88' x2='320' y2='88' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='107' font-size='11.5' fill='#4A5768'>" & "Best &#183; " & MAXX(BestRow, Product[Sub-Category]) & "</text><text x='320' y='107' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(BestValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(BestValue < 0, "&#8722;$", "+$") & FORMAT(ABS(BestValue), "#,0") & "</text>"
+			    & "<text x='16' y='127' font-size='11.5' fill='#4A5768'>" & "Weakest &#183; " & MAXX(WorstRow, Product[Sub-Category]) & "</text><text x='320' y='127' font-size='11.5' font-weight='600' text-anchor='end' fill='" & IF(WorstValue >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(WorstValue < 0, "&#8722;$", "+$") & FORMAT(ABS(WorstValue), "#,0") & "</text>"
+			    & Bars
+			    & "</svg>"
+			VAR NoComparison = "<svg xmlns='http://www.w3.org/2000/svg' width='336' height='140' viewBox='0 0 336 140' font-family='Segoe UI, sans-serif'><rect x='0.5' y='0.5' width='335' height='139' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><text x='16' y='24' font-size='11' font-weight='700' fill='#667284'>SUB-CATEGORIES</text><text x='16' y='64' font-size='13' fill='#4A5768'>No sales in " & [Comparison Year] & " to compare with.</text></svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(IF([Comparison Available], Svg, NoComparison), "%", "%25"), "#", "%23")
+		displayFolder: Revenue page
+		dataCategory: ImageUrl
+		lineageTag: d73028ed-fb49-5441-a1a5-2a4836d3c4c7
+
 	column Column
 		dataType: string
 		isHidden

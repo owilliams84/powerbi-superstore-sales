@@ -1,0 +1,28 @@
+/// Top or Bottom for the Revenue page customer table.
+table 'Customer Ranking'
+	lineageTag: e532f24e-9b80-5d4a-9e45-f67df41f5313
+
+	column Show
+		dataType: string
+		lineageTag: 928d0500-e644-5d4f-ba87-e44ba81ec48c
+		summarizeBy: none
+		sourceColumn: Show
+		sortByColumn: 'Show Order'
+
+	column 'Show Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 224cc2c0-0307-5798-984c-a74d5a744180
+		summarizeBy: none
+		sourceColumn: Show Order
+
+	partition 'Customer Ranking' = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Show = text, #"Show Order" = Int64.Type], {{"Top", 1}, {"Bottom", 2}})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

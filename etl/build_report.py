@@ -378,9 +378,10 @@ def table_visual(name: str, x: int, y: int, w: int, h: int, z: int, fields: list
 # --------------------------------------------------------------------------------------------
 
 
-def masthead(slug: str, title: str, standfirst: str, ref: str) -> list[dict]:
+def masthead(slug: str, title: str, standfirst: str | None, ref: str) -> list[dict]:
     """The brand band every page shares, and under it the section title and one line of
-    orientation. 'slug' names the containers and must be filesystem-safe."""
+    orientation. 'slug' names the containers and must be filesystem-safe. A page whose standfirst
+    is a measure passes None and places a dynamic_text() instead."""
     return [
         # The band is a textbox with a navy background - a shape would do the same, and this is
         # one fewer visual type to get right. The mark sits on top of it.
@@ -399,10 +400,11 @@ def masthead(slug: str, title: str, standfirst: str, ref: str) -> list[dict]:
         textbox(f"vTitle{slug}", 24, 74, 900, 40, 90, [
             [{"text": title, "size": 22, "color": INK, "bold": True}],
         ]),
+    ] + ([] if standfirst is None else [
         textbox(f"vStand{slug}", 24, 114, 1000, 46, 95, [
             [{"text": standfirst, "size": 10, "color": BODY}],
         ]),
-    ]
+    ])
 
 
 def page(name: str, display: str) -> dict:
@@ -418,6 +420,197 @@ def page(name: str, display: str) -> dict:
             "displayArea": obj(verticalAlignment=lit("Top")),
         },
     }
+
+
+# --------------------------------------------------------------------------------------------
+# Interactive pieces: measure-driven text and images, button slicers, buttons, bookmarks
+# --------------------------------------------------------------------------------------------
+
+
+def mexpr(name: str) -> dict:
+    """A measure reference in the expression envelope, for properties bound to a field."""
+    return {"expr": {"Measure": {"Expression": {"SourceRef": {"Entity": "Metrics"}}, "Property": name}}}
+
+
+def dynamic_chrome(title: str, subtitle: str | None = None) -> dict:
+    """chrome() with the title and subtitle bound to measures, so they rewrite with the slicers."""
+    out = chrome("placeholder")
+    out["title"] = obj(show=lit(True), text=mexpr(title), fontSize=lit(10.5), bold=lit(True),
+                       fontColor=colour(INK), heading=lit("Heading3"))
+    if subtitle:
+        out["subTitle"] = obj(show=lit(True), text=mexpr(subtitle), fontSize=lit(8.5),
+                              fontColor=colour(MUTED))
+    return out
+
+
+def dynamic_text(name: str, x: int, y: int, w: int, h: int, z: int, measure_name: str,
+                 size: float = 10.0, color: str = BODY, align: str = "left",
+                 bold: bool = False) -> dict:
+    """Text from a measure. A textbox cannot bind a field, so this is an invisible shape whose
+    container title is the measure, with wrapping on."""
+    container = no_chrome()
+    container["title"] = obj(show=lit(True), text=mexpr(measure_name), fontSize=lit(size),
+                             fontColor=colour(color), bold=lit(bold), titleWrap=lit(True),
+                             alignment=lit(align))
+    node = visual(name, "shape", x, y, w, h, z, container=container)
+    # show=false alone left the theme's navy fill painted under the text; a fully transparent
+    # fill, set both bare and on the default selector, is what actually clears it.
+    clear_fill = {"show": lit(True), "fillColor": colour(PAPER), "transparency": lit(100.0)}
+    no_line = {"show": lit(False)}
+    node["visual"]["objects"] = {
+        "shape": [{"properties": {"tileShape": lit("rectangle")}, "selector": {"id": "default"}}],
+        "fill": [{"properties": clear_fill}, {"properties": clear_fill, "selector": {"id": "default"}}],
+        "outline": [{"properties": no_line}, {"properties": no_line, "selector": {"id": "default"}}],
+    }
+    return node
+
+
+def svg_image(name: str, x: int, y: int, w: int, h: int, z: int, measure_name: str) -> dict:
+    """An image visual showing an SVG measure (dataCategory ImageUrl). The SVG is drawn at the
+    visual's size, so fit is Normal and the container adds nothing."""
+    node = visual(name, "image", x, y, w, h, z, container=no_chrome())
+    node["visual"]["objects"] = {
+        "image": [{"properties": {
+            "sourceType": lit("imageData"),
+            "sourceField": mexpr(measure_name),
+            "fit": lit("Normal"),
+        }}],
+    }
+    return node
+
+
+def button_slicer(name: str, x: int, y: int, w: int, h: int, z: int, table: str, col: str,
+                  default, columns: int, header: str | None = None,
+                  filters: list | None = None) -> dict:
+    """A tile slicer with one choice always selected. On a disconnected table it filters
+    nothing - measures read the choice with SELECTEDVALUE."""
+    alias = "b"
+    container = no_chrome()
+    if header:
+        container["title"] = obj(show=lit(True), text=lit(header), fontSize=lit(8.5), bold=lit(True),
+                                 fontColor=colour(MUTED))
+    return visual(
+        name, "advancedSlicerVisual", x, y, w, h, z,
+        query={"queryState": {"Values": {"projections": [column(table, col)]}}},
+        objects={
+            "general": [{"properties": {"filter": {"filter": {
+                "Version": 2,
+                "From": [{"Name": alias, "Entity": table, "Type": 0}],
+                "Where": [{"Condition": {"In": {
+                    "Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": alias}},
+                                                "Property": col}}],
+                    "Values": [[lit(default)["expr"]]],
+                }}}],
+            }}}}],
+            "selection": [{"properties": {"strictSingleSelect": lit(True),
+                                          "selectAllCheckboxEnabled": lit(False)}}],
+            "layout": [{"properties": {"rowCount": lit(1), "columnCount": lit(columns),
+                                       "cellPadding": lit(0)}}],
+            "shapeCustomRectangle": [{"properties": {"tileShape": lit("rectangleRoundedByPixel"),
+                                                     "rectangleRoundedCurve": lit(3)},
+                                      "selector": {"id": "default"}}],
+            "fillCustom": [
+                {"properties": {"show": lit(True), "fillColor": colour(CARD)}, "selector": {"id": "default"}},
+                {"properties": {"show": lit(True), "fillColor": colour(INK)}, "selector": {"id": "selected"}},
+                {"properties": {"show": lit(True), "fillColor": colour(PAPER)}, "selector": {"id": "hover"}},
+            ],
+            "outline": [
+                {"properties": {"show": lit(True), "lineColor": colour(RULE), "weight": lit(1.0)},
+                 "selector": {"id": "default"}},
+                {"properties": {"show": lit(True), "lineColor": colour(INK), "weight": lit(1.0)},
+                 "selector": {"id": "selected"}},
+            ],
+            "value": [
+                {"properties": {"fontColor": colour(BODY), "fontSize": lit(9.0), "bold": lit(True),
+                                "horizontalAlignment": lit("center")}, "selector": {"id": "default"}},
+                {"properties": {"fontColor": colour(CARD)}, "selector": {"id": "selected"}},
+            ],
+            "label": [{"properties": {"show": lit(False)}, "selector": {"id": "default"}}],
+            "icon": [{"properties": {"show": lit(False)}, "selector": {"id": "default"}}],
+            "selectionIcon": [{"properties": {"show": lit(False)}, "selector": {"id": "default"}}],
+        },
+        container=container,
+        filters=filters,
+    )
+
+
+def action_button(name: str, x: int, y: int, w: int, h: int, z: int, text: str | None,
+                  bookmark: str, fill: str = CARD, text_colour: str = INK,
+                  outline: str | None = INK, transparency: float = 0.0) -> dict:
+    """A button that applies a bookmark. PBIR needs each state object twice - once bare and once
+    with the 'default' id selector - or Desktop ignores the styling."""
+    def dual(props: dict) -> list:
+        return [{"properties": props}, {"properties": props, "selector": {"id": "default"}}]
+
+    objects = {
+        "shape": [{"properties": {"tileShape": lit("rectangleRoundedByPixel"),
+                                  "rectangleRoundedCurve": lit(4)}}],
+        "fill": dual({"show": lit(True), "fillColor": colour(fill), "transparency": lit(transparency)}),
+        "outline": dual({"show": lit(outline is not None),
+                         **({"lineColor": colour(outline), "weight": lit(1.0)} if outline else {})}),
+        "icon": dual({"show": lit(False)}),
+        "text": dual({"show": lit(text is not None),
+                      **({"text": lit(text), "fontColor": colour(text_colour), "fontSize": lit(10.0),
+                          "bold": lit(True)} if text else {})}),
+    }
+    container = no_chrome()
+    container["visualLink"] = obj(show=lit(True), type=lit("Bookmark"), bookmark=lit(bookmark))
+    node = visual(name, "actionButton", x, y, w, h, z, container=container)
+    node["visual"]["objects"] = objects
+    node["howCreated"] = "InsertVisualButton"
+    return node
+
+
+def measure_range_filter(name: str, measure_name: str, low: int, high: int) -> dict:
+    """Visual-level 'measure is between low and high' filter. Used to keep ranks 1..N of a
+    rank measure whose direction a slicer flips - a TopN filter cannot change direction."""
+    ref = {"Measure": {"Expression": {"SourceRef": {"Source": "m"}}, "Property": measure_name}}
+    return {
+        "name": name,
+        "field": {"Measure": {"Expression": {"SourceRef": {"Entity": "Metrics"}}, "Property": measure_name}},
+        "type": "Advanced",
+        "filter": {
+            "Version": 2,
+            "From": [{"Name": "m", "Entity": "Metrics", "Type": 0}],
+            "Where": [{"Condition": {"And": {
+                "Left": {"Comparison": {"ComparisonKind": 2, "Left": ref, "Right": lit(low)["expr"]}},
+                "Right": {"Comparison": {"ComparisonKind": 4, "Left": ref, "Right": lit(high)["expr"]}},
+            }}}],
+        },
+    }
+
+
+def hide(node: dict) -> dict:
+    node["isHidden"] = True
+    return node
+
+
+def toggle_bookmarks(page_name: str, prefix: str, display: str, visuals: list[dict]) -> list[dict]:
+    """An open/close pair of bookmarks for a hidden panel. Both touch only the panel's visuals
+    and carry no data state, so opening the panel never resets a slicer."""
+    names = [v["name"] for v in visuals]
+
+    def one(suffix: str, hidden: bool) -> dict:
+        containers = {}
+        for v in visuals:
+            single = {"visualType": v["visual"]["visualType"], "objects": {}}
+            if hidden:
+                single["display"] = {"mode": "hidden"}
+            containers[v["name"]] = {"singleVisual": single}
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+            "displayName": f"{display} {suffix.lower()}",
+            "name": f"{prefix}{suffix}",
+            "options": {"targetVisualNames": names, "applyOnlyToTargetVisuals": True,
+                        "suppressData": True, "suppressActiveSection": True},
+            "explorationState": {
+                "version": "1.3",
+                "activeSection": page_name,
+                "sections": {page_name: {"visualContainers": containers}},
+            },
+        }
+
+    return [one("Open", False), one("Closed", True)]
 
 
 YEAR_COLOURS = {2021: LIGHT, 2022: SLATE, 2023: GOLD, 2024: NAVY}
@@ -902,6 +1095,144 @@ def page_geography() -> tuple[dict, list[dict]]:
     return page("pgGeography", "Geography & shipping"), v
 
 
+REVENUE_BOOKMARKS: list[dict] = []
+
+
+def ranked_table(name: str, x: int, y: int, label: str, table: str, col: str, display: str) -> dict:
+    """Top or Bottom 8 by change on the comparison year, with a diverging SVG bar per row."""
+    rank = f"{label} Change Rank"
+    node = visual(
+        name, "pivotTable", x, y, 688, 264, 700,
+        query={"queryState": {
+            "Rows": {"projections": [column(table, col, display)]},
+            "Values": {"projections": [
+                m(rank, "Rank"),
+                m("Sales", "Sales"),
+                m("Sales Comparison", "Comparison"),
+                m("Sales vs Comparison", "Change"),
+                m(f"{label} Change Bar", " "),
+                m("Sales vs Comparison % Label", "%"),
+            ]}},
+            "sortDefinition": sort_by(m(rank), "Ascending")},
+        objects={
+            "grid": [{"properties": {
+                "gridVertical": lit(False), "gridHorizontal": lit(True),
+                "gridHorizontalColor": colour(RULE), "rowPadding": lit(2),
+                "imageHeight": lit(16.0), "imageWidth": lit(160.0),
+            }}],
+            "columnHeaders": [{"properties": {
+                "fontSize": lit(9.0), "bold": lit(True), "fontColor": colour(INK),
+                "backColor": colour(CARD), "alignment": lit("Right"),
+            }}],
+            "rowHeaders": [{"properties": {
+                "fontSize": lit(9.0), "fontColor": colour(BODY), "backColor": colour(CARD),
+            }}],
+            "values": [
+                {"properties": {"fontSize": lit(9.0), "fontColorPrimary": colour(BODY),
+                                "backColorPrimary": colour(CARD), "backColorSecondary": colour(CARD)}},
+                # Green or red change, from the same colour measure the variance columns use.
+                {"properties": {"fontColor": {"solid": {"color": mexpr("Variance Colour")}}},
+                 "selector": {"data": [{"dataViewWildcard": {"matchingOption": 1}}],
+                              "metadata": "Metrics.Sales vs Comparison"}},
+            ],
+            "subTotals": [{"properties": {"rowSubtotals": lit(False), "columnSubtotals": lit(False)}}],
+        },
+        container=dynamic_chrome(f"Title {label} Table", f"Subtitle {label} Table"),
+        filters=[measure_range_filter(f"f{name}Top", rank, 1, 8)],
+    )
+    return node
+
+
+def page_revenue() -> tuple[dict, list[dict]]:
+    """The comparison page: built from design/revenue-mockup.html, every block a measure."""
+    pg_name = "pgRevenue"
+    v: list[dict] = []
+    v += masthead("Rev", "Revenue against the comparison year", None, "05 / REVENUE")
+    v.append(dynamic_text("vStandRev", 18, 112, 700, 56, 95, "Title Standfirst", size=10.0))
+
+    v.append(button_slicer("vYearRev", 740, 72, 210, 64, 400, "Date", "Year", 2024, 3, header="YEAR",
+                           filters=[categorical_filter("fYearRev", "Date", "Year", [2022, 2023, 2024])]))
+    v.append(button_slicer("vCompRev", 966, 72, 280, 64, 410, "Comparison", "Comparison", "Prior year", 2,
+                           header="COMPARE WITH"))
+    v.append(action_button("vFiltersRev", 1262, 96, 154, 34, 420, "Filters", "bmFiltersOpen"))
+    v.append(dynamic_text("vChipRev", 1250, 132, 178, 28, 430, "Filter Summary", size=8.0,
+                          color=MUTED, align="center"))
+
+    for i, card_measure in enumerate(["Card Sales", "Card Customers", "Card Regions", "Card Sub-categories"]):
+        v.append(svg_image(f"vCard{i + 1}Rev", 24 + i * 352, 176, 336, 140, 500 + i * 10, card_measure))
+
+    v.append(visual(
+        "vLineRev", "lineChart", 24, 332, 688, 264, 600,
+        query={
+            "queryState": {
+                "Category": {"projections": [column("Date", "Month Short", "Month")]},
+                "Y": {"projections": [m("Sales Line", "Selected year"),
+                                      m("Comparison Line", "Comparison year")]},
+            },
+            "sortDefinition": sort_by(column("Date", "Month Short"), "Ascending"),
+        },
+        objects={
+            "categoryAxis": axis(), "valueAxis": axis(gridlines=True, labelDisplayUnits=lit(1000)),
+            "legend": legend(position="Top"),
+            "labels": no_labels(),
+            "dataPoint": series_colour({"Metrics.Sales Line": NAVY, "Metrics.Comparison Line": SLATE}),
+            "lineStyles": [
+                {"properties": {"strokeWidth": lit(2), "showMarker": lit(False), "lineStyle": lit("solid")}},
+                obj_for("Metrics.Comparison Line", lineStyle=lit("dashed"), strokeWidth=lit(2)),
+            ],
+        },
+        container=dynamic_chrome("Title Line Chart", "Subtitle Line Chart"),
+    ))
+    v.append(button_slicer("vViewRev", 494, 338, 208, 40, 610, "Line View", "View", "Month", 2))
+
+    v.append(visual(
+        "vVarRev", "columnChart", 728, 332, 688, 264, 620,
+        query={
+            "queryState": {
+                "Category": {"projections": [column("Date", "Month Short", "Month")]},
+                "Y": {"projections": [m("Sales vs Comparison", "Change")]},
+                "Tooltips": {"projections": [m("Sales"), m("Sales Comparison", "Comparison")]},
+            },
+            "sortDefinition": sort_by(column("Date", "Month Short"), "Ascending"),
+        },
+        objects={
+            "categoryAxis": axis(), "valueAxis": axis(gridlines=True), "legend": legend(False),
+            "labels": data_labels(size=8.0, units=1000),
+            "dataPoint": [{"properties": {"fill": {"solid": {"color": mexpr("Variance Colour")}}},
+                           "selector": {"data": [{"dataViewWildcard": {"matchingOption": 1}}]}}],
+        },
+        container=dynamic_chrome("Title Variance Chart", "Subtitle Variance Chart"),
+    ))
+
+    v.append(ranked_table("vCustRev", 24, 612, "Customer", "Customer", "Customer", "Customer"))
+    v.append(button_slicer("vCustShowRev", 554, 618, 148, 40, 710, "Customer Ranking", "Show", "Top", 2))
+    v.append(ranked_table("vSubRev", 728, 612, "Sub-category", "Product", "Sub-Category", "Sub-category"))
+    v.append(button_slicer("vSubShowRev", 1258, 618, 148, 40, 720, "Sub-category Ranking", "Show", "Top", 2))
+
+    # The filter panel: hidden on load, opened by the Filters button, closed by Done or a click on
+    # the scrim. It is plain visuals toggled by two bookmarks - no group, so no relative geometry.
+    panel = [
+        action_button("vScrimRev", 0, 0, CANVAS_W, CANVAS_H, 2000, None, "bmFiltersClosed",
+                      fill=INK, outline=None, transparency=65.0),
+        textbox("vPanelRev", 1076, 118, 340, 356, 2010, [[{"text": "", "size": 6}]], background=CARD),
+        textbox("vPanelHeadRev", 1092, 128, 300, 52, 2020, [
+            [{"text": "Filters", "size": 14, "color": INK, "bold": True}],
+            [{"text": "Apply to every number on this page, cards included.", "size": 8.5, "color": MUTED}],
+        ]),
+        slicer("vSegRev", 1092, 184, 308, 80, 2030, "Customer", "Segment", "SEGMENT"),
+        slicer("vRegRev", 1092, 268, 308, 80, 2040, "Geography", "Region", "REGION"),
+        slicer("vCatRev", 1092, 352, 308, 80, 2050, "Product", "Category", "CATEGORY"),
+        action_button("vDoneRev", 1092, 428, 308, 34, 2060, "Done", "bmFiltersClosed",
+                      fill=INK, text_colour=CARD),
+    ]
+    panel[1]["visual"]["visualContainerObjects"]["border"] = obj(show=lit(True), color=colour(RULE),
+                                                                 radius=lit(6))
+    v += [hide(p) for p in panel]
+
+    REVENUE_BOOKMARKS[:] = toggle_bookmarks(pg_name, "bmFilters", "Filters", panel)
+    return page(pg_name, "Revenue"), v
+
+
 # --------------------------------------------------------------------------------------------
 # Theme and assembly
 # --------------------------------------------------------------------------------------------
@@ -963,7 +1294,7 @@ def main() -> None:
     if PAGES.exists():
         rmtree_retry(PAGES)
 
-    builders = [page_overview, page_products, page_customers, page_geography]
+    builders = [page_overview, page_products, page_customers, page_geography, page_revenue]
     order: list[str] = []
     total_visuals = 0
 
@@ -995,6 +1326,16 @@ def main() -> None:
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
         "pageOrder": order,
         "activePageName": order[0],
+    })
+
+    bookmarks_dir = REPORT / "definition" / "bookmarks"
+    if bookmarks_dir.exists():
+        rmtree_retry(bookmarks_dir)
+    for bm in REVENUE_BOOKMARKS:
+        write_json(bookmarks_dir / f"{bm['name']}.bookmark.json", bm)
+    write_json(bookmarks_dir / "bookmarks.json", {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmarksMetadata/1.0.0/schema.json",
+        "items": [{"name": bm["name"]} for bm in REVENUE_BOOKMARKS],
     })
 
     write_json(REPORT / "definition" / "version.json", {

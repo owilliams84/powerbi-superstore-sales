@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Filters closed",
+  "name": "bmFiltersClosed",
+  "options": {
+    "targetVisualNames": [
+      "vScrimRev",
+      "vPanelRev",
+      "vPanelHeadRev",
+      "vSegRev",
+      "vRegRev",
+      "vCatRev",
+      "vDoneRev"
+    ],
+    "applyOnlyToTargetVisuals": true,
+    "suppressData": true,
+    "suppressActiveSection": true
+  },
+  "explorationState": {
+    "version": "1.3",
+    "activeSection": "pgRevenue",
+    "sections": {
+      "pgRevenue": {
+        "visualContainers": {
+          "vScrimRev": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vPanelRev": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vPanelHeadRev": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vSegRev": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vRegRev": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vCatRev": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vDoneRev": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
