@@ -83,14 +83,19 @@ def escape_xml(expr: str) -> str:
     return f'SUBSTITUTE(SUBSTITUTE({expr}, "&", "&amp;"), "<", "&lt;")'
 
 
-def pool(column: str) -> str:
+def pool(column: str, selected: bool = False) -> str:
     """Members that sold in either year - the set every count, rank and scale is taken over.
 
-    ALL, not ALLSELECTED: the ranked tables keep ranks 1-8 with a visual-level measure filter, and
-    that filter narrows ALLSELECTED to the eight rows on screen - the subtitle read "among 8
-    customers" and every bar was scaled to its own eight. Slicers still apply, because the
-    [Sales] test runs in the outer filter context."""
-    return f"FILTER(ALL({column}), [Sales] + [Sales Comparison] > 0)"
+    ALL by default: the ranked tables keep ranks 1-8 with a visual-level measure filter, and that
+    filter narrows ALLSELECTED to the eight rows on screen - the subtitle read "among 8 customers"
+    and every bar was scaled to its own eight. A slicer on a *different* column still applies,
+    because the [Sales] test runs in the outer filter context.
+
+    But ALL(column) also discards a slicer on *that* column: with Region = West on the filter
+    panel, the regions card still read "3 of 4 regions". So a column a slicer can target, and that
+    never sits in a measure-filtered table, passes selected=True for ALLSELECTED."""
+    fn = "ALLSELECTED" if selected else "ALL"
+    return f"FILTER({fn}({column}), [Sales] + [Sales Comparison] > 0)"
 
 
 def ring(cx: int, cy: int, r: int, share: str, colour: str, over: str | None = None) -> str:
@@ -244,7 +249,9 @@ RETURN
           "IF([Comparison Available], COUNTROWS(FILTER(ALL(Customer[Customer]), [Sales] > [Sales Comparison])))",
           INT, "Customers whose sales beat the comparison year, including customers new since."),
         M("Regions Above Comparison",
-          "IF([Comparison Available], COUNTROWS(FILTER(ALL(Geography[Region]), [Sales] > [Sales Comparison])))", INT),
+          "IF([Comparison Available], COUNTROWS(FILTER(ALLSELECTED(Geography[Region]), [Sales] > [Sales Comparison])))", INT,
+          "ALLSELECTED, not ALL: Region is on the filter panel, and ALL would count all four regions\n"
+          "under a West filter."),
         M("Sub-categories In Play", f"IF([Comparison Available], COUNTROWS({pool('Product[Sub-Category]')}))", INT),
         M("Sub-categories Above Comparison",
           "IF([Comparison Available], COUNTROWS(FILTER(ALL(Product[Sub-Category]), [Sales] > [Sales Comparison])))", INT),
@@ -421,7 +428,7 @@ RETURN
 
     out.append(M("Card Regions", f"""
 VAR C = [Comparison Year]
-VAR Regions = ADDCOLUMNS({pool("Geography[Region]")}, "@Change", [Sales vs Comparison], "@Pct", [Sales vs Comparison %])
+VAR Regions = ADDCOLUMNS({pool("Geography[Region]", selected=True)}, "@Change", [Sales vs Comparison], "@Pct", [Sales vs Comparison %])
 VAR N = COUNTROWS(Regions)
 VAR BestRow = TOPN(1, Regions, [@Change], DESC, Geography[Region], ASC)
 VAR WorstRow = TOPN(1, Regions, [@Change], ASC, Geography[Region], ASC)

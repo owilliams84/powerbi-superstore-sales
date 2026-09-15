@@ -353,7 +353,9 @@ table Metrics
 		displayFolder: Revenue page
 		lineageTag: f3943c39-b84c-5a87-a035-679926b44c21
 
-	measure 'Regions Above Comparison' = IF([Comparison Available], COUNTROWS(FILTER(ALL(Geography[Region]), [Sales] > [Sales Comparison])))
+	/// ALLSELECTED, not ALL: Region is on the filter panel, and ALL would count all four regions
+	/// under a West filter.
+	measure 'Regions Above Comparison' = IF([Comparison Available], COUNTROWS(FILTER(ALLSELECTED(Geography[Region]), [Sales] > [Sales Comparison])))
 		formatString: #,0
 		displayFolder: Revenue page
 		lineageTag: 94f217e9-7bdf-516b-852a-1ccd676e0b24
@@ -647,7 +649,7 @@ table Metrics
 	/// One tile per region, green above the comparison year and red below, alphabetical.
 	measure 'Card Regions' =
 			VAR C = [Comparison Year]
-			VAR Regions = ADDCOLUMNS(FILTER(ALL(Geography[Region]), [Sales] + [Sales Comparison] > 0), "@Change", [Sales vs Comparison], "@Pct", [Sales vs Comparison %])
+			VAR Regions = ADDCOLUMNS(FILTER(ALLSELECTED(Geography[Region]), [Sales] + [Sales Comparison] > 0), "@Change", [Sales vs Comparison], "@Pct", [Sales vs Comparison %])
 			VAR N = COUNTROWS(Regions)
 			VAR BestRow = TOPN(1, Regions, [@Change], DESC, Geography[Region], ASC)
 			VAR WorstRow = TOPN(1, Regions, [@Change], ASC, Geography[Region], ASC)
