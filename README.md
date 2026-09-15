@@ -207,7 +207,9 @@ python etl/revenue_expected.py 2024 2022
 ```
 
 Every figure in `verify_measures.ps1` matched `verify_expected.py` to four decimal places — after
-the one that did not was fixed.
+the one that did not was fixed. `verify_revenue.ps1` matched `revenue_expected.py` to the cent. A
+separate query against the published model with Region = West pinned is what caught the regions
+card ignoring the filter panel.
 
 ## Repository layout
 
