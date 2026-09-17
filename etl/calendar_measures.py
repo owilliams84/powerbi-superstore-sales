@@ -103,7 +103,7 @@ VAR Below = COUNTROWS(FILTER(Live, [@v] < Me))
 RETURN
     IF(
         HASONEVALUE({spec['grain']}),
-        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+        IF(Me > 0, IF(N <= 1, 5, MIN(5, INT(DIVIDE((Below + 0) * 5, N - 1)) + 1)), 0)
     )""", "0",
           "1 (quietest fifth of the cells on screen) to 5 (busiest); 0 for a cell with no sales;\n"
           "blank where the grid has no such cell. Rank-based so one outlier cannot flatten the rest."),

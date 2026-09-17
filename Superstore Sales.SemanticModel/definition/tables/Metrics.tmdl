@@ -737,7 +737,7 @@ table Metrics
 			RETURN
 			    IF(
 			        HASONEVALUE('Date'[Date]),
-			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			        IF(Me > 0, IF(N <= 1, 5, MIN(5, INT(DIVIDE((Below + 0) * 5, N - 1)) + 1)), 0)
 			    )
 		formatString: 0
 		displayFolder: Calendar page
@@ -786,7 +786,7 @@ table Metrics
 			RETURN
 			    IF(
 			        HASONEVALUE('Date'[Month No]),
-			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			        IF(Me > 0, IF(N <= 1, 5, MIN(5, INT(DIVIDE((Below + 0) * 5, N - 1)) + 1)), 0)
 			    )
 		formatString: 0
 		displayFolder: Calendar page
@@ -835,7 +835,7 @@ table Metrics
 			RETURN
 			    IF(
 			        HASONEVALUE('Date'[Quarter Year Sort]),
-			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			        IF(Me > 0, IF(N <= 1, 5, MIN(5, INT(DIVIDE((Below + 0) * 5, N - 1)) + 1)), 0)
 			    )
 		formatString: 0
 		displayFolder: Calendar page
@@ -884,7 +884,7 @@ table Metrics
 			RETURN
 			    IF(
 			        HASONEVALUE('Date'[Year]),
-			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			        IF(Me > 0, IF(N <= 1, 5, MIN(5, INT(DIVIDE((Below + 0) * 5, N - 1)) + 1)), 0)
 			    )
 		formatString: 0
 		displayFolder: Calendar page
