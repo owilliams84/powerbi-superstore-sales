@@ -103,7 +103,7 @@ and every sub-category selling more than it — so on a chart sorted by sales it
 
 ## The report
 
-Five pages, 1440 × 900, in the Milestone BI palette — near-black indigo, gold, and the site's
+Six pages, 1440 × 900, in the Milestone BI palette — near-black indigo, gold, and the site's
 greys — with the brand mark in a band across the top of every page.
 
 **01 Overview** — headline figures, sales by month with one line per year, a year-by-year table,
@@ -156,6 +156,41 @@ against 2023 and against 2022, to the cent.
 
 ![The revenue page with the other states: two years earlier, running total, Bottom 8, filters open](screenshots/revenue-other-states.png)
 
+**06 Calendar** — sales as a heat-mapped calendar, at four grains. Day is a Monday-first month
+grid, one cell per order date, under Month and Year dropdowns; Month is the twelve months of a year,
+a quarter to a row; Quarter is a year to a row; Year is one cell per year. Buttons switch between
+them. Two cards follow the view — sales against the same period a year earlier, and the busiest
+day, month, quarter or year — and a bar chart gives average sales per trading day by weekday.
+
+![The calendar page, day view](screenshots/calendar.png)
+
+It is a native matrix rather than a custom visual, so there is nothing to install and it works the
+same in the Service:
+
+- **Every cell is an SVG measure**, as on the Revenue page, but at 112 × 88 up to 266 × 138. A
+  matrix cell holds one string; the SVG puts the day number in one corner, the sales in the middle
+  and the order count in another. The same colour is also bound to the cell background, so a cell
+  wider than its image is still one block. Clicking a cell cross-filters the page like any matrix.
+- **Shade is a rank, not a scale.** Five bands, each cell placed by its position among the cells
+  on screen. On a linear scale one $13k day turns the rest of the month the same pale blue. The
+  ramp runs pale to navy; green and red stay reserved for above and below a comparison.
+- **The four views are four matrices and four bookmarks.** Each bookmark shows its own matrix,
+  cards, bars and standfirst, hides the other three, and carries no data state. Field parameters
+  would do it in one matrix, but not in generated PBIR.
+- **A dropdown that means nothing at a grain is cut off from that grain.** The Month dropdown is
+  hidden in the Month view but still holds a selection. The matrices and bar charts are protected
+  by `visualInteractions` in `page.json`; the cards and titles, being measures, also remove the
+  filter in DAX.
+- **The week rows come from two calculated columns** — `Week of Month` and `Day Short` — written in
+  DAX rather than added to the CSV, because the model reads its data from this repository.
+
+Mocked up first (`design/calendar-mockup.html`, clickable), then generated. Every cell of all four
+views — 1,529 of them, for sales, distinct orders and shade band — is read out of the live model by
+`etl/verify_calendar.ps1` and diffed against pandas by `etl/calendar_expected.py`: 4,587 checks,
+no mismatches.
+
+![The calendar page zoomed out to months](screenshots/calendar-month.png)
+
 ### Some of what it says
 
 | | |
@@ -204,6 +239,10 @@ python etl/verify_expected.py
 # The revenue page, for any year and comparison
 powershell -File etl/verify_revenue.ps1 -Year 2024 -Comparison "Two years earlier"
 python etl/revenue_expected.py 2024 2022
+
+# The calendar page: every cell of all four views, diffed automatically
+powershell -File etl/verify_calendar.ps1 > calendar_dump.txt
+python etl/calendar_expected.py --compare calendar_dump.txt
 ```
 
 Every figure in `verify_measures.ps1` matched `verify_expected.py` to four decimal places — after
@@ -230,10 +269,13 @@ etl/verify_measures.ps1           reads the measures back out of the live model
 etl/verify_expected.py            the same figures from the CSVs, in pandas
 etl/verify_revenue.ps1            reads every revenue-page figure out of the live model
 etl/revenue_expected.py           the revenue page's figures from the CSVs, in pandas
-design/                           the HTML mockup the revenue page was built from
+etl/calendar_measures.py          the calendar page's SVG cells, shade bands, cards and Date columns
+etl/verify_calendar.ps1           dumps every calendar cell out of the live model
+etl/calendar_expected.py          the same cells from the CSVs, and the diff
+design/                           the HTML mockups the revenue and calendar pages were built from
 web/superstore-sales.json         the page's data - about 100x smaller than the star schema
-Superstore Sales.SemanticModel/   TMDL: 11 tables, 79 measures
-Superstore Sales.Report/          PBIR: 5 pages, 82 visuals, 2 bookmarks, theme, brand mark
+Superstore Sales.SemanticModel/   TMDL: 11 tables, 112 measures
+Superstore Sales.Report/          PBIR: 6 pages, 119 visuals, 6 bookmarks, theme, brand mark
 ```
 
 Both the model and the report are generated rather than hand-edited. TMDL is indentation-sensitive

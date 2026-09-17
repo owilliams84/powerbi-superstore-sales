@@ -6,6 +6,18 @@
     },
     {
       "name": "bmFiltersClosed"
+    },
+    {
+      "name": "bmCalDay"
+    },
+    {
+      "name": "bmCalMonth"
+    },
+    {
+      "name": "bmCalQuarter"
+    },
+    {
+      "name": "bmCalYear"
     }
   ]
 }

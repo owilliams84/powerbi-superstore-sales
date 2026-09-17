@@ -14,10 +14,13 @@ behind on disk still renders, as an empty box.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 import time
 from pathlib import Path
+
+import calendar_measures
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "Superstore Sales.Report"
@@ -1234,6 +1237,210 @@ def page_revenue() -> tuple[dict, list[dict]]:
 
 
 # --------------------------------------------------------------------------------------------
+# Calendar page: one heat-mapped calendar at four grains, swapped by bookmarks
+# --------------------------------------------------------------------------------------------
+
+CALENDAR_BOOKMARKS: list[dict] = []
+CALENDAR_VIEWS = ["Day", "Month", "Quarter", "Year"]
+
+
+def measure_title_chrome(title_measure: str, subtitle: str) -> dict:
+    """chrome() with the title bound to a measure and a fixed subtitle."""
+    out = chrome("placeholder", subtitle=subtitle)
+    out["title"] = obj(show=lit(True), text=mexpr(title_measure), fontSize=lit(10.5), bold=lit(True),
+                       fontColor=colour(INK), heading=lit("Heading3"))
+    return out
+
+
+def calendar_matrix(view: str, rows: dict | None, columns: dict, subtitle: str,
+                    row_header_width: float | None = None) -> dict:
+    """One grain of the calendar. Every cell is the SVG measure [Cal Cell <view>], and the cell
+    background is [Cal Colour <view>] as well, so a cell wider than its image is still one block
+    of colour. White 3px gridlines are the gaps between the tiles."""
+    spec = calendar_measures.VIEWS[view]
+    cell = m(f"Cal Cell {view}", " ")
+    state: dict = {"Columns": {"projections": [columns]}, "Values": {"projections": [cell]}}
+    if rows is not None:
+        state["Rows"] = {"projections": [rows]}
+    widths = [{"properties": {"value": lit(float(spec["w"] + 10))},
+               "selector": {"metadata": f"Metrics.Cal Cell {view}"}}]
+    if rows is not None and row_header_width is not None:
+        widths.append({"properties": {"value": lit(row_header_width)},
+                       "selector": {"metadata": rows["queryRef"]}})
+    return visual(
+        f"vCal{view}", "pivotTable", 24, 176, 900, 700, 600,
+        # No sortDefinition: each axis column already sorts by its own sort-by column, and an
+        # explicit sort puts a sort arrow in the corner of the calendar.
+        query={"queryState": state},
+        objects={
+            "grid": [{"properties": {
+                "outlineColor": colour(CARD), "outlineWeight": lit(1),
+                "gridVertical": lit(True), "gridVerticalColor": colour(CARD), "gridVerticalWeight": lit(3),
+                "gridHorizontal": lit(True), "gridHorizontalColor": colour(CARD), "gridHorizontalWeight": lit(3),
+                "rowPadding": lit(0),
+                "imageHeight": lit(float(spec["h"])), "imageWidth": lit(float(spec["w"])),
+            }}],
+            "columnHeaders": [{"properties": {
+                "fontSize": lit(9.0), "bold": lit(True), "fontColor": colour(INK), "backColor": colour(CARD),
+                "alignment": lit("Center"), "autoSizeColumnWidth": lit(False), "outlineColor": colour(CARD),
+            }}],
+            "rowHeaders": [{"properties": {
+                "fontSize": lit(9.0), "bold": lit(True), "backColor": colour(CARD),
+                # The Day view's row field is only there to break the month into weeks.
+                "fontColor": colour(CARD if view == "Day" else INK),
+                "showExpandCollapseButtons": lit(False), "outlineColor": colour(CARD),
+            }}],
+            "values": [
+                {"properties": {"fontSize": lit(9.0), "fontColorPrimary": colour(BODY), "outlineColor": colour(CARD),
+                                "backColorPrimary": colour(CARD), "backColorSecondary": colour(CARD)}},
+                {"properties": {"backColor": {"solid": {"color": mexpr(f"Cal Colour {view}")}}},
+                 "selector": {"data": [{"dataViewWildcard": {"matchingOption": 1}}],
+                              "metadata": f"Metrics.Cal Cell {view}"}},
+            ],
+            "columnWidth": widths,
+            "subTotals": [{"properties": {"rowSubtotals": lit(False), "columnSubtotals": lit(False)}}],
+        },
+        container=measure_title_chrome(f"Title Cal {view}", subtitle),
+    )
+
+
+def weekday_bars(view: str) -> dict:
+    return visual(
+        f"vWeekday{view}", "barChart", 940, 512, 476, 364, 640,
+        query={
+            "queryState": {
+                "Category": {"projections": [column("Date", "Day Short", "Day")]},
+                "Y": {"projections": [m("Avg Sales per Trading Day", "Average per trading day")]},
+            },
+            "sortDefinition": sort_by(column("Date", "Day Short"), "Ascending"),
+        },
+        objects={
+            "categoryAxis": axis(), "valueAxis": [{"properties": {"show": lit(False), "showAxisTitle": lit(False)}}],
+            "legend": legend(False),
+            "labels": data_labels(size=8.5, units=1),
+            "dataPoint": [{"properties": {"fill": {"solid": {"color": mexpr("Cal Weekday Colour")}}},
+                           "selector": {"data": [{"dataViewWildcard": {"matchingOption": 1}}]}}],
+        },
+        container=measure_title_chrome("Title Cal Weekday",
+                                       "Average sales per day that had orders. Weekends in slate."),
+    )
+
+
+def view_bookmarks(page_name: str, by_view: dict[str, list[dict]]) -> list[dict]:
+    """One bookmark per view. Each lists every view-specific visual and hides the ones that are
+    not its own; it carries no data state, so switching views never touches a slicer."""
+    everything: list[dict] = []
+    for group in by_view.values():
+        for node in group:
+            if all(node is not seen for seen in everything):
+                everything.append(node)
+    out = []
+    for view, own in by_view.items():
+        own_names = {v["name"] for v in own}
+        containers = {}
+        for v in everything:
+            single = {"visualType": v["visual"]["visualType"], "objects": {}}
+            if v["name"] not in own_names:
+                single["display"] = {"mode": "hidden"}
+            containers[v["name"]] = {"singleVisual": single}
+        out.append({
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+            "displayName": f"Calendar {view.lower()} view",
+            "name": f"bmCal{view}",
+            "options": {"targetVisualNames": [v["name"] for v in everything],
+                        "applyOnlyToTargetVisuals": True, "suppressData": True,
+                        "suppressActiveSection": True},
+            "explorationState": {"version": "1.3", "activeSection": page_name,
+                                 "sections": {page_name: {"visualContainers": containers}}},
+        })
+    return out
+
+
+def page_calendar() -> tuple[dict, list[dict]]:
+    """Built from design/calendar-mockup.html. Four grains of one calendar; the View buttons are
+    bookmarks that show one grain's visuals and hide the other three."""
+    pg_name = "pgCalendar"
+    common: list[dict] = masthead("Cal", "Sales calendar", None, "06 / CALENDAR")
+    common.append(textbox("vViewLabelCal", 708, 72, 120, 22, 395, [
+        [{"text": "VIEW", "size": 8.5, "color": MUTED, "bold": True}]]))
+    common.append(svg_image("vLegendCal", 38, 848, 520, 20, 900, "Cal Legend"))
+
+    year_slicer = slicer("vYearCal", 1246, 72, 170, 84, 410, "Date", "Year", "YEAR", default=[2024])
+    month_slicer = slicer("vMonthCal", 1070, 72, 170, 84, 400, "Date", "Month", "MONTH", default=["December"])
+    for node in (year_slicer, month_slicer):
+        # Force one selection: with two months selected every Day cell would hold two dates.
+        node["visual"]["objects"]["selection"] = [{"properties": {"strictSingleSelect": lit(True)}}]
+
+    subtitles = {
+        "Day": "Each cell is one order date. Shade ranks the day against the other days of this month.",
+        "Month": "Each cell is one month, a quarter to a row. Shade ranks the month against the other eleven.",
+        "Quarter": "Each cell is one quarter, a year to a row. Shade ranks the quarter against all of them.",
+        "Year": "Each cell is one year. Shade ranks the year against the others.",
+    }
+    matrices = {
+        "Day": calendar_matrix("Day", column("Date", "Week of Month", " "), column("Date", "Day Short", "Day"),
+                               subtitles["Day"], row_header_width=14.0),
+        "Month": calendar_matrix("Month", column("Date", "Quarter", " "), column("Date", "Month in Quarter", "Month"),
+                                 subtitles["Month"], row_header_width=44.0),
+        "Quarter": calendar_matrix("Quarter", column("Date", "Year", " "), column("Date", "Quarter", "Quarter"),
+                                   subtitles["Quarter"], row_header_width=50.0),
+        "Year": calendar_matrix("Year", None, column("Date", "Year", "Year"), subtitles["Year"]),
+    }
+
+    # Unselected tiles are shared between views: tile X shows in every view except X.
+    off = {view: action_button(f"vBtn{view}OffCal", 708 + i * 88, 96, 88, 34, 430 + i, view, f"bmCal{view}",
+                               fill=CARD, text_colour=BODY, outline=RULE)
+           for i, view in enumerate(CALENDAR_VIEWS)}
+
+    by_view: dict[str, list[dict]] = {}
+    for i, view in enumerate(CALENDAR_VIEWS):
+        by_view[view] = [
+            matrices[view],
+            dynamic_text(f"vStand{view}Cal", 18, 112, 680, 56, 95 + i, f"Standfirst Cal {view}", size=10.0),
+            svg_image(f"vTotal{view}Cal", 940, 176, 476, 152, 500 + i,
+                      f"Card Cal Total {view}" if view in ("Day", "Month") else "Card Cal Total All"),
+            svg_image(f"vPeak{view}Cal", 940, 344, 476, 152, 520 + i, f"Card Cal Peak {view}"),
+            weekday_bars(view),
+            # The selected tile: INK, and pressing it changes nothing.
+            action_button(f"vBtn{view}OnCal", 708 + i * 88, 96, 88, 34, 440 + i, view, f"bmCal{view}",
+                          fill=INK, text_colour=CARD),
+        ] + [off[o] for o in CALENDAR_VIEWS if o != view]
+    by_view["Day"] += [month_slicer, year_slicer]
+    by_view["Month"] += [year_slicer]
+
+    ordered: list[dict] = []
+    for view in CALENDAR_VIEWS:
+        for node in by_view[view]:
+            if all(node is not seen for seen in ordered):
+                ordered.append(node)
+    # The page opens on the Day view. CAL_START_VIEW=Month (etc.) builds a copy that opens on
+    # another grain, which is how the views behind the buttons get screenshotted.
+    start = os.environ.get("CAL_START_VIEW", "Day")
+    for node in ordered:
+        if all(node is not own for own in by_view[start]):
+            hide(node)
+
+    CALENDAR_BOOKMARKS[:] = view_bookmarks(pg_name, by_view)
+
+    # A dropdown that means nothing at a grain must not filter that grain's visuals. The measure-only
+    # visuals also take these filters off in DAX (calendar_measures.scoped); the matrices and bars
+    # have axes, which only an interaction setting can protect.
+    blocked_by = {"Day": [], "Month": [month_slicer], "Quarter": [month_slicer, year_slicer],
+                  "Year": [month_slicer, year_slicer]}
+    interactions = []
+    for view in CALENDAR_VIEWS:
+        targets = [n for n in by_view[view]
+                   if n["visual"]["visualType"] in ("pivotTable", "barChart", "image", "shape")]
+        for source in blocked_by[view]:
+            for target in targets:
+                interactions.append({"source": source["name"], "target": target["name"], "type": "NoFilter"})
+
+    pg = page(pg_name, "Calendar")
+    pg["visualInteractions"] = interactions
+    return pg, common + ordered
+
+
+# --------------------------------------------------------------------------------------------
 # Theme and assembly
 # --------------------------------------------------------------------------------------------
 
@@ -1294,7 +1501,7 @@ def main() -> None:
     if PAGES.exists():
         rmtree_retry(PAGES)
 
-    builders = [page_overview, page_products, page_customers, page_geography, page_revenue]
+    builders = [page_overview, page_products, page_customers, page_geography, page_revenue, page_calendar]
     order: list[str] = []
     total_visuals = 0
 
@@ -1331,11 +1538,12 @@ def main() -> None:
     bookmarks_dir = REPORT / "definition" / "bookmarks"
     if bookmarks_dir.exists():
         rmtree_retry(bookmarks_dir)
-    for bm in REVENUE_BOOKMARKS:
+    bookmarks = REVENUE_BOOKMARKS + CALENDAR_BOOKMARKS
+    for bm in bookmarks:
         write_json(bookmarks_dir / f"{bm['name']}.bookmark.json", bm)
     write_json(bookmarks_dir / "bookmarks.json", {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmarksMetadata/1.0.0/schema.json",
-        "items": [{"name": bm["name"]} for bm in REVENUE_BOOKMARKS],
+        "items": [{"name": bm["name"]} for bm in bookmarks],
     })
 
     write_json(REPORT / "definition" / "version.json", {

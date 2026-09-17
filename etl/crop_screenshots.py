@@ -21,7 +21,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "screenshots"
 BAND = (0x0A, 0x09, 0x17)
 PAGES = {"pgOverview": "overview", "pgProducts": "products", "pgCustomers": "customers",
-         "pgGeography": "geography", "pgRevenue": "revenue"}
+         "pgGeography": "geography", "pgRevenue": "revenue",
+         # The calendar's four views are four builds (CAL_START_VIEW), one capture each.
+         "pgCalendar_Day": "calendar", "pgCalendar_Month": "calendar-month",
+         "pgCalendar_Quarter": "calendar-quarter", "pgCalendar_Year": "calendar-year"}
 
 
 def find_canvas(im: Image.Image) -> tuple[int, int, int, int]:

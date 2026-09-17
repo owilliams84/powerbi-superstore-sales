@@ -727,6 +727,525 @@ table Metrics
 		dataCategory: ImageUrl
 		lineageTag: d73028ed-fb49-5441-a1a5-2a4836d3c4c7
 
+	/// 1 (quietest fifth of the cells on screen) to 5 (busiest); 0 for a cell with no sales;
+	/// blank where the grid has no such cell. Rank-based so one outlier cannot flatten the rest.
+	measure 'Cal Band Day' =
+			VAR Me = [Sales]
+			VAR Live = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES('Date'[Date]), "@v", [Sales]), ALLSELECTED('Date')), [@v] > 0)
+			VAR N = COUNTROWS(Live)
+			VAR Below = COUNTROWS(FILTER(Live, [@v] < Me))
+			RETURN
+			    IF(
+			        HASONEVALUE('Date'[Date]),
+			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			    )
+		formatString: 0
+		displayFolder: Calendar page
+		lineageTag: 6d5a5c60-d96c-5df1-84b2-dcc532da2135
+
+	/// Cell background for the band. Bound to the matrix's background colour.
+	measure 'Cal Colour Day' =
+			VAR Band = [Cal Band Day]
+			RETURN
+			    IF(NOT ISBLANK(Band), SWITCH(Band, 1, "#E6E9F1", 2, "#BCC1D2", 3, "#7C8598", 4, "#3E4A66", 5, "#111F38", "#F4F6FA"))
+		displayFolder: Calendar page
+		lineageTag: 99d0ad36-60a0-5e5d-8d26-01631641d1ec
+
+	/// One calendar cell at the Day grain, drawn at 112x88: label top left, sales in the
+	/// middle, orders bottom right, on the band's colour. A cell with no sales shows a dash.
+	measure 'Cal Cell Day' =
+			VAR Band = [Cal Band Day]
+			VAR V = [Sales]
+			VAR N = [Orders]
+			VAR Fg = SWITCH(TRUE(), Band = 0, "#667284", Band >= 3, "#FFFFFF", "#0A0917")
+			VAR Bg = [Cal Colour Day]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='112' height='88' viewBox='0 0 112 88' font-family='Segoe UI, sans-serif'>"
+			        & "<rect width='112' height='88' fill='" & Bg & "'/>"
+			        & "<text x='8' y='17' font-size='11.5' font-weight='600' fill='" & Fg & "' opacity='0.85'>" & FORMAT(DAY(SELECTEDVALUE('Date'[Date])), "00") & "</text>"
+			        & IF(
+			            Band = 0,
+			            "<text x='56' y='49' font-size='13' text-anchor='middle' fill='#667284'>&#8211;</text>",
+			            "<text x='56' y='50' font-size='17' font-weight='700' text-anchor='middle' fill='" & Fg & "'>" & SWITCH(TRUE(), V >= 1000000, "$" & FORMAT(V / 1000000, "0.00") & "M", V >= 10000, "$" & FORMAT(V / 1000, "0.0") & "k", V >= 1000, "$" & FORMAT(V / 1000, "0.00") & "k", "$" & FORMAT(V, "0")) & "</text>"
+			                & "<text x='104' y='80' font-size='10.5' text-anchor='end' fill='" & Fg & "' opacity='0.8'>" & FORMAT(N, "#,0") & IF(N = 1, " order", " orders") & "</text>"
+			        )
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK(Band), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 8aea7131-a68d-5401-b078-40005ad38dd0
+
+	/// 1 (quietest fifth of the cells on screen) to 5 (busiest); 0 for a cell with no sales;
+	/// blank where the grid has no such cell. Rank-based so one outlier cannot flatten the rest.
+	measure 'Cal Band Month' =
+			VAR Me = [Sales]
+			VAR Live = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES('Date'[Month No]), "@v", [Sales]), ALLSELECTED('Date')), [@v] > 0)
+			VAR N = COUNTROWS(Live)
+			VAR Below = COUNTROWS(FILTER(Live, [@v] < Me))
+			RETURN
+			    IF(
+			        HASONEVALUE('Date'[Month No]),
+			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			    )
+		formatString: 0
+		displayFolder: Calendar page
+		lineageTag: 2c15a0d7-aa13-526d-ae65-7959b71c2770
+
+	/// Cell background for the band. Bound to the matrix's background colour.
+	measure 'Cal Colour Month' =
+			VAR Band = [Cal Band Month]
+			RETURN
+			    IF(NOT ISBLANK(Band), SWITCH(Band, 1, "#E6E9F1", 2, "#BCC1D2", 3, "#7C8598", 4, "#3E4A66", 5, "#111F38", "#F4F6FA"))
+		displayFolder: Calendar page
+		lineageTag: cacb7a65-a9d1-5355-9b8b-8d17d46aeaac
+
+	/// One calendar cell at the Month grain, drawn at 266x138: label top left, sales in the
+	/// middle, orders bottom right, on the band's colour. A cell with no sales shows a dash.
+	measure 'Cal Cell Month' =
+			VAR Band = [Cal Band Month]
+			VAR V = [Sales]
+			VAR N = [Orders]
+			VAR Fg = SWITCH(TRUE(), Band = 0, "#667284", Band >= 3, "#FFFFFF", "#0A0917")
+			VAR Bg = [Cal Colour Month]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='266' height='138' viewBox='0 0 266 138' font-family='Segoe UI, sans-serif'>"
+			        & "<rect width='266' height='138' fill='" & Bg & "'/>"
+			        & "<text x='8' y='17' font-size='11.5' font-weight='600' fill='" & Fg & "' opacity='0.85'>" & SELECTEDVALUE('Date'[Month Short]) & "</text>"
+			        & IF(
+			            Band = 0,
+			            "<text x='133' y='74' font-size='13' text-anchor='middle' fill='#667284'>&#8211;</text>",
+			            "<text x='133' y='75' font-size='17' font-weight='700' text-anchor='middle' fill='" & Fg & "'>" & SWITCH(TRUE(), V >= 1000000, "$" & FORMAT(V / 1000000, "0.00") & "M", V >= 10000, "$" & FORMAT(V / 1000, "0.0") & "k", V >= 1000, "$" & FORMAT(V / 1000, "0.00") & "k", "$" & FORMAT(V, "0")) & "</text>"
+			                & "<text x='258' y='130' font-size='10.5' text-anchor='end' fill='" & Fg & "' opacity='0.8'>" & FORMAT(N, "#,0") & IF(N = 1, " order", " orders") & "</text>"
+			        )
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK(Band), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 41a4368b-e94a-5ef5-b16a-811b32d17a3f
+
+	/// 1 (quietest fifth of the cells on screen) to 5 (busiest); 0 for a cell with no sales;
+	/// blank where the grid has no such cell. Rank-based so one outlier cannot flatten the rest.
+	measure 'Cal Band Quarter' =
+			VAR Me = [Sales]
+			VAR Live = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES('Date'[Quarter Year Sort]), "@v", [Sales]), ALLSELECTED('Date')), [@v] > 0)
+			VAR N = COUNTROWS(Live)
+			VAR Below = COUNTROWS(FILTER(Live, [@v] < Me))
+			RETURN
+			    IF(
+			        HASONEVALUE('Date'[Quarter Year Sort]),
+			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			    )
+		formatString: 0
+		displayFolder: Calendar page
+		lineageTag: c3da9164-1d40-55fc-a136-f8247dcc889e
+
+	/// Cell background for the band. Bound to the matrix's background colour.
+	measure 'Cal Colour Quarter' =
+			VAR Band = [Cal Band Quarter]
+			RETURN
+			    IF(NOT ISBLANK(Band), SWITCH(Band, 1, "#E6E9F1", 2, "#BCC1D2", 3, "#7C8598", 4, "#3E4A66", 5, "#111F38", "#F4F6FA"))
+		displayFolder: Calendar page
+		lineageTag: cb66dee3-6237-5565-bbbb-c29f8fe7c08f
+
+	/// One calendar cell at the Quarter grain, drawn at 196x138: label top left, sales in the
+	/// middle, orders bottom right, on the band's colour. A cell with no sales shows a dash.
+	measure 'Cal Cell Quarter' =
+			VAR Band = [Cal Band Quarter]
+			VAR V = [Sales]
+			VAR N = [Orders]
+			VAR Fg = SWITCH(TRUE(), Band = 0, "#667284", Band >= 3, "#FFFFFF", "#0A0917")
+			VAR Bg = [Cal Colour Quarter]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='196' height='138' viewBox='0 0 196 138' font-family='Segoe UI, sans-serif'>"
+			        & "<rect width='196' height='138' fill='" & Bg & "'/>"
+			        & "<text x='8' y='17' font-size='11.5' font-weight='600' fill='" & Fg & "' opacity='0.85'>" & SELECTEDVALUE('Date'[Quarter Year]) & "</text>"
+			        & IF(
+			            Band = 0,
+			            "<text x='98' y='74' font-size='13' text-anchor='middle' fill='#667284'>&#8211;</text>",
+			            "<text x='98' y='75' font-size='17' font-weight='700' text-anchor='middle' fill='" & Fg & "'>" & SWITCH(TRUE(), V >= 1000000, "$" & FORMAT(V / 1000000, "0.00") & "M", V >= 10000, "$" & FORMAT(V / 1000, "0.0") & "k", V >= 1000, "$" & FORMAT(V / 1000, "0.00") & "k", "$" & FORMAT(V, "0")) & "</text>"
+			                & "<text x='188' y='130' font-size='10.5' text-anchor='end' fill='" & Fg & "' opacity='0.8'>" & FORMAT(N, "#,0") & IF(N = 1, " order", " orders") & "</text>"
+			        )
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK(Band), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 38d8f399-5931-536c-9fef-00d1adba4f86
+
+	/// 1 (quietest fifth of the cells on screen) to 5 (busiest); 0 for a cell with no sales;
+	/// blank where the grid has no such cell. Rank-based so one outlier cannot flatten the rest.
+	measure 'Cal Band Year' =
+			VAR Me = [Sales]
+			VAR Live = FILTER(CALCULATETABLE(ADDCOLUMNS(VALUES('Date'[Year]), "@v", [Sales]), ALLSELECTED('Date')), [@v] > 0)
+			VAR N = COUNTROWS(Live)
+			VAR Below = COUNTROWS(FILTER(Live, [@v] < Me))
+			RETURN
+			    IF(
+			        HASONEVALUE('Date'[Year]),
+			        IF(Me > 0, MIN(5, INT(DIVIDE(Below * 5, N - 1, 5)) + 1), 0)
+			    )
+		formatString: 0
+		displayFolder: Calendar page
+		lineageTag: 6692c7c5-8298-5bf2-aebe-f8af79848654
+
+	/// Cell background for the band. Bound to the matrix's background colour.
+	measure 'Cal Colour Year' =
+			VAR Band = [Cal Band Year]
+			RETURN
+			    IF(NOT ISBLANK(Band), SWITCH(Band, 1, "#E6E9F1", 2, "#BCC1D2", 3, "#7C8598", 4, "#3E4A66", 5, "#111F38", "#F4F6FA"))
+		displayFolder: Calendar page
+		lineageTag: 8af52236-ca99-5bca-a2ec-0c262cc519a9
+
+	/// One calendar cell at the Year grain, drawn at 196x230: label top left, sales in the
+	/// middle, orders bottom right, on the band's colour. A cell with no sales shows a dash.
+	measure 'Cal Cell Year' =
+			VAR Band = [Cal Band Year]
+			VAR V = [Sales]
+			VAR N = [Orders]
+			VAR Fg = SWITCH(TRUE(), Band = 0, "#667284", Band >= 3, "#FFFFFF", "#0A0917")
+			VAR Bg = [Cal Colour Year]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='196' height='230' viewBox='0 0 196 230' font-family='Segoe UI, sans-serif'>"
+			        & "<rect width='196' height='230' fill='" & Bg & "'/>"
+			        & "<text x='8' y='17' font-size='11.5' font-weight='600' fill='" & Fg & "' opacity='0.85'>" & FORMAT(SELECTEDVALUE('Date'[Year]), "0") & "</text>"
+			        & IF(
+			            Band = 0,
+			            "<text x='98' y='120' font-size='13' text-anchor='middle' fill='#667284'>&#8211;</text>",
+			            "<text x='98' y='121' font-size='17' font-weight='700' text-anchor='middle' fill='" & Fg & "'>" & SWITCH(TRUE(), V >= 1000000, "$" & FORMAT(V / 1000000, "0.00") & "M", V >= 10000, "$" & FORMAT(V / 1000, "0.0") & "k", V >= 1000, "$" & FORMAT(V / 1000, "0.00") & "k", "$" & FORMAT(V, "0")) & "</text>"
+			                & "<text x='188' y='222' font-size='10.5' text-anchor='end' fill='" & Fg & "' opacity='0.8'>" & FORMAT(N, "#,0") & IF(N = 1, " order", " orders") & "</text>"
+			        )
+			        & "</svg>"
+			RETURN
+			    IF(NOT ISBLANK(Band), "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 015b44a1-7054-5f08-a84e-b67d3b0350ab
+
+	/// Days with at least one order. 228 of the 1,458 days in the data have none.
+	measure 'Cal Trading Days' = COUNTROWS(FILTER(VALUES('Date'[Date]), [Sales] > 0))
+		formatString: #,0
+		displayFolder: Calendar page
+		lineageTag: c506c544-4aa6-50bd-82bc-f92e650550bd
+
+	/// Sales divided by the days that had orders, so a weekday is not marked down for the
+	/// weeks it happened to be empty.
+	measure 'Avg Sales per Trading Day' = DIVIDE([Sales], [Cal Trading Days])
+		formatString: \$#,0
+		displayFolder: Calendar page
+		lineageTag: dacf71e7-5f76-52c7-8564-f2d75dc75bda
+
+	/// Weekends in slate on the weekday bars.
+	measure 'Cal Weekday Colour' = IF(SELECTEDVALUE('Date'[Is Weekend]) = "Yes", "#7C8598", "#111F38")
+		displayFolder: Calendar page
+		lineageTag: 270b7d4b-a91b-5a4c-b5a8-8a4158f739f0
+
+	measure 'Cal Month Label' = SELECTEDVALUE('Date'[Month], "All months") & " " & SELECTEDVALUE('Date'[Year], "all years")
+		displayFolder: Calendar page
+		lineageTag: 7f8cd71e-b5dc-5fed-b878-0139cbb0a41f
+
+	/// Sales for what the Day view shows, against the same period a year earlier.
+	measure 'Card Cal Total Day' =
+			VAR Cur = [Sales]
+			VAR Prev = [Sales PY]
+			VAR Change = DIVIDE(Cur - Prev, Prev)
+			VAR NoteText =
+			    IF(
+			        Prev > 0,
+			        "<tspan font-weight='700' fill='" & IF(Change >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(Change >= 0, "&#9650; ", "&#9660; ") & FORMAT(ABS(Change), "0.0%") & "</tspan>" & " on " & FORMAT(EDATE(MIN('Date'[Date]), -12), "mmm yyyy") & " (" & SWITCH(TRUE(), Prev >= 1000000, "$" & FORMAT(Prev / 1000000, "0.00") & "M", Prev >= 10000, "$" & FORMAT(Prev / 1000, "0.0") & "k", Prev >= 1000, "$" & FORMAT(Prev / 1000, "0.00") & "k", "$" & FORMAT(Prev, "0")) & ")",
+			        "No sales a year earlier to compare with"
+			    )
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "SALES IN VIEW" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & NoteText & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='114' font-size='11.5' fill='#4A5768'>" & "Orders" & "</text><text x='460' y='114' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT([Orders], "#,0") & "</text>"
+			    & "<text x='16' y='134' font-size='11.5' fill='#4A5768'>" & "Average order" & "</text><text x='460' y='134' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & "$" & FORMAT([Average Order Value], "#,0") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23")
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: e1de18c6-a4eb-5deb-bfdd-844d810cfd9a
+
+	/// Sales for what the Month view shows, against the same period a year earlier.
+	measure 'Card Cal Total Month' =
+			CALCULATE(
+			VAR Cur = [Sales]
+			VAR Prev = [Sales PY]
+			VAR Change = DIVIDE(Cur - Prev, Prev)
+			VAR NoteText =
+			    IF(
+			        Prev > 0,
+			        "<tspan font-weight='700' fill='" & IF(Change >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(Change >= 0, "&#9650; ", "&#9660; ") & FORMAT(ABS(Change), "0.0%") & "</tspan>" & " on " & FORMAT(MAX('Date'[Year]) - 1, "0") & " (" & SWITCH(TRUE(), Prev >= 1000000, "$" & FORMAT(Prev / 1000000, "0.00") & "M", Prev >= 10000, "$" & FORMAT(Prev / 1000, "0.0") & "k", Prev >= 1000, "$" & FORMAT(Prev / 1000, "0.00") & "k", "$" & FORMAT(Prev, "0")) & ")",
+			        "No sales a year earlier to compare with"
+			    )
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "SALES IN VIEW" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & NoteText & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='114' font-size='11.5' fill='#4A5768'>" & "Orders" & "</text><text x='460' y='114' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT([Orders], "#,0") & "</text>"
+			    & "<text x='16' y='134' font-size='11.5' fill='#4A5768'>" & "Average order" & "</text><text x='460' y='134' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & "$" & FORMAT([Average Order Value], "#,0") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"), REMOVEFILTERS('Date'[Month]))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 713723c3-3ac9-5354-ac49-fec7994f19c5
+
+	/// Sales across every year, for the Quarter and Year views.
+	measure 'Card Cal Total All' =
+			CALCULATE(
+			VAR Cur = [Sales]
+			VAR YearCount = COUNTROWS(VALUES('Date'[Year]))
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "SALES IN VIEW" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & "All " & YearCount & " years - nothing earlier to compare with" & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='114' font-size='11.5' fill='#4A5768'>" & "Orders" & "</text><text x='460' y='114' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT([Orders], "#,0") & "</text>"
+			    & "<text x='16' y='134' font-size='11.5' fill='#4A5768'>" & "Average order" & "</text><text x='460' y='134' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & "$" & FORMAT([Average Order Value], "#,0") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"), REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: c5b89168-5580-5024-82ef-a8e004bc37cb
+
+	/// The best single day of the month on screen.
+	measure 'Card Cal Peak Day' =
+			VAR Pool = ADDCOLUMNS(VALUES('Date'[Date]), "@v", [Sales])
+			VAR Best = MAXX(Pool, [@v])
+			VAR BestDate = MINX(FILTER(Pool, [@v] = Best), 'Date'[Date])
+			VAR DaysAll = COUNTROWS(Pool)
+			VAR Quiet = DaysAll - [Cal Trading Days]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "BUSIEST DAY" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Best >= 1000000, "$" & FORMAT(Best / 1000000, "0.00") & "M", Best >= 10000, "$" & FORMAT(Best / 1000, "0.0") & "k", Best >= 1000, "$" & FORMAT(Best / 1000, "0.00") & "k", "$" & FORMAT(Best, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & FORMAT(BestDate, "ddd d mmmm yyyy") & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='111' font-size='11.5' fill='#4A5768'>" & "Average per trading day" & "</text><text x='460' y='111' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & SWITCH(TRUE(), [Avg Sales per Trading Day] >= 1000000, "$" & FORMAT([Avg Sales per Trading Day] / 1000000, "0.00") & "M", [Avg Sales per Trading Day] >= 10000, "$" & FORMAT([Avg Sales per Trading Day] / 1000, "0.0") & "k", [Avg Sales per Trading Day] >= 1000, "$" & FORMAT([Avg Sales per Trading Day] / 1000, "0.00") & "k", "$" & FORMAT([Avg Sales per Trading Day], "0")) & "</text>"
+			    & "<text x='16' y='128' font-size='11.5' fill='#4A5768'>" & "Days with no orders" & "</text><text x='460' y='128' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & Quiet & " of " & DaysAll & "</text>"
+			    & "<text x='16' y='145' font-size='11.5' fill='#4A5768'>" & "Busiest day&apos;s share of the month" & "</text><text x='460' y='145' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT(DIVIDE(Best, [Sales]), "0.0%") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23")
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 917aee00-8636-5cce-893b-92b929b785f6
+
+	/// The best month of the year on screen.
+	measure 'Card Cal Peak Month' =
+			CALCULATE(
+			VAR Pool = FILTER(ADDCOLUMNS(SUMMARIZE('Date', 'Date'[Month No], 'Date'[Month], 'Date'[Month Short]), "@v", [Sales]), [@v] > 0)
+			VAR Best = MAXX(Pool, [@v])
+			VAR Worst = MINX(Pool, [@v])
+			VAR BestName = MINX(FILTER(Pool, [@v] = Best), 'Date'[Month])
+			VAR WorstName = MINX(FILTER(Pool, [@v] = Worst), 'Date'[Month Short])
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "BIGGEST MONTH" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Best >= 1000000, "$" & FORMAT(Best / 1000000, "0.00") & "M", Best >= 10000, "$" & FORMAT(Best / 1000, "0.0") & "k", Best >= 1000, "$" & FORMAT(Best / 1000, "0.00") & "k", "$" & FORMAT(Best, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & BestName & " " & MAX('Date'[Year]) & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='111' font-size='11.5' fill='#4A5768'>" & "Average per month" & "</text><text x='460' y='111' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & SWITCH(TRUE(), DIVIDE([Sales], COUNTROWS(Pool)) >= 1000000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000000, "0.00") & "M", DIVIDE([Sales], COUNTROWS(Pool)) >= 10000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000, "0.0") & "k", DIVIDE([Sales], COUNTROWS(Pool)) >= 1000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000, "0.00") & "k", "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)), "0")) & "</text>"
+			    & "<text x='16' y='128' font-size='11.5' fill='#4A5768'>" & "Smallest month" & "</text><text x='460' y='128' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & WorstName & " &#183; " & SWITCH(TRUE(), Worst >= 1000000, "$" & FORMAT(Worst / 1000000, "0.00") & "M", Worst >= 10000, "$" & FORMAT(Worst / 1000, "0.0") & "k", Worst >= 1000, "$" & FORMAT(Worst / 1000, "0.00") & "k", "$" & FORMAT(Worst, "0")) & "</text>"
+			    & "<text x='16' y='145' font-size='11.5' fill='#4A5768'>" & "Biggest month&apos;s share of the year" & "</text><text x='460' y='145' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT(DIVIDE(Best, [Sales]), "0.0%") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"), REMOVEFILTERS('Date'[Month]))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: d51121a1-47c1-5090-8d07-796c0ecafe73
+
+	/// The best quarter of all, and how lopsided the year is.
+	measure 'Card Cal Peak Quarter' =
+			CALCULATE(
+			VAR Pool = FILTER(ADDCOLUMNS(SUMMARIZE('Date', 'Date'[Quarter Year Sort], 'Date'[Quarter Year]), "@v", [Sales]), [@v] > 0)
+			VAR Best = MAXX(Pool, [@v])
+			VAR BestName = MINX(FILTER(Pool, [@v] = Best), 'Date'[Quarter Year])
+			VAR AllSales = [Sales]
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "BIGGEST QUARTER" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Best >= 1000000, "$" & FORMAT(Best / 1000000, "0.00") & "M", Best >= 10000, "$" & FORMAT(Best / 1000, "0.0") & "k", Best >= 1000, "$" & FORMAT(Best / 1000, "0.00") & "k", "$" & FORMAT(Best, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & BestName & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='111' font-size='11.5' fill='#4A5768'>" & "Average per quarter" & "</text><text x='460' y='111' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & SWITCH(TRUE(), DIVIDE(AllSales, COUNTROWS(Pool)) >= 1000000, "$" & FORMAT(DIVIDE(AllSales, COUNTROWS(Pool)) / 1000000, "0.00") & "M", DIVIDE(AllSales, COUNTROWS(Pool)) >= 10000, "$" & FORMAT(DIVIDE(AllSales, COUNTROWS(Pool)) / 1000, "0.0") & "k", DIVIDE(AllSales, COUNTROWS(Pool)) >= 1000, "$" & FORMAT(DIVIDE(AllSales, COUNTROWS(Pool)) / 1000, "0.00") & "k", "$" & FORMAT(DIVIDE(AllSales, COUNTROWS(Pool)), "0")) & "</text>"
+			    & "<text x='16' y='128' font-size='11.5' fill='#4A5768'>" & "Q4 share of all sales" & "</text><text x='460' y='128' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT(DIVIDE(CALCULATE([Sales], 'Date'[Quarter] = "Q4"), AllSales), "0.0%") & "</text>"
+			    & "<text x='16' y='145' font-size='11.5' fill='#4A5768'>" & "Q1 share of all sales" & "</text><text x='460' y='145' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & FORMAT(DIVIDE(CALCULATE([Sales], 'Date'[Quarter] = "Q1"), AllSales), "0.0%") & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"), REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: 051fd673-ba71-5b4c-a165-119f2f322535
+
+	/// The best year, and the two year-on-year moves at either end.
+	measure 'Card Cal Peak Year' =
+			CALCULATE(
+			VAR Pool = FILTER(ADDCOLUMNS(VALUES('Date'[Year]), "@v", [Sales]), [@v] > 0)
+			VAR Best = MAXX(Pool, [@v])
+			VAR BestYear = MINX(FILTER(Pool, [@v] = Best), 'Date'[Year])
+			VAR YearLast = MAXX(Pool, 'Date'[Year])
+			VAR YearFirst = MINX(Pool, 'Date'[Year])
+			VAR SalesLast = MAXX(FILTER(Pool, 'Date'[Year] = YearLast), [@v])
+			VAR SalesBefore = MAXX(FILTER(Pool, 'Date'[Year] = YearLast - 1), [@v])
+			VAR SalesFirst = MAXX(FILTER(Pool, 'Date'[Year] = YearFirst), [@v])
+			VAR SalesSecond = MAXX(FILTER(Pool, 'Date'[Year] = YearFirst + 1), [@v])
+			VAR ChangeLast = DIVIDE(SalesLast - SalesBefore, SalesBefore)
+			VAR ChangeSecond = DIVIDE(SalesSecond - SalesFirst, SalesFirst)
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='476' height='152' viewBox='0 0 476 152' font-family='Segoe UI, sans-serif'>"
+			    & "<rect x='0.5' y='0.5' width='475' height='151' rx='4' fill='#FFFFFF' stroke='#E3E7EF'/><rect width='3' height='152' fill='#C9A227'/>"
+			    & "<text x='16' y='24' font-size='11' font-weight='700' fill='#667284' letter-spacing='0.4'>" & "BIGGEST YEAR" & "</text>"
+			    & "<text x='16' y='58' font-size='28' font-weight='700' fill='#0A0917'>" & SWITCH(TRUE(), Best >= 1000000, "$" & FORMAT(Best / 1000000, "0.00") & "M", Best >= 10000, "$" & FORMAT(Best / 1000, "0.0") & "k", Best >= 1000, "$" & FORMAT(Best / 1000, "0.00") & "k", "$" & FORMAT(Best, "0")) & "</text>"
+			    & "<text x='16' y='77' font-size='11.5' fill='#667284'>" & FORMAT(BestYear, "0") & "</text>"
+			    & "<line x1='16' y1='90' x2='460' y2='90' stroke='#E3E7EF'/>"
+			    & "<text x='16' y='111' font-size='11.5' fill='#4A5768'>" & "Average per year" & "</text><text x='460' y='111' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & SWITCH(TRUE(), DIVIDE([Sales], COUNTROWS(Pool)) >= 1000000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000000, "0.00") & "M", DIVIDE([Sales], COUNTROWS(Pool)) >= 10000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000, "0.0") & "k", DIVIDE([Sales], COUNTROWS(Pool)) >= 1000, "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)) / 1000, "0.00") & "k", "$" & FORMAT(DIVIDE([Sales], COUNTROWS(Pool)), "0")) & "</text>"
+			    & "<text x='16' y='128' font-size='11.5' fill='#4A5768'>" & YearLast & " on " & (YearLast - 1) & "</text><text x='460' y='128' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & "<tspan font-weight='700' fill='" & IF(ChangeLast >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(ChangeLast >= 0, "&#9650; ", "&#9660; ") & FORMAT(ABS(ChangeLast), "0.0%") & "</tspan>" & "</text>"
+			    & "<text x='16' y='145' font-size='11.5' fill='#4A5768'>" & (YearFirst + 1) & " on " & YearFirst & "</text><text x='460' y='145' font-size='11.5' font-weight='600' text-anchor='end' fill='#0A0917'>" & "<tspan font-weight='700' fill='" & IF(ChangeSecond >= 0, "#1E7A4C", "#B3261E") & "'>" & IF(ChangeSecond >= 0, "&#9650; ", "&#9660; ") & FORMAT(ABS(ChangeSecond), "0.0%") & "</tspan>" & "</text>"
+			    & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23"), REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: f6aba2a2-b10d-520b-b078-b33c4efb9862
+
+	/// Panel title of the Day calendar.
+	measure 'Title Cal Day' =
+			VAR Cur = [Sales]
+			RETURN
+			    [Cal Month Label] & ": " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & " across " & [Cal Trading Days] & " trading days" 
+		displayFolder: Calendar page
+		lineageTag: 3089d25a-ed55-5ed1-9d34-3f9238f17b6c
+
+	/// Panel title of the Month calendar.
+	measure 'Title Cal Month' =
+			CALCULATE(
+			VAR Pool = ADDCOLUMNS(SUMMARIZE('Date', 'Date'[Month No], 'Date'[Month]), "@v", [Sales])
+			VAR Best = MAXX(Pool, [@v])
+			VAR Cur = [Sales]
+			RETURN
+			    MAX('Date'[Year]) & ": " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & ", and " & MINX(FILTER(Pool, [@v] = Best), 'Date'[Month]) & " was the biggest month" , REMOVEFILTERS('Date'[Month]))
+		displayFolder: Calendar page
+		lineageTag: 0de16864-2d3a-5b86-9772-481f22bff539
+
+	/// Panel title of the Quarter calendar: which quarter number carries the most.
+	measure 'Title Cal Quarter' =
+			CALCULATE(
+			VAR Pool = ADDCOLUMNS(VALUES('Date'[Quarter]), "@v", [Sales])
+			VAR Best = MAXX(Pool, [@v])
+			RETURN
+			    MINX(FILTER(Pool, [@v] = Best), 'Date'[Quarter]) & " brings in " & FORMAT(DIVIDE(Best, [Sales]), "0%") & " of all sales, more than any other quarter" , REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		lineageTag: a2c6e027-d4bf-5795-9f25-0722718e5ff9
+
+	/// Panel title of the Year calendar.
+	measure 'Title Cal Year' =
+			CALCULATE(
+			VAR Pool = FILTER(ADDCOLUMNS(VALUES('Date'[Year]), "@v", [Sales]), [@v] > 0)
+			VAR YearLast = MAXX(Pool, 'Date'[Year])
+			VAR YearFirst = MINX(Pool, 'Date'[Year])
+			VAR SalesLast = MAXX(FILTER(Pool, 'Date'[Year] = YearLast), [@v])
+			VAR SalesFirst = MAXX(FILTER(Pool, 'Date'[Year] = YearFirst), [@v])
+			VAR Change = DIVIDE(SalesLast - SalesFirst, SalesFirst)
+			RETURN
+			    YearLast & " closed at " & SWITCH(TRUE(), SalesLast >= 1000000, "$" & FORMAT(SalesLast / 1000000, "0.00") & "M", SalesLast >= 10000, "$" & FORMAT(SalesLast / 1000, "0.0") & "k", SalesLast >= 1000, "$" & FORMAT(SalesLast / 1000, "0.00") & "k", "$" & FORMAT(SalesLast, "0")) & ", " & IF(Change >= 0, "up ", "down ") & FORMAT(ABS(Change), "0.0%") & " on " & YearFirst , REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		lineageTag: bdcf8c5f-ca62-52e7-bd80-c29139b7d6ea
+
+	/// Title of the weekday bars. Evaluated under the bar chart's own filters.
+	measure 'Title Cal Weekday' =
+			VAR Pool = FILTER(ADDCOLUMNS(SUMMARIZE('Date', 'Date'[Day of Week], 'Date'[Day]), "@v", [Avg Sales per Trading Day]), [@v] > 0)
+			VAR Best = MAXX(Pool, [@v])
+			RETURN
+			    IF(ISEMPTY(Pool), "No sales in this period", MINX(FILTER(Pool, [@v] = Best), 'Date'[Day]) & "s sell the most per trading day")
+		displayFolder: Calendar page
+		lineageTag: 0d27e04f-19ed-510e-8315-372a9c550414
+
+	/// The Day view's standfirst.
+	measure 'Standfirst Cal Day' =
+			VAR Cur = [Sales]
+			VAR Prev = [Sales PY]
+			VAR Change = DIVIDE(Cur - Prev, Prev)
+			VAR Pool = ADDCOLUMNS(VALUES('Date'[Date]), "@v", [Sales])
+			VAR Best = MAXX(Pool, [@v])
+			VAR BestDay = DAY(MINX(FILTER(Pool, [@v] = Best), 'Date'[Date]))
+			VAR Sfx = SWITCH(TRUE(), MOD(BestDay, 100) IN {11, 12, 13}, "th", MOD(BestDay, 10) = 1, "st", MOD(BestDay, 10) = 2, "nd", MOD(BestDay, 10) = 3, "rd", "th")
+			VAR DaysAll = COUNTROWS(Pool)
+			RETURN
+			    [Cal Month Label] & " took " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & " from " & FORMAT([Orders], "#,0") & " orders"
+			        & IF(Prev > 0, ", " & IF(Change >= 0, "up ", "down ") & FORMAT(ABS(Change), "0.0%") & " on the same month a year earlier", "")
+			        & ". The busiest day was the " & BestDay & Sfx & " at " & SWITCH(TRUE(), Best >= 1000000, "$" & FORMAT(Best / 1000000, "0.00") & "M", Best >= 10000, "$" & FORMAT(Best / 1000, "0.0") & "k", Best >= 1000, "$" & FORMAT(Best / 1000, "0.00") & "k", "$" & FORMAT(Best, "0")) & "; "
+			        & (DaysAll - [Cal Trading Days]) & " of " & DaysAll & " days had no orders at all." 
+		displayFolder: Calendar page
+		lineageTag: d210bbb4-1ead-5f1a-bdd4-093581d7fe02
+
+	/// The Month view's standfirst.
+	measure 'Standfirst Cal Month' =
+			CALCULATE(
+			VAR Cur = [Sales]
+			VAR Prev = [Sales PY]
+			VAR Change = DIVIDE(Cur - Prev, Prev)
+			VAR Pool = ADDCOLUMNS(SUMMARIZE('Date', 'Date'[Month No], 'Date'[Month]), "@v", [Sales])
+			VAR Best = MAXX(Pool, [@v])
+			RETURN
+			    MAX('Date'[Year]) & " took " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & " from " & FORMAT([Orders], "#,0") & " orders"
+			        & IF(Prev > 0, ", " & IF(Change >= 0, "up ", "down ") & FORMAT(ABS(Change), "0.0%") & " on " & (MAX('Date'[Year]) - 1), "")
+			        & ". " & MINX(FILTER(Pool, [@v] = Best), 'Date'[Month]) & " alone was " & FORMAT(DIVIDE(Best, Cur), "0.0%")
+			        & " of the year. Switch to Day to open a month." , REMOVEFILTERS('Date'[Month]))
+		displayFolder: Calendar page
+		lineageTag: 99ffa71d-d01e-5cbe-93e1-9c745ad19d9c
+
+	/// The Quarter view's standfirst.
+	measure 'Standfirst Cal Quarter' =
+			CALCULATE(
+			VAR Cur = [Sales]
+			RETURN
+			    MIN('Date'[Year]) & " to " & MAX('Date'[Year]) & " took " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & " from " & FORMAT([Orders], "#,0")
+			        & " orders. Read across a row for the shape of a year, down a column for the same quarter growing year on year." , REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		lineageTag: b1b8a26d-fdcd-5440-8c0d-66334219139e
+
+	/// The Year view's standfirst.
+	measure 'Standfirst Cal Year' =
+			CALCULATE(
+			VAR Cur = [Sales]
+			VAR YearCount = COUNTROWS(VALUES('Date'[Year]))
+			RETURN
+			    YearCount & " years, " & SWITCH(TRUE(), Cur >= 1000000, "$" & FORMAT(Cur / 1000000, "0.00") & "M", Cur >= 10000, "$" & FORMAT(Cur / 1000, "0.0") & "k", Cur >= 1000, "$" & FORMAT(Cur / 1000, "0.00") & "k", "$" & FORMAT(Cur, "0")) & " from " & FORMAT([Orders], "#,0")
+			        & " orders. Switch to Quarter or Month to see where inside a year the growth came from." , REMOVEFILTERS('Date'[Month], 'Date'[Year]))
+		displayFolder: Calendar page
+		lineageTag: 4b19c434-82ea-56ae-9444-fed757c5b644
+
+	/// The five-band key under the calendar.
+	measure 'Cal Legend' =
+			VAR Svg =
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='20' viewBox='0 0 520 20' font-family='Segoe UI, sans-serif'>"
+			        & "<text x='0' y='14' font-size='11' fill='#667284'>Quieter</text><rect x='52' y='5' width='26' height='10' rx='1' fill='#E6E9F1'/><rect x='84' y='5' width='26' height='10' rx='1' fill='#BCC1D2'/><rect x='116' y='5' width='26' height='10' rx='1' fill='#7C8598'/><rect x='148' y='5' width='26' height='10' rx='1' fill='#3E4A66'/><rect x='180' y='5' width='26' height='10' rx='1' fill='#111F38'/>"
+			        & "<text x='214' y='14' font-size='11' fill='#667284'>Busier</text>"
+			        & "<text x='270' y='14' font-size='11' fill='#667284'>Shade = fifths of the cells shown &#183; &#8211; no orders</text>"
+			        & "</svg>"
+			RETURN
+			    "data:image/svg+xml;utf8," & SUBSTITUTE(SUBSTITUTE(Svg, "%", "%25"), "#", "%23")
+		displayFolder: Calendar page
+		dataCategory: ImageUrl
+		lineageTag: dc3d86d2-1c6c-57b0-b82b-ca6de215742c
+
 	column Column
 		dataType: string
 		isHidden

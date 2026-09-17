@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar page mockup - Superstore Sales</title>
+<!--
+  Design mockup for the Calendar page, drawn at the report's 1440x900 canvas with the same tokens
+  and grid as etl/build_report.py. Numbers are real: data/fact_sales.csv summed per order date by
+  design/build_calendar_mockup.py; the Month, Quarter and Year views are aggregated from that one
+  daily series. Everything here has to be buildable in PBIR, so each block is annotated with the
+  visual it becomes.
+
+  State can be set from the URL for screenshots:  #view=day&y=2024&m=11&clean=1
+-->
+<style>
+  :root {
+    --paper: #F4F6FA; --card: #FFFFFF; --rule: #E3E7EF; --ink: #0A0917; --body: #4A5768;
+    --muted: #667284; --gold: #C9A227; --gold-text: #8A6D14; --navy: #111F38; --slate: #7C8598;
+    --light: #BCC1D2; --good: #1E7A4C; --bad: #B3261E;
+    /* Magnitude ramp: five bands, paper-blue to NAVY. Never green/red - a quiet day is not "bad". */
+    --b1: #E6E9F1; --b2: #BCC1D2; --b3: #7C8598; --b4: #3E4A66; --b5: #111F38;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #d9dde6; font-family: "Segoe UI", system-ui, sans-serif; color: var(--body); }
+  .stage { width: 1440px; height: 900px; position: relative; background: var(--paper); margin: 24px auto; overflow: hidden; }
+  .abs { position: absolute; }
+  .band { left: 0; top: 0; width: 1440px; height: 60px; background: var(--ink); }
+  .wordmark { left: 76px; top: 15px; color: #fff; font-weight: 700; font-size: 20px; }
+  .wordmark b { color: var(--gold); }
+  .ref { right: 24px; top: 22px; color: var(--gold); font: 700 11px Consolas, monospace; letter-spacing: 2px; }
+  .mark { left: 24px; top: 14px; width: 40px; height: 32px; border: 2px solid #fff; border-radius: 4px; }
+  h1 { margin: 0; left: 24px; top: 74px; font-size: 29px; color: var(--ink); font-weight: 700; }
+  .stand { left: 24px; top: 118px; width: 660px; font-size: 13px; line-height: 1.45; }
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; }
+  .ptitle { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .psub { font-size: 11.3px; color: var(--muted); margin-top: 1px; }
+  .note { position: absolute; font: 600 10px Consolas, monospace; color: #fff; background: #7a3cff;
+          padding: 1px 5px; border-radius: 2px; z-index: 50; pointer-events: none; opacity: .9; white-space: nowrap; }
+  body.clean .note { display: none; }
+  .seg { display: flex; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); overflow: hidden; }
+  .seg button { flex: 1; border: 0; background: transparent; font: 600 12px "Segoe UI"; color: var(--body); cursor: pointer; padding: 0 10px; }
+  .seg button + button { border-left: 1px solid var(--rule); }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .slabel { font: 700 11px "Segoe UI"; color: var(--muted); letter-spacing: .5px; margin-bottom: 4px; }
+  select.dd { width: 100%; height: 34px; border: 1px solid var(--rule); border-radius: 4px; background: var(--card);
+              font: 600 12.5px "Segoe UI"; color: var(--body); padding: 0 8px; }
+  .toolbar { position: fixed; left: 12px; top: 8px; font: 12px "Segoe UI"; z-index: 99; }
+
+  /* the calendar: a matrix. Header row + cells, 3px gaps like the reference the user sent. */
+  .grid { display: grid; gap: 3px; }
+  .hd { font: 700 11.5px "Segoe UI"; color: var(--ink); text-align: center; align-self: end; padding-bottom: 3px; }
+  .rowhd { font: 700 11.5px "Segoe UI"; color: var(--ink); display: flex; align-items: center; }
+  .cell { border-radius: 2px; position: relative; display: flex; align-items: center; justify-content: center;
+          font-weight: 700; color: var(--ink); cursor: pointer; }
+  .cell .n { position: absolute; left: 7px; top: 4px; font: 600 11.5px "Segoe UI"; opacity: .85; }
+  .cell .sub { position: absolute; right: 7px; bottom: 4px; font: 400 10.5px "Segoe UI"; opacity: .8; }
+  .cell.none { background: var(--paper); color: var(--muted); cursor: default; }
+  .cell.none .v { font-weight: 400; font-size: 11px; }
+  .cell.out { background: transparent; }
+  .cell.dark { color: #fff; }
+  .cell:hover:not(.none):not(.out) { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .legend i { width: 26px; height: 10px; border-radius: 1px; display: inline-block; }
+
+  /* right-hand cards, drawn the way the SVG card measures draw them */
+  .kcard { padding: 12px 14px; }
+  .kcard::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: var(--gold); border-radius: 2px; }
+  .klabel { font: 700 11px "Segoe UI"; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; }
+  .kvalue { font: 700 28px "Segoe UI"; color: var(--ink); margin-top: 2px; }
+  .knote { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .krows { font-size: 11.5px; color: var(--body); margin-top: 8px; display: grid; grid-template-columns: 1fr auto; row-gap: 3px; }
+  .krows b { color: var(--ink); }
+  .up { color: var(--good); font-weight: 700; } .down { color: var(--bad); font-weight: 700; }
+  .wk { display: grid; grid-template-columns: 40px 1fr 64px; align-items: center; row-gap: 9px; font-size: 12px; margin-top: 14px; }
+  .wk .bar { height: 18px; background: var(--navy); border-radius: 1px; }
+  .wk .bar.we { background: var(--slate); }
+  .wk span:nth-child(3n) { text-align: right; color: var(--body); }
+</style>
+</head>
+<body>
+<div class="toolbar"><label><input type="checkbox" id="clean"> hide build notes</label></div>
+<div class="stage" id="stage">
+  <div class="abs band"></div>
+  <div class="abs mark"></div>
+  <div class="abs wordmark">Milestone <b>BI</b></div>
+  <div class="abs ref">06 / CALENDAR</div>
+
+  <h1 class="abs" id="h1"></h1>
+  <div class="abs stand" id="stand"></div>
+  <span class="note" style="left:24px; top:64px">textbox · title</span>
+  <span class="note" style="left:24px; top:160px">shape · container title bound to [Calendar Standfirst]</span>
+
+  <!-- View: four bookmarks. Each shows one matrix and the dropdowns that view needs. -->
+  <div class="abs" style="left:708px; top:78px; width:352px;">
+    <div class="slabel">VIEW</div>
+    <div class="seg" id="segView" style="height:34px"></div>
+  </div>
+  <span class="note" style="left:708px; top:64px">bookmark buttons · 4 bookmarks swap the matrix + dropdowns</span>
+
+  <div class="abs" id="ddMonthWrap" style="left:1076px; top:78px; width:164px;">
+    <div class="slabel">MONTH</div>
+    <select class="dd" id="ddMonth"></select>
+  </div>
+  <div class="abs" id="ddYearWrap" style="left:1252px; top:78px; width:164px;">
+    <div class="slabel">YEAR</div>
+    <select class="dd" id="ddYear"></select>
+  </div>
+  <span class="note" id="noteDd" style="left:1076px; top:128px">slicer (dropdown, single select) · Date[Month] · Date[Year]</span>
+
+  <!-- The calendar -->
+  <div class="abs panel" style="left:24px; top:176px; width:900px; height:700px;">
+    <div class="ptitle" id="calTitle"></div>
+    <div class="psub" id="calSub"></div>
+    <div class="abs" id="gridWrap" style="left:14px; top:54px; width:872px; height:604px;"></div>
+    <div class="abs legend" style="left:14px; bottom:10px;">
+      <span id="legLo">Quieter</span><i style="background:var(--b1)"></i><i style="background:var(--b2)"></i><i style="background:var(--b3)"></i><i style="background:var(--b4)"></i><i style="background:var(--b5)"></i><span>Busier</span>
+      <span style="margin-left:14px" id="legNote"></span>
+    </div>
+  </div>
+  <span class="note" id="noteGrid" style="left:34px; top:214px"></span>
+  <span class="note" style="left:34px; top:846px">image · SVG legend measure</span>
+
+  <!-- Right column -->
+  <div class="abs panel kcard" id="cardTotal" style="left:940px; top:176px; width:476px; height:152px;"></div>
+  <div class="abs panel kcard" id="cardPeak" style="left:940px; top:344px; width:476px; height:152px;"></div>
+  <span class="note" style="left:950px; top:170px">2 × image · SVG card measures</span>
+
+  <div class="abs panel" style="left:940px; top:512px; width:476px; height:364px;">
+    <div class="ptitle" id="wkTitle"></div>
+    <div class="psub" id="wkSub"></div>
+    <div class="wk" id="wk"></div>
+  </div>
+  <span class="note" style="left:950px; top:550px">clusteredBarChart · Date[Day] × [Avg Sales per Day]</span>
+</div>
+
+<script>
+const DAYS = /*DATA*/;   // { "2021-01-03": [sales, orders], ... }
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MSHORT = MONTHS.map(m => m.slice(0, 3));
+const WD = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const YEARS = [...new Set(Object.keys(DAYS).map(d => +d.slice(0, 4)))].sort();
+const state = { view: "day", y: YEARS[YEARS.length - 1], m: 11 };
+
+// ---- helpers ---------------------------------------------------------------
+const iso = (y, m, d) => `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+const dim = (y, m) => new Date(y, m, 0).getDate();
+const wdMon = (y, m, d) => (new Date(y, m - 1, d).getDay() + 6) % 7;      // Monday = 0
+function money(v) {
+  if (v >= 1e6) return "$" + (v / 1e6).toFixed(2) + "M";
+  if (v >= 1e4) return "$" + (v / 1e3).toFixed(1) + "k";
+  if (v >= 1e3) return "$" + (v / 1e3).toFixed(2) + "k";
+  return "$" + Math.round(v);
+}
+function sumRange(test) {
+  let s = 0, o = 0, n = 0;
+  for (const [d, [v, c]] of Object.entries(DAYS)) if (test(d)) { s += v; o += c; n++; }
+  return { s, o, n };
+}
+// Five bands by rank among the cells on screen (quintiles), so one freak day cannot wash out the month.
+function bander(values) {
+  const sorted = values.filter(v => v > 0).sort((a, b) => a - b);
+  return v => {
+    if (!(v > 0)) return 0;
+    let below = 0; while (below < sorted.length && sorted[below] < v) below++;
+    const p = sorted.length === 1 ? 1 : below / (sorted.length - 1);
+    return Math.min(5, Math.floor(p * 5) + 1);
+  };
+}
+const pct = (a, b) => (b ? (a - b) / b : null);
+const pctTxt = p => p === null ? "" : `<span class="${p >= 0 ? "up" : "down"}">${p >= 0 ? "▲" : "▼"} ${Math.abs(p * 100).toFixed(1)}%</span>`;
+
+function cellHtml(band, top, value, sub, title) {
+  if (band === -1) return `<div class="cell out"></div>`;
+  if (band === 0) return `<div class="cell none"><span class="n">${top}</span><span class="v">–</span></div>`;
+  return `<div class="cell ${band >= 3 ? "dark" : ""}" style="background:var(--b${band});font-size:${value.length > 6 ? 15 : 17}px" title="${title}">
+            <span class="n">${top}</span>${value}<span class="sub">${sub}</span></div>`;
+}
+
+// ---- views -----------------------------------------------------------------
+function renderDay() {
+  const { y, m } = state, n = dim(y, m), first = wdMon(y, m, 1);
+  const vals = []; for (let d = 1; d <= n; d++) vals.push((DAYS[iso(y, m, d)] || [0])[0]);
+  const band = bander(vals), rows = Math.ceil((first + n) / 7);
+  let h = WD.map(w => `<div class="hd">${w}</div>`).join("");
+  for (let i = 0; i < rows * 7; i++) {
+    const d = i - first + 1;
+    if (d < 1 || d > n) { h += cellHtml(-1); continue; }
+    const rec = DAYS[iso(y, m, d)];
+    h += rec ? cellHtml(band(rec[0]), String(d).padStart(2, "0"), money(rec[0]), rec[1] + (rec[1] === 1 ? " order" : " orders"), `${d} ${MONTHS[m - 1]} ${y}`)
+             : cellHtml(0, String(d).padStart(2, "0"));
+  }
+  grid(h, "repeat(7, 1fr)", `22px repeat(${rows}, 1fr)`);
+  const cur = sumRange(d => d.startsWith(iso(y, m, 1).slice(0, 7)));
+  const prev = sumRange(d => d.startsWith(iso(y - 1, m, 1).slice(0, 7)));
+  const best = vals.indexOf(Math.max(...vals)) + 1;
+  const quiet = vals.filter(v => !v).length;
+  text({
+    h1: "Sales by day",
+    title: `${MONTHS[m - 1]} ${y}: ${money(cur.s)} across ${cur.n} trading days`,
+    sub: "Each cell is one order date. Shade ranks the day against the other days of this month.",
+    stand: `${MONTHS[m - 1]} ${y} took <b>${money(cur.s)}</b> from ${cur.o} orders${prev.s ? `, ${pctTxt(pct(cur.s, prev.s))} on ${MONTHS[m - 1]} ${y - 1}` : ""}. ` +
+           `The busiest day was the ${ord(best)} at ${money(vals[best - 1])}; ${quiet} of ${n} days had no orders at all.`,
+    noteGrid: "pivotTable · rows Date[Week of Month] · columns Date[Day] (Mon–Sun) · value [Cal Cell] · back colour = [Cal Colour]",
+    legNote: "Shade = fifths of the days shown · – no orders",
+    cur, prev, prevLabel: `${MSHORT[m - 1]} ${y - 1}`,
+    peakLabel: "Busiest day", peakValue: money(vals[best - 1]), peakNote: `${WD[wdMon(y, m, best)]} ${best} ${MONTHS[m - 1]} ${y}`,
+    peakRows: [["Average per trading day", money(cur.s / cur.n)], ["Days with no orders", `${quiet} of ${n}`], ["Busiest day's share of the month", (vals[best - 1] / cur.s * 100).toFixed(1) + "%"]],
+  });
+  weekday(d => d.startsWith(iso(y, m, 1).slice(0, 7)), `${MONTHS[m - 1]} ${y}`);
+}
+
+function renderMonth() {
+  const { y } = state;
+  const tot = MONTHS.map((_, i) => sumRange(d => d.startsWith(iso(y, i + 1, 1).slice(0, 7))));
+  const band = bander(tot.map(t => t.s));
+  let h = `<div></div>` + ["1st month", "2nd month", "3rd month"].map(w => `<div class="hd">${w}</div>`).join("");
+  for (let q = 0; q < 4; q++) {
+    h += `<div class="rowhd">Q${q + 1}</div>`;
+    for (let k = 0; k < 3; k++) { const i = q * 3 + k, t = tot[i];
+      h += t.s ? cellHtml(band(t.s), MSHORT[i], money(t.s), t.o + " orders", `${MONTHS[i]} ${y}`) : cellHtml(0, MSHORT[i]); }
+  }
+  grid(h, "44px repeat(3, 1fr)", "22px repeat(4, 1fr)");
+  const cur = sumRange(d => d.startsWith(String(y))), prev = sumRange(d => d.startsWith(String(y - 1)));
+  const bi = tot.map(t => t.s).indexOf(Math.max(...tot.map(t => t.s)));
+  text({
+    h1: "Sales by month",
+    title: `${y}: ${money(cur.s)}, and ${MONTHS[bi]} was the biggest month`,
+    sub: "Each cell is one month, laid out a quarter to a row. Shade ranks the month against the other eleven.",
+    stand: `${y} took <b>${money(cur.s)}</b> from ${cur.o} orders${prev.s ? `, ${pctTxt(pct(cur.s, prev.s))} on ${y - 1}` : ""}. ` +
+           `${MONTHS[bi]} alone was ${(tot[bi].s / cur.s * 100).toFixed(1)}% of the year. Switch to Day to open a month.`,
+    noteGrid: "pivotTable · rows Date[Quarter] · columns Date[Month in Quarter] · value [Cal Cell] · back colour = [Cal Colour]",
+    legNote: "Shade = fifths of the months shown",
+    cur, prev, prevLabel: String(y - 1),
+    peakLabel: "Biggest month", peakValue: money(tot[bi].s), peakNote: `${MONTHS[bi]} ${y}`,
+    peakRows: [["Average per month", money(cur.s / 12)], ["Smallest month", `${MSHORT[tot.map(t => t.s).indexOf(Math.min(...tot.map(t => t.s)))]} · ${money(Math.min(...tot.map(t => t.s)))}`], ["Biggest month's share of the year", (tot[bi].s / cur.s * 100).toFixed(1) + "%"]],
+  });
+  weekday(d => d.startsWith(String(y)), String(y));
+}
+
+function renderQuarter() {
+  const q = (y, k) => sumRange(d => +d.slice(0, 4) === y && Math.ceil(+d.slice(5, 7) / 3) === k);
+  const tot = YEARS.map(y => [1, 2, 3, 4].map(k => q(y, k)));
+  const band = bander(tot.flat().map(t => t.s));
+  let h = `<div></div>` + ["Q1", "Q2", "Q3", "Q4"].map(w => `<div class="hd">${w}</div>`).join("");
+  YEARS.forEach((y, r) => { h += `<div class="rowhd">${y}</div>`;
+    tot[r].forEach((t, k) => h += cellHtml(band(t.s), `Q${k + 1} ${y}`, money(t.s), t.o + " orders", `Q${k + 1} ${y}`)); });
+  grid(h, "44px repeat(4, 1fr)", `22px repeat(${YEARS.length}, 1fr)`);
+  const cur = sumRange(() => true);
+  const q4 = tot.map(r => r[3].s).reduce((a, b) => a + b, 0);
+  const flat = tot.flat(), bi = flat.map(t => t.s).indexOf(Math.max(...flat.map(t => t.s)));
+  text({
+    h1: "Sales by quarter",
+    title: `Every year peaks in Q4: ${(q4 / cur.s * 100).toFixed(0)}% of all sales land there`,
+    sub: "Each cell is one quarter, a year to a row. Shade ranks the quarter against all sixteen.",
+    stand: `${YEARS[0]}–${YEARS[YEARS.length - 1]} took <b>${money(cur.s)}</b> from ${cur.o} orders. Read across a row for the shape of a year, ` +
+           `down a column for the same quarter growing year on year.`,
+    noteGrid: "pivotTable · rows Date[Year] · columns Date[Quarter] · value [Cal Cell] · back colour = [Cal Colour]",
+    legNote: "Shade = fifths of the quarters shown",
+    cur, prev: { s: 0 }, prevLabel: "",
+    peakLabel: "Biggest quarter", peakValue: money(flat[bi].s), peakNote: `Q${bi % 4 + 1} ${YEARS[Math.floor(bi / 4)]}`,
+    peakRows: [["Average per quarter", money(cur.s / flat.length)], ["Q4 share of all sales", (q4 / cur.s * 100).toFixed(1) + "%"], ["Q1 share of all sales", (tot.map(r => r[0].s).reduce((a, b) => a + b, 0) / cur.s * 100).toFixed(1) + "%"]],
+  });
+  weekday(() => true, `${YEARS[0]}–${YEARS[YEARS.length - 1]}`);
+}
+
+function renderYear() {
+  const tot = YEARS.map(y => sumRange(d => d.startsWith(String(y))));
+  const band = bander(tot.map(t => t.s));
+  let h = YEARS.map(y => `<div class="hd">${y}</div>`).join("");
+  tot.forEach((t, i) => h += cellHtml(band(t.s), String(YEARS[i]), money(t.s), t.o + " orders", String(YEARS[i])));
+  grid(h, `repeat(${YEARS.length}, 1fr)`, "22px 1fr", 260);
+  const cur = sumRange(() => true), last = tot[tot.length - 1], first = tot[0];
+  text({
+    h1: "Sales by year",
+    title: `${YEARS[YEARS.length - 1]} closed at ${money(last.s)}, ${pctTxt(pct(last.s, first.s)).replace(/<[^>]+>/g, "")} on ${YEARS[0]}`,
+    sub: "Each cell is one year. Shade ranks the year against the others.",
+    stand: `Four years, <b>${money(cur.s)}</b> from ${cur.o} orders. ${YEARS[1]} dipped below ${YEARS[0]} before two years of growth. ` +
+           `Switch to Quarter or Month to see where inside a year the growth came from.`,
+    noteGrid: "pivotTable · columns Date[Year] · value [Cal Cell] · back colour = [Cal Colour]",
+    legNote: "Shade = rank of the years shown",
+    cur, prev: { s: 0 }, prevLabel: "",
+    peakLabel: "Biggest year", peakValue: money(Math.max(...tot.map(t => t.s))), peakNote: String(YEARS[tot.map(t => t.s).indexOf(Math.max(...tot.map(t => t.s)))]),
+    peakRows: [["Average per year", money(cur.s / YEARS.length)], [`${YEARS[YEARS.length - 1]} on ${YEARS[YEARS.length - 2]}`, pctTxt(pct(last.s, tot[tot.length - 2].s))], [`${YEARS[1]} on ${YEARS[0]}`, pctTxt(pct(tot[1].s, first.s))]],
+  });
+  weekday(() => true, `${YEARS[0]}–${YEARS[YEARS.length - 1]}`);
+}
+
+// ---- shared renderers ------------------------------------------------------
+const ord = n => n + (n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th");
+function grid(html, cols, rows, height) {
+  const g = document.getElementById("gridWrap");
+  g.innerHTML = `<div class="grid" style="grid-template-columns:${cols};grid-template-rows:${rows};height:${height || 604}px">${html}</div>`;
+}
+function text(t) {
+  h1.textContent = t.h1; stand.innerHTML = t.stand; calTitle.textContent = t.title; calSub.textContent = t.sub;
+  noteGrid.textContent = t.noteGrid; legNote.textContent = t.legNote;
+  cardTotal.innerHTML = `<div class="klabel">Sales in view</div><div class="kvalue">${money(t.cur.s)}</div>
+    <div class="knote">${t.prev.s ? `${pctTxt(pct(t.cur.s, t.prev.s))} on ${t.prevLabel} (${money(t.prev.s)})` : "All four years - nothing earlier to compare with"}</div>
+    <div class="krows"><span>Orders</span><b>${t.cur.o.toLocaleString()}</b><span>Average order</span><b>${money(t.cur.s / t.cur.o)}</b></div>`;
+  cardPeak.innerHTML = `<div class="klabel">${t.peakLabel}</div><div class="kvalue">${t.peakValue}</div><div class="knote">${t.peakNote}</div>
+    <div class="krows">${t.peakRows.map(r => `<span>${r[0]}</span><b>${r[1]}</b>`).join("")}</div>`;
+}
+function weekday(test, label) {
+  const s = Array(7).fill(0), n = Array(7).fill(0);
+  for (const [d, [v]] of Object.entries(DAYS)) if (test(d)) { const w = wdMon(+d.slice(0, 4), +d.slice(5, 7), +d.slice(8)); s[w] += v; n[w]++; }
+  const avg = s.map((v, i) => n[i] ? v / n[i] : 0), mx = Math.max(...avg), bi = avg.indexOf(mx);
+  wkTitle.textContent = `${["Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays","Sundays"][bi]} sell the most per trading day`;
+  wkSub.textContent = `Average sales per day with orders, ${label}. Weekends in slate.`;
+  wk.innerHTML = avg.map((v, i) => `<span>${WD[i]}</span><span><div class="bar ${i > 4 ? "we" : ""}" style="width:${v / mx * 100}%"></div></span><span>${v ? money(v) : "–"}</span>`).join("");
+}
+
+function render() {
+  segView.innerHTML = [["day", "Day"], ["month", "Month"], ["quarter", "Quarter"], ["year", "Year"]]
+    .map(([k, l]) => `<button class="${state.view === k ? "on" : ""}" data-v="${k}">${l}</button>`).join("");
+  ddMonthWrap.style.display = state.view === "day" ? "" : "none";
+  ddYearWrap.style.display = state.view === "day" || state.view === "month" ? "" : "none";
+  noteDd.style.display = ddYearWrap.style.display;
+  ({ day: renderDay, month: renderMonth, quarter: renderQuarter, year: renderYear })[state.view]();
+}
+
+ddMonth.innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
+ddYear.innerHTML = YEARS.map(y => `<option>${y}</option>`).join("");
+new URLSearchParams(location.hash.slice(1)).forEach((v, k) => {
+  if (k === "view") state.view = v; if (k === "y") state.y = +v; if (k === "m") state.m = +v;
+  if (k === "clean") document.body.classList.add("clean");
+});
+ddMonth.value = state.m; ddYear.value = state.y;
+ddMonth.onchange = e => { state.m = +e.target.value; render(); };
+ddYear.onchange = e => { state.y = +e.target.value; render(); };
+segView.onclick = e => { if (e.target.dataset.v) { state.view = e.target.dataset.v; render(); } };
+clean.onchange = e => document.body.classList.toggle("clean", e.target.checked);
+render();
+</script>
+</body>
+</html>

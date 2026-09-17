@@ -19,6 +19,7 @@ import time
 import uuid
 from pathlib import Path
 
+import calendar_measures
 import revenue_measures
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,7 +57,7 @@ def col(name, source, dtype, **o):
 
 TABLES = {
     "Date": dict(
-        file="dim_date.csv", date_table=True,
+        file="dim_date.csv", date_table=True, calculated=calendar_measures.DATE_COLUMNS,
         doc="One row per day, 2021 to 2024, contiguous and complete, and marked as the date table\n"
             "so DATEADD and TOTALYTD have a calendar to walk. Orders join here on Order Date.\n"
             "Ship dates are not related - shipping is analysed as days-to-ship on the fact.",
@@ -383,6 +384,21 @@ def write_table(name: str, spec: dict, local: bool) -> None:
         lines.append(f"\t\tsourceColumn: {c['source']}")
         if c.get("sortBy"):
             lines.append(f"\t\tsortByColumn: {q(c['sortBy'])}")
+    for c_name, dax, dtype, fmt, sort_col, hidden, c_doc in spec.get("calculated", []):
+        # Calculated in DAX rather than added to the CSV: the model reads its data from GitHub,
+        # so a new CSV column would not exist for anyone until the repo was pushed.
+        lines.append("")
+        lines += doc(c_doc, 1)
+        lines.append(f"	column {q(c_name)} = {dax}")
+        lines.append(f"		dataType: {dtype}")
+        if hidden:
+            lines.append("		isHidden")
+        if fmt:
+            lines.append(f"		formatString: {fmt}")
+        lines.append(f"		lineageTag: {tag('column', name, c_name)}")
+        lines.append("		summarizeBy: none")
+        if sort_col:
+            lines.append(f"		sortByColumn: {q(sort_col)}")
     lines.append("")
     lines += m_partition(name, spec, local)
     lines.append("")
@@ -396,7 +412,7 @@ def write_metrics() -> None:
                  "table needs one. Every number on the report comes from here.", 0)
     lines.append("table Metrics")
     lines.append(f"\tlineageTag: {tag('table', 'Metrics')}")
-    specs = [dict(name=n, dax=x, fmt=f, doc=d) for n, x, f, d in MEASURES] + revenue_measures.measures()
+    specs = [dict(name=n, dax=x, fmt=f, doc=d) for n, x, f, d in MEASURES] + revenue_measures.measures() + calendar_measures.measures()
     for spec in specs:
         name = spec["name"]
         lines.append("")
@@ -560,7 +576,7 @@ def main() -> None:
 }}""")
 
     n_cols = sum(len(s["columns"]) for s in TABLES.values())
-    n_measures = len(MEASURES) + len(revenue_measures.measures())
+    n_measures = len(MEASURES) + len(revenue_measures.measures()) + len(calendar_measures.measures())
     print(f"{len(all_tables) + 1} tables, {n_cols} columns, {n_measures} measures, "
           f"{len(RELATIONSHIPS)} relationships -> {MODEL.name} "
           f"({'local files' if args.local else 'GitHub raw'})")
