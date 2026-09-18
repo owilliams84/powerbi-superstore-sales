@@ -1,6 +1,6 @@
 # Superstore Sales
 
-A Power BI report on four years of a US office-supplies retailer's orders — the sample every
+A Power BI report on four years of a US office-supplies retailer's orders: the sample every
 Power BI course starts on, rebuilt properly. A star schema with a marked date table, forty measures
 that were checked against pandas before anything was drawn, and a four-page report in the
 Milestone BI palette.
@@ -10,12 +10,12 @@ Milestone BI palette.
 ## Where the data comes from
 
 **Source: [Superstore Sales Dataset](https://www.kaggle.com/datasets/rohitsahoo/sales-forecasting)
-on Kaggle** — the 18-column extract of Tableau's Superstore sample: 9,800 order lines, 4,922
+on Kaggle**, the 18-column extract of Tableau's Superstore sample: 9,800 order lines, 4,922
 orders, 793 customers, 1,893 products, 49 states. It carries sales but not profit, quantity or
 discount, so the report can say what sold and to whom, not what it earned.
 
 > **Licence.** Kaggle lists the dataset under GPL-2, which permits redistribution, so both the
-> source file and the star schema derived from it are committed under `data/` — clone the repo and
+> source file and the star schema derived from it are committed under `data/`: clone the repo and
 > the model has everything it needs.
 
 **The dates were moved.** The extract covered 2017–2020. `etl/shift_dates.py` moved every order
@@ -26,7 +26,7 @@ re-synced to the shifted year, or it would have sat six behind.
 
 | | |
 |---|---|
-| Fact rows | 9,800 order lines, $2,261,536.78 — foots to the source to the cent |
+| Fact rows | 9,800 order lines, $2,261,536.78, foots to the source to the cent |
 | Orders | 4,922 (an order averages two lines) |
 | Period | 3 January 2021 to 30 December 2024 |
 | Customers | 793, in three segments |
@@ -43,7 +43,7 @@ dimension is the (ID, name) pair with a surrogate key. Product ID stays visible 
 
 **Postal codes lost their leading zero.** The source stored them as numbers, so 429 New England
 and New Jersey codes arrived four digits long (`1841` for Lowell MA, which is `01841`). They are
-text again, padded back to five. Eleven rows — all Burlington, Vermont — have no code at all and stay
+text again, padded back to five. Eleven rows (all Burlington, Vermont) have no code at all and stay
 blank rather than being looked up.
 
 **Customers have no address.** 777 of 793 customers order from more than one state. Geography
@@ -56,7 +56,7 @@ by order rather than by customer. The customer page is built around retention be
 only customer story this data can honestly tell.
 
 **Order-to-ship is recorded for every line.** Zero to eight days, mean 3.96, and it never goes
-negative — the one thing about the dates that needed no cleaning.
+negative: the one thing about the dates that needed no cleaning.
 
 ## The model
 
@@ -70,7 +70,7 @@ Six tables around one fact, plus a measure table.
     Ship Mode ───┘
 ```
 
-**The date table is marked.** One row per day, 2021 to 2024, contiguous, `dataCategory: Time` —
+**The date table is marked.** One row per day, 2021 to 2024, contiguous, `dataCategory: Time`,
 so `DATEADD` and `TOTALYTD` walk a real calendar. Without the marking `Sales PY` returns blank for
 every row and the year-over-year column quietly looks like 2021 forever.
 
@@ -81,7 +81,7 @@ narrows them, shares computed against a denominator that clears the right filter
 ### The measures worth looking at
 
 **`New Customers` filters the fact, not the dimension.** It takes the period's first and last date
-and keeps customers whose `First Order Date` falls between them — so a product or region on the
+and keeps customers whose `First Order Date` falls between them, so a product or region on the
 visual still applies and the number becomes "new customers who bought this".
 
 **`Retention %` on a cohort × year matrix.** `Cohort Size` clears the date filter so the
@@ -89,7 +89,7 @@ denominator is the whole cohort whatever year the column is; the cohort's own ye
 definition and earlier years are blank.
 
 **`Customers Active Every Year` counts years on the fact.** The first version counted
-`DISTINCTCOUNT('Date'[Year])` and returned 793 — the whole calendar for every customer, because a
+`DISTINCTCOUNT('Date'[Year])` and returned 793: the whole calendar for every customer, because a
 fact table cannot filter its dimension. `SUMMARIZE(Sales, 'Date'[Year])` returns 293. The number
 looked perfectly plausible on screen; the pandas cross-check is what caught it.
 
@@ -98,34 +98,34 @@ already on the visual and repeat the grand total down a breakdown. The verificat
 that the share differs by region, which it must.
 
 **`Cumulative Sales Share` is the Pareto line.** For each sub-category, the share of sales from it
-and every sub-category selling more than it — so on a chart sorted by sales it climbs from 14% to
+and every sub-category selling more than it, so on a chart sorted by sales it climbs from 14% to
 100%, and the point where it crosses two-thirds is five bars in.
 
 ## The report
 
-Six pages, 1440 × 900, in the Milestone BI palette — near-black indigo, gold, and the site's
-greys — with the brand mark in a band across the top of every page.
+Six pages, 1440 × 900, in the Milestone BI palette (near-black indigo, gold, and the site's
+greys), with the brand mark in a band across the top of every page.
 
-**01 Overview** — headline figures, sales by month with one line per year, a year-by-year table,
+**01 Overview**: headline figures, sales by month with one line per year, a year-by-year table,
 and sales by segment, category mix and region.
 
-**02 Products** — sub-categories ranked with the cumulative share, change on the prior year (the
+**02 Products**: sub-categories ranked with the cumulative share, change on the prior year (the
 year slicer defaults to 2024 so this has a prior year), every product ranked, and category by
 segment.
 
 ![The products page](screenshots/products.png)
 
-**03 Customers** — active, new and returning customers by year, cohort retention, customers by
+**03 Customers**: active, new and returning customers by year, cohort retention, customers by
 lifetime order count, average order value by segment, and customers ranked.
 
 ![The customers page](screenshots/customers.png)
 
-**04 Geography and shipping** — every state ranked, region by quarter, ship mode share and days to
+**04 Geography and shipping**: every state ranked, region by quarter, ship mode share and days to
 ship, ship mode mix by year, cities ranked.
 
 ![The geography page](screenshots/geography.png)
 
-**05 Revenue** — one year against a comparison year, where every block is a measure. Buttons pick
+**05 Revenue**: one year against a comparison year, where every block is a measure. Buttons pick
 the year (2022–2024), the comparison (prior year or two years earlier), month-by-month or running
 total, and Top or Bottom 8 on each table; a Filters button opens a panel of segment, region and
 category slicers over a dimmed page.
@@ -134,7 +134,7 @@ category slicers over a dimmed page.
 
 It is built from techniques the other pages do not use, each generated rather than placed:
 
-- **KPI cards are SVG.** Each card — ring gauge, region tiles, a bar per sub-category — is one DAX
+- **KPI cards are SVG.** Each card (ring gauge, region tiles, a bar per sub-category) is one DAX
   measure with `dataCategory: ImageUrl` returning an SVG data URI, shown in an image visual.
   `%` and `#` are percent-encoded, in that order, or "20.3%" breaks the image.
 - **Bars inside the tables are SVG too**, one per row, all drawn to one scale.
@@ -143,8 +143,8 @@ It is built from techniques the other pages do not use, each generated rather th
   one-or-two-year offset from a variable.
 - **Top/Bottom that flips.** A TopN filter has a fixed direction, so the rank is a measure whose
   direction follows the button, and the table keeps ranks 1–8 with a visual-level measure filter.
-  That filter also narrows `ALLSELECTED` to the eight rows on screen — the subtitle first read
-  "among 8 customers" — so every pool and scale uses `ALL` instead.
+  That filter also narrows `ALLSELECTED` to the eight rows on screen (the subtitle first read
+  "among 8 customers"), so every pool and scale uses `ALL` instead.
 - **Titles rewrite themselves.** Panel titles, subtitles and the standfirst are measures; the
   standfirst is a transparent shape whose title is the measure, because a textbox cannot bind one.
 - **The filter panel is two bookmarks** that show or hide the panel's visuals and carry no data
@@ -156,11 +156,11 @@ against 2023 and against 2022, to the cent.
 
 ![The revenue page with the other states: two years earlier, running total, Bottom 8, filters open](screenshots/revenue-other-states.png)
 
-**06 Calendar** — sales as a heat-mapped calendar, at four grains. Day is a Monday-first month
+**06 Calendar**: sales as a heat-mapped calendar, at four grains. Day is a Monday-first month
 grid, one cell per order date, under Month and Year dropdowns; Month is the twelve months of a year,
 a quarter to a row; Quarter is a year to a row; Year is one cell per year. Buttons switch between
-them. Two cards follow the view — sales against the same period a year earlier, and the busiest
-day, month, quarter or year — and a bar chart gives average sales per trading day by weekday.
+them. Two cards follow the view (sales against the same period a year earlier, and the busiest
+day, month, quarter or year), and a bar chart gives average sales per trading day by weekday.
 
 ![The calendar page, day view](screenshots/calendar.png)
 
@@ -181,11 +181,11 @@ same in the Service:
   hidden in the Month view but still holds a selection. The matrices and bar charts are protected
   by `visualInteractions` in `page.json`; the cards and titles, being measures, also remove the
   filter in DAX.
-- **The week rows come from two calculated columns** — `Week of Month` and `Day Short` — written in
+- **The week rows come from two calculated columns**, `Week of Month` and `Day Short`, written in
   DAX rather than added to the CSV, because the model reads its data from this repository.
 
 Mocked up first (`design/calendar-mockup.html`, clickable), then generated. Every cell of all four
-views — 1,529 of them, for sales, distinct orders and shade band — is read out of the live model by
+views (1,529 of them, for sales, distinct orders and shade band) is read out of the live model by
 `etl/verify_calendar.ps1` and diffed against pandas by `etl/calendar_expected.py`: 4,587 checks,
 no mismatches.
 
@@ -195,7 +195,7 @@ no mismatches.
 
 | | |
 |---|---|
-| Sales, 2021–2024 | $2,261,537 in 4,922 orders — $459 an order |
+| Sales, 2021–2024 | $2,261,537 in 4,922 orders, $459 an order |
 | 2024 against 2023 | +20.3%, after +30.6% the year before and −4.3% the year before that |
 | Customers | 793, of whom 98.4% ordered more than once and 293 ordered in every one of the four years |
 | Retention of the 2021 cohort | 72% in 2022, 81% in 2023, 87% in 2024 |
@@ -245,7 +245,7 @@ powershell -File etl/verify_calendar.ps1 > calendar_dump.txt
 python etl/calendar_expected.py --compare calendar_dump.txt
 ```
 
-Every figure in `verify_measures.ps1` matched `verify_expected.py` to four decimal places — after
+Every figure in `verify_measures.ps1` matched `verify_expected.py` to four decimal places, after
 the one that did not was fixed. `verify_revenue.ps1` matched `revenue_expected.py` to the cent. A
 separate query against the published model with Region = West pinned is what caught the regions
 card ignoring the filter panel.
