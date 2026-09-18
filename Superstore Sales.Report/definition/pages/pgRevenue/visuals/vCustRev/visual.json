@@ -245,7 +245,114 @@
                   "Value": "'Right'"
                 }
               }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
             }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "124.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Customer.Customer"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "40.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Customer Change Rank"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "66.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Sales"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "84.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Sales Comparison"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "64.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Sales vs Comparison"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "172.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Customer Change Bar"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "64.0D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Metrics.Sales vs Comparison % Label"
           }
         }
       ],

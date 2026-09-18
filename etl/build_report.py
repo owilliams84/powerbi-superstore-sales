@@ -1101,9 +1101,21 @@ def page_geography() -> tuple[dict, list[dict]]:
 REVENUE_BOOKMARKS: list[dict] = []
 
 
+# Fixed column widths for the ranked tables. Auto-size moved the bar column with the names and
+# figures on screen, and the hover guard over that column has to know where it is.
+RANKED_NAME_W = 124.0
+RANKED_WIDTHS = [("{label} Change Rank", 40.0), ("Sales", 66.0), ("Sales Comparison", 84.0),
+                 ("Sales vs Comparison", 64.0), ("{label} Change Bar", 172.0),
+                 ("Sales vs Comparison % Label", 64.0)]
+RANKED_BAR_OFFSET = 10 + int(RANKED_NAME_W + sum(w for _, w in RANKED_WIDTHS[:4]))   # from the visual's x
+
+
 def ranked_table(name: str, x: int, y: int, label: str, table: str, col: str, display: str) -> dict:
     """Top or Bottom 8 by change on the comparison year, with a diverging SVG bar per row."""
     rank = f"{label} Change Rank"
+    widths = [{"properties": {"value": lit(RANKED_NAME_W)}, "selector": {"metadata": f"{table}.{col}"}}]
+    widths += [{"properties": {"value": lit(w)}, "selector": {"metadata": "Metrics." + mname.format(label=label)}}
+               for mname, w in RANKED_WIDTHS]
     node = visual(
         name, "pivotTable", x, y, 688, 264, 700,
         query={"queryState": {
@@ -1125,8 +1137,9 @@ def ranked_table(name: str, x: int, y: int, label: str, table: str, col: str, di
             }}],
             "columnHeaders": [{"properties": {
                 "fontSize": lit(9.0), "bold": lit(True), "fontColor": colour(INK),
-                "backColor": colour(CARD), "alignment": lit("Right"),
+                "backColor": colour(CARD), "alignment": lit("Right"), "autoSizeColumnWidth": lit(False),
             }}],
+            "columnWidth": widths,
             "rowHeaders": [{"properties": {
                 "fontSize": lit(9.0), "fontColor": colour(BODY), "backColor": colour(CARD),
             }}],
@@ -1211,6 +1224,10 @@ def page_revenue() -> tuple[dict, list[dict]]:
     v.append(button_slicer("vCustShowRev", 554, 618, 148, 40, 710, "Customer Ranking", "Show", "Top", 2))
     v.append(ranked_table("vSubRev", 728, 612, "Sub-category", "Product", "Sub-Category", "Sub-category"))
     v.append(button_slicer("vSubShowRev", 1258, 618, 148, 40, 720, "Sub-category Ranking", "Show", "Top", 2))
+    # The bar column is an image measure, so hovering it prints the raw data URI. A transparent
+    # shape over that column only: the names and figures beside it stay clickable.
+    v.append(hover_guard("vCustBarGuardRev", 24 + RANKED_BAR_OFFSET, 692, 172, 178, 750))
+    v.append(hover_guard("vSubBarGuardRev", 728 + RANKED_BAR_OFFSET, 692, 172, 178, 760))
 
     # The filter panel: hidden on load, opened by the Filters button, closed by Done or a click on
     # the scrim. It is plain visuals toggled by two bookmarks - no group, so no relative geometry.
