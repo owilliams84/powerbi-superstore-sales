@@ -1267,7 +1267,7 @@ def calendar_matrix(view: str, rows: dict | None, columns: dict, subtitle: str,
     if rows is not None and row_header_width is not None:
         widths.append({"properties": {"value": lit(row_header_width)},
                        "selector": {"metadata": rows["queryRef"]}})
-    return visual(
+    node = visual(
         f"vCal{view}", "pivotTable", 24, 176, 900, 700, 600,
         # No sortDefinition: each axis column already sorts by its own sort-by column, and an
         # explicit sort puts a sort arrow in the corner of the calendar.
@@ -1302,6 +1302,10 @@ def calendar_matrix(view: str, rows: dict | None, columns: dict, subtitle: str,
         },
         container=measure_title_chrome(f"Title Cal {view}", subtitle),
     )
+    # The cell is an image measure, so the default tooltip prints its value: the raw
+    # "data:image/svg+xml..." string. Everything worth knowing is already drawn in the cell.
+    node["visual"]["visualContainerObjects"]["visualTooltip"] = obj(show=lit(False))
+    return node
 
 
 def weekday_bars(view: str) -> dict:
@@ -1356,6 +1360,24 @@ def view_bookmarks(page_name: str, by_view: dict[str, list[dict]]) -> list[dict]
     return out
 
 
+def hover_guard(name: str, x: int, y: int, w: int, h: int, z: int) -> dict:
+    """A fully transparent rectangle over the calendar matrices. A matrix cell holding an image
+    measure shows its raw value on hover - the whole "data:image/svg+xml..." string - and that is
+    the grid's own cell tooltip: General > Tooltips off does not remove it (tested in Desktop).
+    A shape on top takes the hover instead; nothing under it needs a click."""
+    container = no_chrome()
+    container["visualHeader"] = obj(show=lit(False))
+    node = visual(name, "shape", x, y, w, h, z, container=container)
+    clear_fill = {"show": lit(True), "fillColor": colour(PAPER), "transparency": lit(100.0)}
+    no_line = {"show": lit(False)}
+    node["visual"]["objects"] = {
+        "shape": [{"properties": {"tileShape": lit("rectangle")}, "selector": {"id": "default"}}],
+        "fill": [{"properties": clear_fill}, {"properties": clear_fill, "selector": {"id": "default"}}],
+        "outline": [{"properties": no_line}, {"properties": no_line, "selector": {"id": "default"}}],
+    }
+    return node
+
+
 def page_calendar() -> tuple[dict, list[dict]]:
     """Built from design/calendar-mockup.html. Four grains of one calendar; the View buttons are
     bookmarks that show one grain's visuals and hide the other three."""
@@ -1364,6 +1386,7 @@ def page_calendar() -> tuple[dict, list[dict]]:
     common.append(textbox("vViewLabelCal", 708, 72, 120, 22, 395, [
         [{"text": "VIEW", "size": 8.5, "color": MUTED, "bold": True}]]))
     common.append(svg_image("vLegendCal", 38, 848, 520, 20, 900, "Cal Legend"))
+    common.append(hover_guard("vHoverGuardCal", 24, 176, 900, 700, 950))
 
     year_slicer = slicer("vYearCal", 1246, 72, 170, 84, 410, "Date", "Year", "YEAR", default=[2024])
     month_slicer = slicer("vMonthCal", 1070, 72, 170, 84, 400, "Date", "Month", "MONTH", default=["December"])
