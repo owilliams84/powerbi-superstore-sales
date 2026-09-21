@@ -21,6 +21,7 @@ Three things to know before editing:
 
 from __future__ import annotations
 
+import milestone_icons
 from revenue_measures import svg_uri
 
 USD = "\\$#,0"
@@ -137,7 +138,7 @@ RETURN
     ]
 
 
-def card(label: str, value: str, note: str, rows: list[tuple[str, str]]) -> str:
+def card(label: str, value: str, note: str, rows: list[tuple[str, str]], icon: str | None = None) -> str:
     """The Calendar page's KPI card frame, 476x152. Arguments are DAX text expressions; `note` may
     carry <tspan> markup. Up to three (left, right) rows under the rule."""
     ys = [111, 128, 145][:len(rows)] if len(rows) == 3 else [114, 134][:len(rows)]
@@ -145,7 +146,8 @@ def card(label: str, value: str, note: str, rows: list[tuple[str, str]]) -> str:
         f'"<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'{CARD_W}\' height=\'{CARD_H}\' viewBox=\'0 0 {CARD_W} {CARD_H}\' font-family=\'Segoe UI, sans-serif\'>"',
         f'& "<rect x=\'0.5\' y=\'0.5\' width=\'{CARD_W - 1}\' height=\'{CARD_H - 1}\' rx=\'4\' fill=\'#FFFFFF\' stroke=\'{RULE}\'/><rect width=\'3\' height=\'{CARD_H}\' fill=\'{GOLD}\'/>"',
         f'& "<text x=\'16\' y=\'24\' font-size=\'11\' font-weight=\'700\' fill=\'{MUTED}\' letter-spacing=\'0.4\'>" & {label} & "</text>"',
-        f'& "<text x=\'16\' y=\'58\' font-size=\'28\' font-weight=\'700\' fill=\'{INK}\'>" & {value} & "</text>"',
+        *([f'& "<g transform=\'translate(16 33) scale(0.625)\'>{milestone_icons.markup(icon)}</g>"'] if icon else []),
+        f'& "<text x=\'{56 if icon else 16}\' y=\'58\' font-size=\'28\' font-weight=\'700\' fill=\'{INK}\'>" & {value} & "</text>"',
         f'& "<text x=\'16\' y=\'77\' font-size=\'11.5\' fill=\'{MUTED}\'>" & {note} & "</text>"',
         f'& "<line x1=\'16\' y1=\'90\' x2=\'{CARD_W - 16}\' y2=\'90\' stroke=\'{RULE}\'/>"',
     ]
@@ -206,7 +208,7 @@ VAR NoteText =
     )
 VAR Svg =
 {indent(card('"SALES IN VIEW"', short_money('Cur'), 'NoteText',
-             [('"Orders"', 'FORMAT([Orders], "#,0")'), ('"Average order"', '"$" & FORMAT([Average Order Value], "#,0")')]), 1)}
+             [('"Orders"', 'FORMAT([Orders], "#,0")'), ('"Average order"', '"$" & FORMAT([Average Order Value], "#,0")')], icon="coin"), 1)}
 RETURN
     {svg_uri()}""", view), None,
                      f"Sales for what the {view} view shows, against the same period a year earlier.",
@@ -217,7 +219,7 @@ VAR YearCount = COUNTROWS(VALUES('Date'[Year]))
 VAR Svg =
 {indent(card('"SALES IN VIEW"', short_money('Cur'),
              '"All " & YearCount & " years - nothing earlier to compare with"',
-             [('"Orders"', 'FORMAT([Orders], "#,0")'), ('"Average order"', '"$" & FORMAT([Average Order Value], "#,0")')]), 1)}
+             [('"Orders"', 'FORMAT([Orders], "#,0")'), ('"Average order"', '"$" & FORMAT([Average Order Value], "#,0")')], icon="coin"), 1)}
 RETURN
     {svg_uri()}""", "Quarter"), None,
                  "Sales across every year, for the Quarter and Year views.", category="ImageUrl"))
@@ -233,7 +235,7 @@ VAR Svg =
 {indent(card('"BUSIEST DAY"', short_money('Best'), 'FORMAT(BestDate, "ddd d mmmm yyyy")',
              [('"Average per trading day"', short_money('[Avg Sales per Trading Day]')),
               ('"Days with no orders"', 'Quiet & " of " & DaysAll'),
-              ('"Busiest day&apos;s share of the month"', 'FORMAT(DIVIDE(Best, [Sales]), "0.0%")')]), 1)}
+              ('"Busiest day&apos;s share of the month"', 'FORMAT(DIVIDE(Best, [Sales]), "0.0%")')], icon="calendar-check"), 1)}
 RETURN
     {svg_uri()}""", None, "The best single day of the month on screen.", category="ImageUrl"))
 
@@ -247,7 +249,7 @@ VAR Svg =
 {indent(card('"BIGGEST MONTH"', short_money('Best'), 'BestName & " " & MAX(\'Date\'[Year])',
              [('"Average per month"', short_money('DIVIDE([Sales], COUNTROWS(Pool))')),
               ('"Smallest month"', 'WorstName & " &#183; " & ' + short_money('Worst')),
-              ('"Biggest month&apos;s share of the year"', 'FORMAT(DIVIDE(Best, [Sales]), "0.0%")')]), 1)}
+              ('"Biggest month&apos;s share of the year"', 'FORMAT(DIVIDE(Best, [Sales]), "0.0%")')], icon="calendar-check"), 1)}
 RETURN
     {svg_uri()}""", "Month"), None, "The best month of the year on screen.", category="ImageUrl"))
 
@@ -260,7 +262,7 @@ VAR Svg =
 {indent(card('"BIGGEST QUARTER"', short_money('Best'), 'BestName',
              [('"Average per quarter"', short_money('DIVIDE(AllSales, COUNTROWS(Pool))')),
               ('"Q4 share of all sales"', 'FORMAT(DIVIDE(CALCULATE([Sales], \'Date\'[Quarter] = "Q4"), AllSales), "0.0%")'),
-              ('"Q1 share of all sales"', 'FORMAT(DIVIDE(CALCULATE([Sales], \'Date\'[Quarter] = "Q1"), AllSales), "0.0%")')]), 1)}
+              ('"Q1 share of all sales"', 'FORMAT(DIVIDE(CALCULATE([Sales], \'Date\'[Quarter] = "Q1"), AllSales), "0.0%")')], icon="calendar-check"), 1)}
 RETURN
     {svg_uri()}""", "Quarter"), None, "The best quarter of all, and how lopsided the year is.", category="ImageUrl"))
 
@@ -280,7 +282,7 @@ VAR Svg =
 {indent(card('"BIGGEST YEAR"', short_money('Best'), 'FORMAT(BestYear, "0")',
              [('"Average per year"', short_money('DIVIDE([Sales], COUNTROWS(Pool))')),
               ('YearLast & " on " & (YearLast - 1)', change_tspan('ChangeLast')),
-              ('(YearFirst + 1) & " on " & YearFirst', change_tspan('ChangeSecond'))]), 1)}
+              ('(YearFirst + 1) & " on " & YearFirst', change_tspan('ChangeSecond'))], icon="calendar-check"), 1)}
 RETURN
     {svg_uri()}""", "Year"), None, "The best year, and the two year-on-year moves at either end.", category="ImageUrl"))
 

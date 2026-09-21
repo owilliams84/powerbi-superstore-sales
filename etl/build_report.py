@@ -20,6 +20,7 @@ import sys
 import time
 from pathlib import Path
 
+import milestone_icons
 import calendar_measures
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -284,9 +285,13 @@ def image(name: str, x: int, y: int, w: int, h: int, z: int, resource: str) -> d
     return node
 
 
+# Icons the KPI strips ask for; main() registers exactly these as report resources.
+USED_ICONS: set[str] = set()
+
+
 def kpi_card(name: str, x: int, y: int, w: int, h: int, z: int, measures: list[dict],
-             filters: list | None = None, value_size: float = 17.0) -> dict:
-    return visual(
+             filters: list | None = None, value_size: float = 17.0, icons: list[str] | None = None) -> dict:
+    node = visual(
         name, "cardVisual", x, y, w, h, z,
         query={"queryState": {"Data": {"projections": measures}}},
         objects={
@@ -308,6 +313,11 @@ def kpi_card(name: str, x: int, y: int, w: int, h: int, z: int, measures: list[d
         },
         filters=filters,
     )
+    if icons:
+        # One icon to the left of each value, from etl/milestone_icons.py.
+        node["visual"]["objects"]["image"] = milestone_icons.card_images(measures, icons, w)
+        USED_ICONS.update(icons)
+    return node
 
 
 def slicer(name: str, x: int, y: int, w: int, h: int, z: int, table: str, col: str,
@@ -653,7 +663,7 @@ def page_overview() -> tuple[dict, list[dict]]:
         m("Customers", "Customers"),
         m("Average Order Value", "Average order value"),
         m("Sales per Customer", "Sales per customer"),
-    ]))
+    ], icons=["coin", "cart", "people", "receipt", "person-coin"]))
 
     # One line per year on a January-to-December axis: the seasonal shape and the growth are
     # visible in the same picture, which a single four-year line hides.
@@ -866,7 +876,7 @@ def page_customers() -> tuple[dict, list[dict]]:
         m("Sales per Customer", "Sales per customer"),
         m("Repeat Customer Share", "Ordered more than once"),
         m("Customers Active Every Year", "Active in every year shown"),
-    ]))
+    ], icons=["people", "cart", "person-coin", "repeat", "calendar-check"]))
 
     v.append(visual(
         "vNewRet", "columnChart", 24, 284, 700, 300, 600,
@@ -1612,7 +1622,9 @@ def main() -> None:
         "resourcePackages": [
             {"name": "RegisteredResources", "type": "RegisteredResources",
              "items": [{"name": THEME_NAME, "path": THEME_NAME, "type": "CustomTheme"},
-                       {"name": MARK_NAME, "path": MARK_NAME, "type": "Image"}]},
+                       {"name": MARK_NAME, "path": MARK_NAME, "type": "Image"}]
+                      + [{"name": n, "path": n, "type": "Image"}
+                         for n in milestone_icons.resources(USED_ICONS)]},
             {"name": "SharedResources", "type": "SharedResources",
              "items": [{"name": "CY25SU12", "path": "BaseThemes/CY25SU12.json", "type": "BaseTheme"}]},
         ],
@@ -1622,6 +1634,8 @@ def main() -> None:
     write_json(RESOURCES / THEME_NAME, theme())
     RESOURCES.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ASSETS / "milestone-mark.svg", RESOURCES / MARK_NAME)
+    for icon_file, svg in milestone_icons.resources(USED_ICONS).items():
+        (RESOURCES / icon_file).write_text(svg, encoding="utf-8", newline="\n")
 
     write_json(REPORT / "definition.pbir", {
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",

@@ -18,6 +18,8 @@ Three techniques live here:
 
 from __future__ import annotations
 
+import milestone_icons
+
 USD = "\\$#,0"
 PCT = "0.0%"
 INT = "#,0"
@@ -115,8 +117,9 @@ def ring(cx: int, cy: int, r: int, share: str, colour: str, over: str | None = N
 
 
 def card(label: str, value: str, note: str, row1: tuple[str, str, str], row2: tuple[str, str, str],
-         graphic: str) -> str:
-    """The shared KPI card frame, 336x140. Arguments are DAX text expressions; each row is
+         graphic: str, icon: str | None = None) -> str:
+    """The shared KPI card frame, 336x140. `icon` names a milestone_icons icon, drawn left of the
+    value, which moves right to clear it. Arguments are DAX text expressions; each row is
     (left text, right text, right colour)."""
     def row(y: int, r: tuple[str, str, str]) -> str:
         return (f'"<text x=\'16\' y=\'{y}\' font-size=\'11.5\' fill=\'{BODY}\'>" & {r[0]} & "</text>'
@@ -125,7 +128,8 @@ def card(label: str, value: str, note: str, row1: tuple[str, str, str], row2: tu
         f'"<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'336\' height=\'140\' viewBox=\'0 0 336 140\' font-family=\'Segoe UI, sans-serif\'>"',
         f'& "<rect x=\'0.5\' y=\'0.5\' width=\'335\' height=\'139\' rx=\'4\' fill=\'#FFFFFF\' stroke=\'{RULE}\'/><rect width=\'3\' height=\'140\' fill=\'{GOLD}\'/>"',
         f'& "<text x=\'16\' y=\'24\' font-size=\'11\' font-weight=\'700\' fill=\'{MUTED}\' letter-spacing=\'0.4\'>" & {label} & "</text>"',
-        f'& "<text x=\'16\' y=\'58\' font-size=\'28\' font-weight=\'700\' fill=\'{INK}\'>" & {value} & "</text>"',
+        *([f'& "<g transform=\'translate(16 33) scale(0.625)\'>{milestone_icons.markup(icon)}</g>"'] if icon else []),
+        f'& "<text x=\'{56 if icon else 16}\' y=\'58\' font-size=\'28\' font-weight=\'700\' fill=\'{INK}\'>" & {value} & "</text>"',
         f'& "<text x=\'16\' y=\'76\' font-size=\'11.5\' fill=\'{MUTED}\'>" & {note} & "</text>"',
         f'& "<line x1=\'16\' y1=\'88\' x2=\'320\' y2=\'88\' stroke=\'{RULE}\'/>"',
         f"& {row(107, row1)}",
@@ -390,6 +394,7 @@ VAR Svg =
     ('"Average order " & ' + money("[Average Order Value]"), pct("AP"), tone("AP")),
     ring(286, 42, 26, "MIN(Ratio, 1)", NAVY, "Ratio - 1")
     + f' & "<text x=\'286\' y=\'47\' font-size=\'13\' font-weight=\'700\' text-anchor=\'middle\' fill=\'{INK}\'>" & FORMAT(Ratio, "0%") & "</text>"',
+    icon="coin",
 ), 1)}
 VAR NoComparison = {no_comparison_card('SALES')}
 RETURN
@@ -419,6 +424,7 @@ VAR Svg =
     ('"Biggest fall &#183; " & LEFT(WorstName, 24)', money("WorstValue", True), tone("WorstValue")),
     ring(286, 42, 26, "Share", NAVY)
     + f' & "<text x=\'286\' y=\'47\' font-size=\'13\' font-weight=\'700\' text-anchor=\'middle\' fill=\'{INK}\'>" & FORMAT(Share, "0%") & "</text>"',
+    icon="people",
 ), 1)}
 VAR NoComparison = {no_comparison_card('CUSTOMERS')}
 RETURN
@@ -457,6 +463,7 @@ VAR Svg =
     ('"Best &#183; " & MAXX(BestRow, Geography[Region])', f'{money("BestValue", True)} & " (" & {pct("BestPct")} & ")"', tone("BestValue")),
     ('"Weakest &#183; " & MAXX(WorstRow, Geography[Region])', f'{money("WorstValue", True)} & " (" & {pct("WorstPct")} & ")"', tone("WorstValue")),
     "Tiles",
+    icon="globe",
 ), 1)}
 VAR NoComparison = {no_comparison_card('REGIONS')}
 RETURN
@@ -492,6 +499,7 @@ VAR Svg =
     ('"Best &#183; " & MAXX(BestRow, Product[Sub-Category])', money("BestValue", True), tone("BestValue")),
     ('"Weakest &#183; " & MAXX(WorstRow, Product[Sub-Category])', money("WorstValue", True), tone("WorstValue")),
     "Bars",
+    icon="layers",
 ), 1)}
 VAR NoComparison = {no_comparison_card('SUB-CATEGORIES')}
 RETURN
